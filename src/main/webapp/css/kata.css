@@ -1,0 +1,59 @@
+.kata-result-window .error .severity,
+.kata-result-window .error .message,
+.kata-result-window .error .line {
+    padding-right: 10px;
+    display: inline-block;
+}
+
+.kata-result-window .error .line {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.kata-code-wrap, .kata-result-wrap {
+    position: relative;
+}
+
+.kata-controls {
+    z-index: 2;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.kata-controls button {
+    float: right;
+    clear: both;
+    display: block;
+    margin: 10px;
+}
+
+.kata-vertical-resize-handle {
+    margin: 0;
+    border: none;
+    height: 5px;
+    background-color: black;
+}
+
+.kata-form .CodeMirror {
+    font-size:16px;
+    font-family:'DejaVuSerifBook',Georgia
+}
+
+.kata-form .CodeMirror,
+.kata-form .CodeMirror-scroll {
+    height: auto;
+}
+
+/* No Javascript */
+.kata-code-wrap .CodeMirror-scroll,
+.kata-result-wrap .CodeMirror-scroll,
+.kata-form textarea {
+    max-height: 400px;
+}
+
+.kata-form textarea {
+    padding: 0;
+    width: 100%;
+}
