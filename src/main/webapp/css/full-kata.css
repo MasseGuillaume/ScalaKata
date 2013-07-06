@@ -1,0 +1,17 @@
+html, body, #main,
+.kata-form,
+.kata-code-wrap,
+.kata-result-wrap,
+.kata-form .CodeMirror,
+.kata-form .CodeMirror-scroll {
+    height: 100%;
+    max-height: none;
+}
+
+.kata-code-wrap.with-results {
+    height: 60%;
+}
+
+.kata-result-window {
+    height: 40%;
+}

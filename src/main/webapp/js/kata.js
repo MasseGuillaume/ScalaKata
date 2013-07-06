@@ -17,9 +17,10 @@ window.kataify  = function(){
                 tabSize: 3,
                 autoClearEmptyLines: true,
                 firstLineNumber: 0,
-                theme: "solarized-dark",
-                mode: $(this).attr("data-mode")
+                theme: $(form).attr("data-theme"),
+                mode: $(form).attr("data-mode")
             });
+
             function runCode(){
                 var $console, $result;
                 $console = $(form).find(".kata-console");
@@ -28,52 +29,57 @@ window.kataify  = function(){
                 $console.empty();
                 $result.empty();
 
-                $.post(form.action,{code: mirror.getValue()})
-                    .done(function (data) {
-                        if(data.errors !== undefined ) {
-                            var $errorList;
-                            $console.text("Errors")
-                            $errorList = $("<ol/>");
-                            $result.append($errorList);
-                            $.each(data.errors, function(i, error){
-                                error.column -= 1;
-                                var $errorElement, $errorSeverity, $errorLine, $errorMessage;
-                                $errorElement = $("<li/>");
-                                $errorElement.addClass("error");
-                                $errorSeverity = $("<div/>")
-                                $errorSeverity.text(error.severity);
-                                $errorSeverity.addClass("severity");
-                                $errorLine = $("<div/>");
-                                $errorLine.text("L" + error.line + ":" + error.column);
-                                $errorLine.addClass("line");
-                                $errorLine.click(function(){
-                                    mirror.setSelection(
-                                        CodeMirror.Pos(error.line,error.column),
-                                        CodeMirror.Pos(error.line,Infinity)
-                                    );
-                                });
-                                $errorMessage = $("<pre/>");
-                                $errorMessage.text(error.message);
-                                $errorMessage.addClass("message")
-                                $errorElement.append($errorSeverity);
-                                $errorElement.append($errorLine);
-                                $errorElement.append($errorMessage);
-                                $errorList.append($errorElement);
-                            })
-                        } else {
-                            $console.text(data.console);
-                            $result.text(data.result);
-                        }
-                    })
-                    .fail( function (data) {
-                        var response = $.parseJSON(data.responseText);
-                        $console.text("");
-                        $result.text(response.error);
-                    })
-                    .always( function () {
-                        $(form).find(".kata-code-wrap").addClass("with-results");
-                        $(form).find(".kata-result-window").removeClass("hidden");
-                    });
+                $.ajax({
+                    url: form.action,
+                    type: "POST",
+                    data: JSON.stringify({code: mirror.getValue()}),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function (data) {
+                    if(data.errors !== undefined ) {
+                        var $errorList;
+                        $console.text("Errors")
+                        $errorList = $("<ol/>");
+                        $result.append($errorList);
+                        $.each(data.errors, function(i, error){
+                            error.column -= 1;
+                            var $errorElement, $errorSeverity, $errorLine, $errorMessage;
+                            $errorElement = $("<li/>");
+                            $errorElement.addClass("error");
+                            $errorSeverity = $("<div/>")
+                            $errorSeverity.text(error.severity);
+                            $errorSeverity.addClass("severity");
+                            $errorLine = $("<div/>");
+                            $errorLine.text("L" + error.line + ":" + error.column);
+                            $errorLine.addClass("line");
+                            $errorLine.click(function(){
+                                mirror.setSelection(
+                                    CodeMirror.Pos(error.line,error.column),
+                                    CodeMirror.Pos(error.line,Infinity)
+                                );
+                            });
+                            $errorMessage = $("<pre/>");
+                            $errorMessage.text(error.message);
+                            $errorMessage.addClass("message")
+                            $errorElement.append($errorSeverity);
+                            $errorElement.append($errorLine);
+                            $errorElement.append($errorMessage);
+                            $errorList.append($errorElement);
+                        })
+                    } else {
+                        $console.text(data.console);
+                        $result.text(data.result);
+                    }
+                })
+                .fail( function (data) {
+                    var response = $.parseJSON(data.responseText);
+                    $console.text("");
+                    $result.text(response.error);
+                })
+                .always( function () {
+                    $(form).find(".kata-code-wrap").addClass("with-results");
+                    $(form).find(".kata-result-window").removeClass("hidden");
+                });
 
                 return false;
             }

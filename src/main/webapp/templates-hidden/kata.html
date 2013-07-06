@@ -1,7 +1,6 @@
-<form class="kata-form" data-mode="text/x-scala" action="/scala/eval" method="post">
+<form class="kata-form" data-theme="solarized dark" data-mode="text/x-scala" action="/api/scala" method="post">
     <div class="kata-code-wrap">
-        <textarea class="kata-code" name="code">
-        </textarea>
+        <textarea class="kata-code"name="code"></textarea>
         <div class="kata-controls">
             <button class="kata-run btn btn-success" type="submit" name="run" value="Run">
                 <i class="icon-play icon-white"></i>
@@ -12,11 +11,16 @@
         <hr class="kata-vertical-resize-handle" />
         <div class="kata-result-wrap">
             <div class="CodeMirror">
-                <div class="CodeMirror-scroll cm-s-solarized-dark">
+                <div class="CodeMirror-scroll cm-s-solarized cm-s-dark">
                     <pre class="kata-console"></pre>
                     <div class="kata-result"></div>
                 </div>
             </div>
         </div>
     </div>
+    <script data-lift="tail">
+        $(function(){
+            kataify();
+        })
+    </script>
 </form>

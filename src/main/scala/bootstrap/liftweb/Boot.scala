@@ -1,13 +1,18 @@
 package bootstrap.liftweb
 
+import com.scalakata._
+import boot.WebJars
+import service.CompileService
+
 import net.liftweb._
 import http._
 import sitemap._
-import com.scalakata.boot.WebJars
 
 class Boot {
   def boot {
     WebJars.serve
+
+    LiftRules.statelessDispatch.prepend(CompileService)
 
     LiftRules.addToPackages("com.scalakata")
     LiftRules.setSiteMap(SiteMap(
