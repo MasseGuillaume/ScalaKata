@@ -54,7 +54,7 @@ object ScalaEval {
       }
     }
   }
-  private val timeBudget = 60.seconds
+  val timeBudget = 60.seconds
   private val eval = new Eval(None)
 }
 
