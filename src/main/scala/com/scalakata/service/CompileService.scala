@@ -12,11 +12,12 @@ object CompileService extends RestHelper {
 	serve( "api" :: Nil prefix {
 		case "scala" :: Nil JsonPost json -> _ => {
       val JString(code) = json \ "code"
+      val result = ScalaEval(code)
       JsonResponse(
-        JsonPrinter.print(ScalaEval(code)),
+        JsonPrinter.print(result),
         List("Access-Control-Allow-Origin" -> "*"),
         List(),
-        200
+        ResponseType.forResult(result)
       )
     }
 		// case "haskell" :: Nil JsonPost json -> _ => {}
