@@ -14,7 +14,7 @@ object CompileService extends RestHelper {
 		case "scala" :: Nil JsonPost json -> _ => {
       val JString(code) = json \ "code"
       val result = ScalaEval(code)
-      val newKata = Kata.createRecord.code(code).save
+      val newKata = Kata.createRecord.code(code).scalaVersion(serverScalaVersion).save
 
       JsonResponse(
         JsonPrinter.print(result, newKata),
@@ -25,4 +25,7 @@ object CompileService extends RestHelper {
     }
 		// case "haskell" :: Nil JsonPost json -> _ => {}
 	})
+
+  def serverScalaVersion =
+    scala.tools.nsc.Properties.versionString.split("version ").drop(1).take(1).head
 }

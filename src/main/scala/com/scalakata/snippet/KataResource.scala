@@ -34,9 +34,21 @@ object KataResource {
 
   def encodeKata( kata: Box[Kata] ): String =
     kata.map(_._id.toString).getOrElse("")
+
+
+
 }
 
 class KataResource(kata:Box[Kata]) extends DispatchLocSnippets {
   def dispatch = { case "render" => render }
-  def render = "@code *" #> kata.map(_.code.is)
+  def render = "@code *" #> {
+    kata.map( k => {
+      if (k.scalaVersion.is != serverScalaVersion ) {
+        S.redirectTo(s"http://scala_2.9.2.scalakata.com/${k._id.is}")
+      }
+      k.code.is
+    })
+  }
+  def serverScalaVersion =
+    scala.tools.nsc.Properties.versionString.split("version ").drop(1).take(1).head
 }
