@@ -1,25 +1,45 @@
 window.kataify  = function(){
+    'use strict';
+
+    var actionToMode, codeMirrorDefaults;
+    actionToMode = {
+        "/api/scala": "text/x-scala"
+    };
+
+    codeMirrorDefaults = {
+        lineNumbers: true,
+        matchBrackets: true,
+        indentWithTabs: true,
+        smartIndent: false,
+        styleActiveLine: true,
+        indentUnit: 3,
+        tabSize: 3,
+        autoClearEmptyLines: true,
+        firstLineNumber: 0
+    }
+
     $(".kata-form").each(function(){
-        var form = this;
+        var form;
+        form = this;
 
         // Show once
-        if($(this).hasClass("kataify")) return
-        $(this).addClass("kataify")
+        if($(this).hasClass("kataifyed")) return
+        $(this).addClass("kataifyed")
 
         $(this).find(".kata-code").each(function(){
-            var mirror = CodeMirror.fromTextArea(this, {
-                lineNumbers: true,
-                matchBrackets: true,
-                indentWithTabs: true,
-                smartIndent: false,
-                styleActiveLine: true,
-                indentUnit: 3,
-                tabSize: 3,
-                autoClearEmptyLines: true,
-                firstLineNumber: 0,
-                theme: $(form).attr("data-theme"),
-                mode: $(form).attr("data-mode")
+            var options, mirror;
+            options = {
+                mode: actionToMode[$(form).attr("action")]
+            };
+            // Options from data-attributes
+            $.each($(form).data(),function(d,v){
+                var attr;
+                attr = d.substring("codemirror".length,d.length)                // codemirrorTabSize
+                attr = attr[0].toLowerCase() + attr.substring(1,attr.length);   // TabSize
+                options[attr] = v                                               // tabSize
             });
+
+            mirror = CodeMirror.fromTextArea(this,$.extend(codeMirrorDefaults,options));
 
             function runCode(){
                 var $console, $result;
@@ -42,8 +62,8 @@ window.kataify  = function(){
                         $errorList = $("<ol/>");
                         $result.append($errorList);
                         $.each(data.errors, function(i, error){
-                            error.column -= 1;
                             var $errorElement, $errorSeverity, $errorLine, $errorMessage;
+                            error.column -= 1;
                             $errorElement = $("<li/>");
                             $errorElement.addClass("error");
                             $errorSeverity = $("<div/>")
@@ -72,7 +92,8 @@ window.kataify  = function(){
                     }
                 })
                 .fail( function (data) {
-                    var response = $.parseJSON(data.responseText);
+                    var response;
+                    response = $.parseJSON(data.responseText);
                     $console.text("");
                     $result.text(response.error);
                 })
