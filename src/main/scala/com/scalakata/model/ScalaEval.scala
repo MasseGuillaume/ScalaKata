@@ -42,7 +42,7 @@ object ScalaEval {
       task.get(timeout, TimeUnit.MILLISECONDS)
     } catch {
       case e: TimeoutException => EvalTimeout( timeBudget.toString )
-      case ex: Throwable => UnknownError( ex.getMessage )
+      case ex: Throwable => RuntimeError( ex.getMessage )
     } finally { 
       if( thread.isAlive ){
         thread.interrupt()
@@ -57,6 +57,6 @@ object ScalaEval {
 sealed abstract class EvalResult
 case class Compile(result: String, console: String) extends EvalResult
 case class CompileError(errors: List[(Position,String,Int)]) extends EvalResult
+case class RuntimeError(cause: String) extends EvalResult
 case class SecurityError(error: String) extends EvalResult
 case class EvalTimeout(timeout: String) extends EvalResult
-case class UnknownError(cause: String) extends EvalResult

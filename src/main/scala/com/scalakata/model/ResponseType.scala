@@ -5,9 +5,9 @@ object ResponseType {
     result match {
       case its: Compile => 200
       case its: CompileError => 200
+      case its: RuntimeError => 500
       case its: SecurityError => 403
       case its: EvalTimeout => 408
-      case its: UnknownError => 500
       case other => 500
     }
   }

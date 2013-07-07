@@ -33,9 +33,9 @@ object JsonPrinter {
         }}
         "errors" -> jErrors
       }
+      case RuntimeError(cause) => ("error" -> cause)
       case EvalTimeout(timeout) => ("error" -> s"computation cannot exceed $timeout")
       case SecurityError(error) => ("error" -> s"security error: $error")
-      case UnknownError(cause) => ("error" -> s"unknown error: $cause")
     }
   }
 }
