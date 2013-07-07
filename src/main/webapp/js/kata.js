@@ -35,7 +35,13 @@ window.kataify  = function(kataOptions,codeMirrorOptions){
             mirror = CodeMirror.fromTextArea(this,options);
 
             function runCode(){
-                var $console, $result;
+                var $console, $result, $run;
+
+                // disable until response from server
+                $run = $(form).find("[name='run']");
+                if($run.prop("disabled")) { return; }
+                $run.prop("disabled",true);
+
                 $console = $(form).find(".kata-console");
                 $result = $(form).find(".kata-result")
 
@@ -98,6 +104,7 @@ window.kataify  = function(kataOptions,codeMirrorOptions){
                 .always( function () {
                     $(form).find(".kata-code-wrap").addClass("with-results");
                     $(form).find(".kata-result-window").removeClass("hidden");
+                    $run.prop("disabled",false);
                 });
 
                 return false;
