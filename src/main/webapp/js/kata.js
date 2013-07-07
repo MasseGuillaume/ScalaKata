@@ -86,7 +86,7 @@ window.kataify  = function(kataOptions,codeMirrorOptions){
                         })
                     } else {
                         $console.text(data.console);
-                        $result.text(data.result);
+                        $result[0].innerHTML = data.result;
                     }
                 })
                 .fail( function (data) {

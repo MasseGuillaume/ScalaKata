@@ -38,7 +38,5 @@ object KataResource {
 
 class KataResource(kata:Box[Kata]) extends DispatchLocSnippets {
   def dispatch = { case "render" => render }
-  def render = {
-    "@code *" #> kata.map(_.code.is)
-  }
+  def render = "@code *" #> kata.map(_.code.is)
 }
