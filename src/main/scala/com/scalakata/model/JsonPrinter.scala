@@ -7,8 +7,8 @@ import JsonDSL._
 import scala.reflect.internal.util.Position
 
 object JsonPrinter {
-  def print(result: EvalResult): JValue = {
-    result match {
+  def print(result: EvalResult, newKata: Kata): JValue = {
+    val jval: JValue = result match {
       case Compile(result,console) => ("result" -> result) ~ ("console" -> console)
       case CompileError(errors) => {
         val jErrors: JValue = errors.map { case ( position, message, severity ) => {
@@ -37,5 +37,6 @@ object JsonPrinter {
       case EvalTimeout(timeout) => ("error" -> s"computation cannot exceed $timeout")
       case SecurityError(error) => ("error" -> s"security error: $error")
     }
+    jval.merge(("id" -> newKata._id.get.toString): JValue)
   }
 }

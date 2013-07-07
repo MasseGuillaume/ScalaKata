@@ -1,4 +1,5 @@
-<form class="kata-form" data-codemirror-theme="solarized dark" data-codemirror-tab-size="8" action="/api/scala" method="post">
+<form class="kata-form" action="/api/scala" method="post" data-lift="KataResource.render">
+
     <div class="kata-code-wrap">
         <textarea class="kata-code"name="code"></textarea>
         <div class="kata-controls">
@@ -20,7 +21,10 @@
     </div>
     <script data-lift="tail">
         $(function(){
-            kataify();
+            kataify({pushState: true},{
+                theme:"solarized dark",
+                tabSize:8
+            });
         })
     </script>
 </form>

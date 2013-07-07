@@ -1,4 +1,4 @@
-window.kataify  = function(){
+window.kataify  = function(kataOptions,codeMirrorOptions){
     'use strict';
 
     var actionToMode, codeMirrorDefaults;
@@ -17,6 +17,7 @@ window.kataify  = function(){
         autoClearEmptyLines: true,
         firstLineNumber: 0
     }
+    codeMirrorOptions = $.extend(codeMirrorDefaults,codeMirrorOptions)
 
     $(".kata-form").each(function(){
         var form;
@@ -28,18 +29,10 @@ window.kataify  = function(){
 
         $(this).find(".kata-code").each(function(){
             var options, mirror;
-            options = {
+            options = $.extend(codeMirrorDefaults,{
                 mode: actionToMode[$(form).attr("action")]
-            };
-            // Options from data-attributes
-            $.each($(form).data(),function(d,v){
-                var attr;
-                attr = d.substring("codemirror".length,d.length)                // codemirrorTabSize
-                attr = attr[0].toLowerCase() + attr.substring(1,attr.length);   // TabSize
-                options[attr] = v                                               // tabSize
             });
-
-            mirror = CodeMirror.fromTextArea(this,$.extend(codeMirrorDefaults,options));
+            mirror = CodeMirror.fromTextArea(this,options);
 
             function runCode(){
                 var $console, $result;
@@ -52,11 +45,16 @@ window.kataify  = function(){
                 $.ajax({
                     url: form.action,
                     type: "POST",
-                    data: JSON.stringify({code: mirror.getValue()}),
+                    data: JSON.stringify({
+                        code: mirror.getValue()
+                    }),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json"
                 }).done(function (data) {
-                    if(data.errors !== undefined ) {
+                    if (data.id !== undefined && kataOptions.pushState) {
+                        window.history.pushState(null, null,"/" + data.id);
+                    }
+                    if (data.errors !== undefined ) {
                         var $errorList;
                         $console.text("Errors")
                         $errorList = $("<ol/>");

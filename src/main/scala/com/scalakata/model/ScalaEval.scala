@@ -10,7 +10,7 @@ import scala.concurrent.duration._
 import java.util.concurrent.{TimeoutException, Callable, FutureTask, TimeUnit}
 
 object ScalaEval {
-  def apply( code: String ) = {
+  def apply(code: String) = {
     evalWithin(timeBudget.toMillis){
       val baos = new java.io.ByteArrayOutputStream
       try {
