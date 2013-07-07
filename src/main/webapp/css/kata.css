@@ -37,13 +37,25 @@
 }
 
 .kata-form .CodeMirror {
+    line-height: 1.45em;
     font-size:16px;
-    font-family:'DejaVuSerifBook',Georgia
+}
+
+.kata-form .CodeMirror-sizer {
+    padding-top: 10px;
 }
 
 .kata-form .CodeMirror,
 .kata-form .CodeMirror-scroll {
     height: auto;
+}
+
+.kata-form .CodeMirror-gutters {
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    padding: 0;
+    box-shadow: none;
+    width: 40px;
 }
 
 /* No Javascript */

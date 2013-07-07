@@ -9,9 +9,9 @@ html, body, #main,
 }
 
 .kata-code-wrap.with-results {
-    height: 60%;
+    height: 80%;
 }
 
 .kata-result-window {
-    height: 40%;
+    height: 20%;
 }
