@@ -44,7 +44,7 @@ class KataResource(kata:Box[Kata]) extends DispatchLocSnippets {
   def render = "@code *" #> {
     kata.map( k => {
       if (k.scalaVersion.is != serverScalaVersion ) {
-        S.redirectTo(s"http://scala_2.9.2.scalakata.com/${k._id.is}")
+        S.redirectTo(s"http://scala-2-9-2.scalakata.com/${k._id.is}")
       }
       k.code.is
     })
