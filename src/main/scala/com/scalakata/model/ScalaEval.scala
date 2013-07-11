@@ -20,20 +20,16 @@ object ScalaEval {
             case e => e
           }
 
-        Compile( result.toString, baos.toString )
+        Compile(result.toString, baos.toString)
       } catch {
-        case CompilerException(errors: List[(Position,String,Int)]) => {
-          CompileError(errors)
-        }
-        case e: AccessControlException => {
-          SecurityError(e.toString)
-        }
+        case e: CompilerException => extractErrors(e)
+        case e: AccessControlException => SecurityError(e.toString)
       }
     }
   }
 
   def evalWithin(timeout: Long)(f: => EvalResult): EvalResult = {
-    val task = new FutureTask( new Callable[EvalResult]( ) {
+    val task = new FutureTask(new Callable[EvalResult]() {
       def call = f
     })
     val thread = new Thread( task )
@@ -50,13 +46,33 @@ object ScalaEval {
       }
     }
   }
+
+  private def extractErrors(errors: CompilerException): CompileError = {
+    val cleanErrors = errors.m map{ case (position, message, severity) => {
+      val severityLabel = severity match {
+        case 0 => "info"
+        case 1 => "warning"
+        case 2 => "error"
+      }
+
+      val line = position.line - 3
+
+      val tabCount = position.inUltimateSource( position.source ).lineContent.count( _ == '\t' )
+      val column = ( position.column - tabCount * Position.tabInc )
+
+      Error(line, column, message, severityLabel)
+    }}
+    CompileError(cleanErrors)
+  }
   val timeBudget = 60.seconds
   private val eval = new Eval(None)
 }
 
 sealed abstract class EvalResult
 case class Compile(result: String, console: String) extends EvalResult
-case class CompileError(errors: List[(Position,String,Int)]) extends EvalResult
+case class CompileError(errors: List[Error]) extends EvalResult
 case class RuntimeError(cause: String) extends EvalResult
 case class SecurityError(error: String) extends EvalResult
 case class EvalTimeout(timeout: String) extends EvalResult
+
+case class Error(line: Int, column: Int, message: String, severity: String)

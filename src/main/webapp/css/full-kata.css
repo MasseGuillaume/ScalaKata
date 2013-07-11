@@ -15,3 +15,8 @@ html, body, #main,
 .kata-result-window {
     height: 20%;
 }
+
+.kata-form textarea {
+    height:100%;
+    max-height:none;
+}

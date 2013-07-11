@@ -31,12 +31,8 @@ object KataResource {
       }
     }
   }
-
   def encodeKata( kata: Box[Kata] ): String =
     kata.map(_._id.toString).getOrElse("")
-
-
-
 }
 
 class KataResource(kata:Box[Kata]) extends DispatchLocSnippets {

@@ -18,6 +18,7 @@ class Boot {
     KataMongo.start
 
     LiftRules.statelessDispatch.prepend(CompileService)
+    LiftRules.statelessDispatch.prepend(CompileService.ForHtml)
     LiftRules.ajaxPostTimeout = ScalaEval.timeBudget.toMillis.toInt
     LiftRules.addToPackages("com.scalakata")
     LiftRules.setSiteMap(SiteMap(KataResource.menu))
