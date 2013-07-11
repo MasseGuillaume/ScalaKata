@@ -33,7 +33,7 @@ $.fn.openkata = function(kataOptions,codeMirrorOptions){
         mirror = CodeMirror.fromTextArea(this,options);
 
         function runCode(){
-            var $console, $result, $run;
+            var $console, $result, $run, code;
 
             // disable until response from server
             $run = $(form).find("[name='run']");
@@ -46,10 +46,13 @@ $.fn.openkata = function(kataOptions,codeMirrorOptions){
             $console.empty();
             $result.empty();
 
-            function renderEval(data){
-                if (data.id !== undefined && kataOptions.pushState) {
-                    window.history.pushState(null, null,"/" + data.id);
+            function pushState(code,result,success){
+                if (result.id !== undefined && kataOptions.pushState) {
+                    window.history.pushState($.extend(result,{code:code,status:success}), null,"/" + result.id);
                 }
+            }
+
+            function renderEval(data){
                 if (data.errors !== undefined ) {
                     var $errorList;
                     $console.text("Errors")
@@ -85,29 +88,57 @@ $.fn.openkata = function(kataOptions,codeMirrorOptions){
                     $result[0].innerHTML = data.result;
                 }
             }
+            function renderFail(data) {
+                $console.text("");
+                $result.text(data.error);
+            }
+            function renderAlways() {
+               $(form).find(".kata-code-wrap").addClass("with-results");
+               $(form).find(".kata-result-window").removeClass("hidden");
+               $run.prop("disabled",false);
+            }
 
+            // replay history
+            if (kataOptions.pushState) {
+                window.onpopstate = function(event) {
+                    var data;
+                    data = event.state;
+                    if (null !== data) {
+                        mirror.setValue(data.code);
+                        if (true === data.status) {
+                         renderEval(data);
+                        } else {
+                         renderFail(data);
+                        }
+                        renderAlways(data);
+                    } else {
+                        // intial state
+                        mirror.setValue("");
+                        $(form).find(".kata-code-wrap").removeClass("with-results");
+                        $(form).find(".kata-result-window").addClass("hidden");
+                    }
+                };
+            }
+
+            code = mirror.getValue();
             $.ajax({
                 url: form[0].action,
                 type: "POST",
-                data: JSON.stringify({
-                    code: mirror.getValue()
-                }),
+                data: JSON.stringify({code:code}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
-            }).done(renderEval)
-            .fail( function (data) {
-                var response;
-                response = $.parseJSON(data.responseText);
-                $console.text("");
-                $result.text(response.error);
-            })
-            .always( function () {
-                $(form).find(".kata-code-wrap").addClass("with-results");
-                $(form).find(".kata-result-window").removeClass("hidden");
-                $run.prop("disabled",false);
-            });
-
-
+            }).
+            done(function(result){
+                renderEval(result);
+                pushState(code,result,true);
+            }).
+            fail(function(data){
+                var result;
+                result = data.responseJSON;
+                renderFail(result);
+                pushState(code,result,false);
+            }).
+            always(renderAlways);
 
             return false;
         }
