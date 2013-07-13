@@ -1,6 +1,9 @@
 import sbt._
 import sbt.Keys._
 
+import com.untyped.sbtjs.Plugin._
+import com.untyped.sbtless.Plugin._
+
 object Settings {
   lazy val default = Project.defaultSettings ++ Seq(
     organization := "com.scalakata",
@@ -11,11 +14,11 @@ object Settings {
   import com.earldouglas.xsbtwebplugin._
   import WebPlugin._
   import PluginKeys._
-  import WebappPlugin._
-  lazy val web = default ++ webSettings ++ Seq(
+  lazy val web = default ++ webSettings ++ jsSettings ++ lessSettings ++ Seq(
     scanDirectories in Compile := Nil,
-    
     port in container.Configuration := 8080,
-    classesAsJar in Compile := true
+    (webappResources in Compile) <+= (resourceManaged in Compile),
+    (compile in Compile) <<= compile in Compile dependsOn (LessKeys.less in Compile),
+    (compile in Compile) <<= compile in Compile dependsOn (JsKeys.js in Compile)
   )
 }

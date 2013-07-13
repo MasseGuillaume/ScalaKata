@@ -154,5 +154,4 @@ $.fn.openkata = function(kataOptions,codeMirrorOptions){
             runCode();
         });
     });
-
 };
