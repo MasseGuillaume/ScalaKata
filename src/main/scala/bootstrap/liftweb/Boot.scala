@@ -18,11 +18,11 @@ class Boot {
     KataMongo.start
 
     LiftRules.statelessDispatch.prepend(CompileService)
-    LiftRules.statelessDispatch.prepend(CompileService.ForHtml)
+
     LiftRules.ajaxPostTimeout = ScalaEval.timeBudget.toMillis.toInt
     LiftRules.addToPackages("com.scalakata")
     LiftRules.setSiteMap(SiteMap(KataResource.menu))
-    LiftRules.autoIncludeAjax = session => false
+    LiftRules.autoIncludeAjaxCalc.default.set(() => (_: LiftSession) => false )
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
     LiftRules.htmlProperties.default.set((r: Req) => new Html5Properties(r.userAgent))
   }
