@@ -14,7 +14,7 @@ object CompileService extends RestHelper {
   private val headers = List("Access-Control-Allow-Origin" -> "*")
 
 //// case "haskell" :: Nil JsonPost json -> _ => {}
-  def apply: LiftRules.DispatchPF = {
+  def serve: LiftRules.DispatchPF = {
     case req @ Req( "api" :: "scala" :: Nil, _, PostRequest ) => {
 
       def serverScalaVersion =

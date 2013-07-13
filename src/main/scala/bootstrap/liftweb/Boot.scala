@@ -17,7 +17,7 @@ class Boot {
     WebJars.serve
     KataMongo.start
 
-    LiftRules.statelessDispatch.prepend(CompileService)
+    LiftRules.statelessDispatch.prepend(CompileService.serve)
 
     LiftRules.ajaxPostTimeout = ScalaEval.timeBudget.toMillis.toInt
     LiftRules.addToPackages("com.scalakata")
