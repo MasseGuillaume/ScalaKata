@@ -18,12 +18,13 @@ class Boot {
     KataMongo.start
 
     LiftRules.statelessDispatch.prepend(CompileService.serve)
+    LiftRules.statelessDispatch.prepend(KataResource.tddRedirect)
 
     LiftRules.ajaxPostTimeout = ScalaEval.timeBudget.toMillis.toInt
     LiftRules.addToPackages("com.scalakata")
     LiftRules.setSiteMap(SiteMap(
-      KataResource.menu,
-      Menu("mustache templates") / "mustache" / **
+      KataResource.classic,
+      KataResource.tdd
     ))
     LiftRules.autoIncludeAjaxCalc.default.set(() => (_: LiftSession) => false )
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))

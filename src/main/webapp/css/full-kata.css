@@ -1,5 +1,3 @@
-@import "kata.less";
-
 html, body, #main,
 .kata-form,
 .kata-code-wrap,
@@ -10,11 +8,11 @@ html, body, #main,
     max-height: none;
 }
 
-.kata-code-wrap.with-results {
+.kata-form.with-results .kata-code-wrap {
     height: 80%;
 }
 
-.kata-result-window {
+.kata-form.with-results .kata-result-window {
     height: 20%;
 }
 

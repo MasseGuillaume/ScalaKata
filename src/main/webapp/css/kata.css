@@ -11,7 +11,7 @@
     cursor: pointer;
 }
 
-.kata-code-wrap, .kata-result-wrap {
+.kata-form {
     position: relative;
 }
 
@@ -58,9 +58,16 @@
     width: 40px;
 }
 
+.kata-form .kata-result-window {
+    visibility: hidden;
+}
+
+.kata-form.with-results .kata-result-window {
+    visibility: visible;
+}
+
 /* No Javascript */
-.kata-code-wrap .CodeMirror-scroll,
-.kata-result-wrap .CodeMirror-scroll,
+.kata-form .CodeMirror-scroll,
 .kata-form textarea {
     max-height: 400px;
 }

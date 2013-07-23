@@ -1,6 +1,8 @@
 <form class="kata-form" action="/api/scala" target="_blank" method="post" data-lift="KataResource.render">
+    <link href="/css/tdd.css" rel="stylesheet" data-lift="head">
     <div class="kata-code-wrap">
-        <textarea class="kata-code"name="code" autofocus></textarea>
+        <textarea class="kata-code" name="code" autofocus></textarea>
+        <textarea class="kata-test" name="test"></textarea>
         <div class="kata-controls">
             <button class="btn btn-success" type="submit" name="run" value="Run">
                 <i class="icon-play icon-white"></i>
@@ -9,10 +11,12 @@
     </div>
     <div class="kata-result-window">
         <hr class="kata-vertical-resize-handle" />
-        <div class="CodeMirror">
-            <div class="CodeMirror-scroll cm-s-solarized cm-s-dark">
-                <pre class="kata-console"></pre>
-                <div class="kata-result"></div>
+        <div class="kata-result-wrap">
+            <div class="CodeMirror">
+                <div class="CodeMirror-scroll cm-s-solarized cm-s-dark">
+                    <pre class="kata-console"></pre>
+                    <div class="kata-result"></div>
+                </div>
             </div>
         </div>
     </div>
