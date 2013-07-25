@@ -2,6 +2,7 @@ package com.scalakata.security
 
 import java.security._
 import java.io.FilePermission
+import java.util.PropertyPermission
 import java.lang.reflect.ReflectPermission
 
 /*
@@ -14,6 +15,11 @@ object ScalaKataSecurityPolicy extends Policy {
 
   private val scriptPermissions = new Permissions
   scriptPermissions.add( new FilePermission("-","read") ) // all read
+  scriptPermissions.add( new PropertyPermission("*","read") ) // specs2
+
+  // scriptPermissions.add( new RuntimePermission("modifyThread") ) // specs2
+  // scriptPermissions.add( new PropertyPermission("*","write") ) // specs2
+
   scriptPermissions.add( new RuntimePermission("accessDeclaredMembers") ) // reflexion
   scriptPermissions.add( new ReflectPermission("suppressAccessChecks") )
   scriptPermissions.add( new RuntimePermission("getenv.*") )
