@@ -8,7 +8,8 @@ object ProjectBuild extends Build {
     base = file("."),
     settings = Settings.web ++ Seq(
       name := "scala-kata",
-      libraryDependencies ++= webStack ++ frontendDependencies ++ Seq(specs2)
+      libraryDependencies ++= webStack ++ frontendDependencies ++ Seq(specs2),
+       resolvers ++= Seq("snapshots" at "http://oss.sonatype.org/content/repositories/snapshots")
     )
   )
 }

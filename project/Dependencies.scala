@@ -12,7 +12,7 @@ object Dependencies {
     "ch.qos.logback" % "logback-classic" % "1.0.6" % "runtime,compile"
   )
 
- lazy val specs2 = "org.specs2" %% "specs2" % "2.1.1"
+ lazy val specs2 = "org.specs2" %% "specs2" % "2.2-SNAPSHOT"
 
   lazy val frontendDependencies = Seq(
     "org.webjars" % "codemirror" % "3.11" % "runtime",
