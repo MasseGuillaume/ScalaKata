@@ -12,6 +12,7 @@ class Kata extends MongoRecord[Kata] with MongoId[Kata] {
   def meta = Kata
 
   object code extends StringField(this, 8191)
+  object test extends StringField(this, 8191)
   object scalaVersion extends StringField(this, 127)
 }
 

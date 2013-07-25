@@ -17,7 +17,8 @@ $.fn.openkata = function(kataOptions,codeMirrorOptions){
         indentUnit: 3,
         tabSize: 3,
         autoClearEmptyLines: true,
-        firstLineNumber: 0
+        firstLineNumber: 0,
+        theme:"solarized dark"
     }
     codeMirrorOptions = $.extend(codeMirrorDefaults,codeMirrorOptions)
 
@@ -26,14 +27,18 @@ $.fn.openkata = function(kataOptions,codeMirrorOptions){
     $(this).addClass("kataifyed")
 
     $(this).find(".kata-code").each(function(){
-        var options, mirror;
-        options = $.extend(codeMirrorDefaults,{
+        var options, mirror, testMirror;
+        testMirror = null;
+        options = $.extend(codeMirrorOptions,{
             mode: actionToMode[$(form).attr("action")]
         });
         mirror = CodeMirror.fromTextArea(this,options);
-
+        $(form).find(".kata-test").each(function(){
+            testMirror = CodeMirror.fromTextArea(this,options);
+        });
+        
         function runCode(){
-            var $console, $result, $run, code;
+            var $console, $result, $run, code, test;
 
             // disable until response from server
             $run = $(form).find("[name='run']");
@@ -47,8 +52,13 @@ $.fn.openkata = function(kataOptions,codeMirrorOptions){
             $result.empty();
 
             function pushState(code,result,success){
+                var path;
                 if (result.id !== undefined && kataOptions.pushState) {
-                    window.history.pushState($.extend(result,{code:code,status:success}), null,"/" + result.id);
+                    path = "/";
+                    if( -1 != window.location.pathname.indexOf("tdd") ) {
+                        path = "/tdd/"
+                    }
+                    window.history.pushState($.extend(result,{code:code,status:success}), null, path + result.id);
                 }
             }
 
@@ -66,15 +76,25 @@ $.fn.openkata = function(kataOptions,codeMirrorOptions){
                         $errorSeverity = $("<div/>")
                         $errorSeverity.text(error.severity);
                         $errorSeverity.addClass("severity");
-                        $errorLine = $("<div/>");
-                        $errorLine.text("L" + error.line + ":" + error.column);
-                        $errorLine.addClass("line");
-                        $errorLine.click(function(){
-                            mirror.setSelection(
-                                CodeMirror.Pos(error.line,error.column),
-                                CodeMirror.Pos(error.line,Infinity)
-                            );
-                        });
+
+                        function showError(error,cm,code) {
+                            $errorLine = $("<div/>");
+                            $errorLine.text((code ? "" : "test ") + "L" + error.line + ":" + error.column);
+                            $errorLine.addClass("line");
+                            $errorLine.click(function(){
+                                cm.setSelection(
+                                    CodeMirror.Pos(error.line,error.column),
+                                    CodeMirror.Pos(error.line,Infinity)
+                                );
+                            });
+                        };
+                        
+                        if(error.line < mirror.lineCount()) {
+                            showError(error,mirror,true);
+                        } else {
+                            error.line -= mirror.lineCount();
+                            showError(error,testMirror,false);
+                        }
                         $errorMessage = $("<pre/>");
                         $errorMessage.text(error.message);
                         $errorMessage.addClass("message")
@@ -93,8 +113,7 @@ $.fn.openkata = function(kataOptions,codeMirrorOptions){
                 $result.text(data.error);
             }
             function renderAlways() {
-               $(form).find(".kata-code-wrap").addClass("with-results");
-               $(form).find(".kata-result-window").removeClass("hidden");
+               $(form).addClass("with-results");
                $run.prop("disabled",false);
             }
 
@@ -114,17 +133,23 @@ $.fn.openkata = function(kataOptions,codeMirrorOptions){
                     } else {
                         // intial state
                         mirror.setValue("");
-                        $(form).find(".kata-code-wrap").removeClass("with-results");
-                        $(form).find(".kata-result-window").addClass("hidden");
+                        $(form).removeClass("with-results");
                     }
                 };
             }
 
             code = mirror.getValue();
+            test = "";
+            if(null !== testMirror) {
+                test = testMirror.getValue();
+            }
             $.ajax({
                 url: form[0].action,
                 type: "POST",
-                data: JSON.stringify({code:code}),
+                data: JSON.stringify({
+                    code: code,
+                    test: test
+                }),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             }).
