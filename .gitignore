@@ -2,3 +2,4 @@ project/project/
 target/
 props/production*
 .idea*
+console.devmode.log

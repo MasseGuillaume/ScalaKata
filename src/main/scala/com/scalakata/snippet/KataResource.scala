@@ -13,10 +13,25 @@ import util.Helpers._
 import org.bson.types.ObjectId
 
 object KataResource {
+
+  lazy val serverScalaVersion =
+    scala.tools.nsc.Properties.versionString.split("version ").drop(1).take(1).head
+
   def menuFor(path: String) = {
     def findKata(id: String): Box[Box[Kata]] = {
       id match {
-        case "index" => Full(Empty)
+        case "index" => {
+          S.param("code") match {
+            case Full(code) => {
+              val k = new Kata()
+              k.code.setFromString(code)
+              k.scalaVersion.setFromString(serverScalaVersion)
+              k.test.setFromString("")
+              Full(Full(k))
+            }
+            case _ => Full(Empty)
+          }
+        }
         case _ => {
           for {
             oid <- tryo(new ObjectId(id))
@@ -61,16 +76,14 @@ class KataResource(kata:Box[Kata]) extends DispatchLocSnippets {
   def dispatch = { case "render" => render }
   def render = {
     val (code, test) = kata.map(k => {
-      if (k.scalaVersion.is != serverScalaVersion ) {
+      if (k.scalaVersion.is != KataResource.serverScalaVersion ) {
         S.redirectTo(s"http://scala-2-9-2.scalakata.com/${k._id.is}")
       }
 
       (k.code.is, k.test.is)
     }).getOrElse(("",""))
-  
+
     "@code *" #> code & "@test *" #> test
   }
 
-  def serverScalaVersion =
-    scala.tools.nsc.Properties.versionString.split("version ").drop(1).take(1).head
 }
