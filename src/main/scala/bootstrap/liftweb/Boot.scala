@@ -18,16 +18,9 @@ class Boot {
     WebJars.serve
     KataMongo.start
 
-   LiftRules.supplimentalHeaders = s => s.addHeaders(
-    List(HTTPParam("X-Lift-Version", LiftRules.liftVersion),
-      HTTPParam("Access-Control-Allow-Origin", "*"),
-      HTTPParam("Access-Control-Allow-Credentials", "true"),
-      HTTPParam("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS"),
-      HTTPParam("Access-Control-Allow-Headers", "WWW-Authenticate,Keep-Alive,User-Agent,X-Requested-With,Cache-Control,Content-Type")
-    ))
-
     LiftRules.statelessDispatch.prepend(CompileService.serve)
     LiftRules.statelessDispatch.prepend(KataResource.tddRedirect)
+    LiftRules.statelessDispatch.prepend(CompileService.coors)
 
     LiftRules.ajaxPostTimeout = ScalaEval.timeBudget.toMillis.toInt
     LiftRules.addToPackages("com.scalakata")
@@ -40,3 +33,12 @@ class Boot {
     LiftRules.htmlProperties.default.set((r: Req) => new Html5Properties(r.userAgent))
   }
 }
+
+/*
+$.ajax({
+  url: "http://localhost:8080/scala/api",
+  type: "POST",
+  contentType: "application/json; charset=utf-8",
+  dataType: "json"
+})
+*/

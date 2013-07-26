@@ -14,9 +14,22 @@ object CompileService extends RestHelper {
   private val headers = List("Access-Control-Allow-Origin" -> "*")
   private val nl = sys.props("line.separator")
 
+  def coors: LiftRules.DispatchPF = {
+    case req @ Req("api" :: "scala" :: Nil, _, UnknownRequest("OPTIONS")) => {
+      PlainTextResponse("", List(
+          "Access-Control-Allow-Origin" -> "*",
+          "Access-Control-Allow-Credentials" -> "true",
+          "Access-Control-Allow-Methods" -> "GET, POST, PUT, OPTIONS",
+          "Access-Control-Allow-Headers" -> "WWW-Authenticate,Keep-Alive,User-Agent,X-Requested-With,Cache-Control,Content-Type"
+        ),
+        200
+      )
+    }
+  }
+
 //// case "haskell" :: Nil JsonPost json -> _ => {}
   def serve: LiftRules.DispatchPF = {
-    case req @ Req( "api" :: "scala" :: Nil, _, PostRequest ) => {
+    case req @ Req("api" :: "scala" :: Nil, _, PostRequest) => {
 
       def serverScalaVersion =
         scala.tools.nsc.Properties.versionString.split("version ").drop(1).take(1).head
