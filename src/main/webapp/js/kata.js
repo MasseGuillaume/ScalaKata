@@ -1,13 +1,8 @@
 $.fn.openkata = function(kataOptions,codeMirrorOptions){
     'use strict';
-
     var actionToMode, codeMirrorDefaults, form;
 
     form = this;
-    actionToMode = {
-        "/api/scala": "text/x-scala"
-    };
-
     codeMirrorDefaults = {
         lineNumbers: true,
         matchBrackets: true,
@@ -27,13 +22,17 @@ $.fn.openkata = function(kataOptions,codeMirrorOptions){
     $(this).addClass("kataifyed")
 
     $(this).find(".kata-code").each(function(){
-        var options, mirror, testMirror;
+        var options, mirror, testMirror, lang, action;
         testMirror = null;
+
+        action = $(form).attr("action");
+        lang = action.substring(action.indexOf("api/") +"api/".length,action.length);
         options = $.extend(codeMirrorOptions,{
-            mode: actionToMode[$(form).attr("action")]
+            mode: "text/x-" + lang
         });
         mirror = CodeMirror.fromTextArea(this,options);
         $(form).find(".kata-test").each(function(){
+            delete options.autofocus;
             testMirror = CodeMirror.fromTextArea(this,options);
         });
         
