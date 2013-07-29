@@ -1,0 +1,4 @@
+ScalaKata
+=========
+
+Code. Result.
