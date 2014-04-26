@@ -1,0 +1,26 @@
+{
+  "name": "ScalaKata",
+  "version": "0.0.1",
+  "homepage": "",
+  "authors": ["Guillaume Massé"],
+  "description": "ScalaKata",
+  "dependencies": {
+    "angular": "~1.2.16",
+    "angular-resource": "~1.2.16",
+    "angular-sanitize": "~1.2.16",
+    "angular-ui-select": "~0.2.0",
+    "ionicons": "~1.4.1",
+    "bootstrap": "3.1.1"
+  },
+  "keywords": [
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/bower_components",
+    "test",
+    "tests"
+  ]
+}
