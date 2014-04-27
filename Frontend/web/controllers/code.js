@@ -1,7 +1,10 @@
-app.controller('code', function code($scope, $timeout, LANGUAGE){
+app.controller('code', function code(
+	$scope, $timeout, 
+	LANGUAGE, scalaEval, insightRenderer, errorsRenderer, throttle){
+
 	var cm, 
 		code = "",
-		editing = false;
+		configEditing = false;
 
 	$scope.cmOptions = {
 		"to config codemirror see": "http://codemirror.net/doc/manual.html#config",
@@ -24,6 +27,8 @@ app.controller('code', function code($scope, $timeout, LANGUAGE){
 	function setMode(edit){
 		if(edit) {
 			code = $scope.code;
+			insightRenderer.clear();
+			errorsRenderer.clear();
 			$timeout(function(){
 				$scope.cmOptions.mode = 'application/json';
 				$scope.code = JSON.stringify($scope.cmOptions, null, '\t');
@@ -38,13 +43,23 @@ app.controller('code', function code($scope, $timeout, LANGUAGE){
 	setMode(false);
 
 	$scope.toogleEdit = function(){
-		editing = !editing;
-		setMode(editing);
+		configEditing = !configEditing;
+		setMode(configEditing);
 	};
 	
 	$scope.$watch('code', function(){
-		if(editing) {
+		if(configEditing) {
 			$scope.cmOptions = JSON.parse($scope.code);	
+		} else {
+			insightRenderer.clear();
+			errorsRenderer.clear();
+			throttle.event(function() {
+				scalaEval.insight($scope.code).then(function(data){
+					var code = $scope.code.split("\n");
+					insightRenderer.render(cm, $scope.cmOptions.mode, code, data.insight);
+					errorsRenderer.render(cm, data, code);
+				});
+			});
 		}
 	});
 });
