@@ -3,26 +3,32 @@ app.controller('code', function code(
 	LANGUAGE, scalaEval, insightRenderer, errorsRenderer, throttle){
 
 	var cm, 
-		code = "",
+		code,
 		configEditing = false;
 
-	$scope.cmOptions = {
-		"to config codemirror see": "http://codemirror.net/doc/manual.html#config",
-		extraKeys: {"Ctrl-Space": "autocomplete"},
-		fixedGutter: true,
-		coverGutterNextToScrollbar: true,
-		lineNumbers: true,
-		theme: 'solarized dark',
-		smartIndent: false,
-		autoCloseBrackets: true,
-		styleActiveLine: true,
-		keyMap: "sublime",
-		highlightSelectionMatches: { showToken: false },
-		onLoad: function(cm_) { 
-			cm = cm_;
-			cm.focus();
-		}
-	};
+	if(angular.isDefined(window.localStorage['code'])) {
+		code = window.localStorage['code'];
+	} else {
+		code = "";
+	}
+
+	if(angular.isDefined(window.localStorage['codemirror'])) {
+		$scope.cmOptions = JSON.parse(window.localStorage['codemirror']);
+	} else {
+		$scope.cmOptions = {
+			"to config codemirror see": "http://codemirror.net/doc/manual.html#config",
+			extraKeys: {"Ctrl-Space": "autocomplete"},
+			fixedGutter: true,
+			coverGutterNextToScrollbar: true,
+			lineNumbers: true,
+			theme: 'solarized dark',
+			smartIndent: false,
+			autoCloseBrackets: true,
+			styleActiveLine: true,
+			keyMap: "sublime",
+			highlightSelectionMatches: { showToken: false }
+		};
+	}
 
 	function setMode(edit){
 		if(edit) {
@@ -34,9 +40,14 @@ app.controller('code', function code(
 				$scope.code = JSON.stringify($scope.cmOptions, null, '\t');
 			});
 		} else {
+			$scope.cmOptions.onLoad = function(cm_) { 
+				cm = cm_;
+				cm.focus();
+			}
 			$timeout(function(){
 				$scope.code = code;
 				$scope.cmOptions.mode = 'text/x-' + LANGUAGE;
+				window.localStorage['codemirror'] = JSON.stringify($scope.cmOptions);
 			});
 		}
 	}
@@ -53,12 +64,15 @@ app.controller('code', function code(
 		} else {
 			insightRenderer.clear();
 			errorsRenderer.clear();
+			window.localStorage['code'] = $scope.code;
 			throttle.event(function() {
-				scalaEval.insight($scope.code).then(function(data){
-					var code = $scope.code.split("\n");
-					insightRenderer.render(cm, $scope.cmOptions.mode, code, data.insight);
-					errorsRenderer.render(cm, data, code);
-				});
+				if(!configEditing) {
+					scalaEval.insight($scope.code).then(function(data){
+						var code = $scope.code.split("\n");
+						insightRenderer.render(cm, $scope.cmOptions.mode, code, data.insight);
+						errorsRenderer.render(cm, data, code);
+					});
+				}
 			});
 		}
 	});

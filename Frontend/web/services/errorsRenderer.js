@@ -47,6 +47,8 @@ app.factory('errorsRenderer', function() {
 			["errors", "warnings", "infos"].forEach(function(severity){
 				if (data[severity]){
 					data[severity].forEach(function(value) {	
+						var useless = "a pure expression does nothing in statement position; you may be omitting necessary parentheses";
+						if(value.message === useless) return;
 						errorMessages.push(errorMessage(cm, severity, value));							
 						errorUnderlines.push(errorUnderline(cm, severity, value, code));
 					});
