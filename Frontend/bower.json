@@ -6,11 +6,14 @@
   "description": "ScalaKata",
   "dependencies": {
     "angular": "~1.2.16",
-    "angular-resource": "~1.2.16",
-    "angular-sanitize": "~1.2.16",
-    "angular-ui-select": "~0.2.0",
     "ionicons": "~1.4.1",
-    "bootstrap": "3.1.1"
+    "bootstrap": "3.1.1",
+    "codemirror": "#350e8b7d9cc16a4e75b25fb8d2deaea972920a13",
+    "angular-ui-codemirror": "~0.0.5"
+  },
+  "resolutions": {
+    "angular": "~1.2.16",
+    "codemirror": "350e8b7d9cc16a4e75b25fb8d2deaea972920a13"
   },
   "keywords": [
   ],

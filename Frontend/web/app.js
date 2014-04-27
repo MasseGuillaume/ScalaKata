@@ -1,1 +1,2 @@
-window.app = angular.module('ScalaKata', ['ngResource', 'ngSanitize', 'ui.select']);
+window.app = angular.module('ScalaKata', ['ui.codemirror']);
+app.constant('LANGUAGE', 'scala');
