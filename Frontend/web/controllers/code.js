@@ -4,6 +4,7 @@ app.controller('code', function code($scope, $timeout, LANGUAGE){
 		editing = false;
 
 	$scope.cmOptions = {
+		"to config codemirror see": "http://codemirror.net/doc/manual.html#config",
 		extraKeys: {"Ctrl-Space": "autocomplete"},
 		fixedGutter: true,
 		coverGutterNextToScrollbar: true,

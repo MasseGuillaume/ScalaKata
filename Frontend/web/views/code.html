@@ -1,3 +1,6 @@
-<section ng-controller="code" ng-dblclick="toogleEdit()">
+<section ng-controller="code">
+	<div class="menu">
+		<i class="ion-ios7-gear edit" ng-click="toogleEdit()"></i>
+	</div>
 	<textarea ui-codemirror="cmOptions" ng-model="code"></textarea>
 </section>
