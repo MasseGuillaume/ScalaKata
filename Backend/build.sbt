@@ -1,11 +1,21 @@
-organization := "com.example"
+name := "backend"
 
-name := "Unfiltered WebSockets"
+organization := "com.scalakata"
 
-version := "0.1.0"
+version := "0.1.0-SNAPSHOT"
 
-scalaVersion := "2.11.0"
+scalaVersion := "2.11.1"
+
+Revolver.settings
+
+resolvers ++= Seq(
+	"spray repo" at "http://repo.spray.io",
+	"typesafe releases" at "http://repo.typesafe.com/typesafe/releases"
+)
 
 libraryDependencies ++= Seq(
-  "net.databinder" %% "unfiltered-netty-websockets" % "0.7.1"
+	"io.spray" %% "spray-can" % "1.3.1-20140423",
+	"io.spray" %% "spray-routing" % "1.3.1-20140423",
+	"com.typesafe.akka" %% "akka-actor" % "2.3.3",
+	"com.typesafe.play" %% "play-json" % "2.4-2014-06-14-ea7daf3"
 )
