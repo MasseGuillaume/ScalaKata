@@ -1,5 +1,23 @@
 app.factory('insightRenderer', function() {
 	var widgets = [];
+
+	function renderCode(cm, cmMode, code, insight){
+		var currentLine = code[insight.line - 1];
+		var pre = document.createElement("pre");
+		pre.className = "cm-s-solarized insight";
+		pre.attributes["ng-class"] = "cm-s-{snippets.getThemeShort()}";
+	  	CodeMirror.runMode(insight.result, cmMode, pre);
+		cm.addWidget({line: (insight.line - 1), ch: currentLine.length}, pre, false, "over");
+		return {
+			clear: function(){ pre.parentElement.removeChild(pre); }
+		}
+	}
+
+	function apply(cm, cmOptions, code, insight){
+		if(insight.type == "CODE") {
+			return renderCode(cm, cmOptions, code, insight);
+		}
+	}
 	return {
 		clear: function(){
 			// clear insight
@@ -9,17 +27,8 @@ app.factory('insightRenderer', function() {
 			widgets = [];
 		},
 		render: function(cm, cmOptions, code, insights){
-			if(insights == "") return;
-			
-			widgets = insights.split('\n').map(function(insight, i){
-				var currentLine = code[i];
-				var pre = document.createElement("pre");
-				pre.className = "insight"; //theme
-				CodeMirror.runMode(insight, cmOptions.mode, pre);
-				cm.addWidget({line: i, ch: currentLine.length}, pre, false, "over");
-				return {
-					clear: function(){ pre.parentElement.removeChild(pre); }
-				}
+			widgets = insights.map(function(insight){
+				return apply(cm, cmOptions, code, insight);
 			});
 		}
 	}

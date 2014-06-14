@@ -4,30 +4,42 @@ app.factory('errorsRenderer', function() {
 	var errorUnderlines = [];
 
 	function errorUnderline(cm, severity, value, code) {
-		var cur = cm.getDoc().posFromIndex(value.position);
-		var currentLine = code[cur.line];
-		return cm.markText(
-			{line: cur.line, ch: cur.ch}, 
-			{line: cur.line, ch: currentLine.length},
-			{className: severity}
-		);
+		var from, to, cur, currentLine;
+		if(angular.isDefined(value.position)) {
+			cur = cm.getDoc().posFromIndex(value.position);
+			currentLine = code[cur.line];
+			from = {line: cur.line, ch: cur.ch};
+			to = {line: cur.line, ch: currentLine.length};
+		} else {
+			from = {line: value.line - 1, ch: 0};
+			to = {line: value.line - 1, ch: Infinity};
+		}
+		
+		return cm.markText(from, to, {className: severity} );
 	}
 
 	function errorMessage(cm, severity, value){
-		var msg = document.createElement("div");
-		var cur = cm.getDoc().posFromIndex(value.position);
+		var msg = document.createElement("div"),
+			line; 
+		if(angular.isDefined(value.position)) {
+			line = cm.getDoc().posFromIndex(value.position).line;
+		} else {
+			line = value.line - 1;
+		}
+
 		var icon = msg.appendChild(document.createElement("i"));
+		icon.className = "fa ";
 		if(severity == "errors") {
-			icon.className += "ion-close-circled";
+			icon.className += "fa-times-circle";
 		} else if(severity == "warnings") {
-			icon.className += "ion-alert-circled";
+			icon.className += "fa-exclamation-triangle";
 		} else if(severity == "infos") {
-			icon.className += "ion-information-circled";
+			icon.className += "fa-info-circle";
 		}
 		msg.appendChild(document.createTextNode(value.message));
 		msg.className = "error-message";
 
-		return cm.addLineWidget(cur.line, msg);
+		return cm.addLineWidget(line, msg);
 	}
 
 	return {
@@ -47,13 +59,18 @@ app.factory('errorsRenderer', function() {
 			["errors", "warnings", "infos"].forEach(function(severity){
 				if (data[severity]){
 					data[severity].forEach(function(value) {	
-						var useless = "a pure expression does nothing in statement position; you may be omitting necessary parentheses";
-						if(value.message === useless) return;
 						errorMessages.push(errorMessage(cm, severity, value));							
 						errorUnderlines.push(errorUnderline(cm, severity, value, code));
 					});
 				}
 			});
+			if(angular.isDefined(data.runtimeError.line)) {
+				var value = data.runtimeError;
+				var severity = "runtime-error";
+
+				errorMessages.push(errorMessage(cm, severity, value));							
+				errorUnderlines.push(errorUnderline(cm, severity, value, code));
+			}
 		}
 	}
 });

@@ -1,8 +1,12 @@
 // based on http://clintberry.com/2013/angular-js-websocket-service/
-app.factory("scalaEval", function($q, $rootScope) {
+app.factory("scalaEval", function($q, $rootScope, $location) {
 	var fetching = false;
-	// var url = "ws://localhost:9000/eval";
-	var url = "wss://codebrew.io/eval";
+	var url;
+	// if($location.host() === "codebrew.io") {
+		url = "wss://codebrew.io/eval";
+	// } else {
+	// 	url = "ws://localhost:9000/eval";
+	// }
 	var socket = new WebSocket(url);
 	var callbacks = {};
 	var currentCallbackId = 0;
