@@ -4,7 +4,8 @@ app.controller('code', function code(
 
 	var cm, 
 		code,
-		configEditing = false;
+		configEditing = false,
+		ctrl = CodeMirror.keyMap["default"] == CodeMirror.keyMap.pcDefault ? "Ctrl-" : "Cmd-";
 
 	if(angular.isDefined(window.localStorage['code'])) {
 		code = window.localStorage['code'];
@@ -15,12 +16,14 @@ app.controller('code', function code(
 	// if(angular.isDefined(window.localStorage['codemirror'])) {
 	// 	$scope.cmOptions = JSON.parse(window.localStorage['codemirror']);
 	// } else {
+		var keys = {}
+		keys[ctrl + "Space"] = "autocomplete";
+		keys[ctrl + "Enter"] = "run";
+		keys[ctrl + ","] = "config";
+
 		$scope.cmOptions = {
-			"to config codemirror see": "http://codemirror.net/doc/manual.html#config",
-			extraKeys: {
-				"Ctrl-Space": "autocomplete",
-				"Ctrl-Enter": "run"
-			},
+			"_to config codemirror see_": "http://codemirror.net/doc/manual.html#config",
+			extraKeys: keys,
 			fixedGutter: true,
 			coverGutterNextToScrollbar: true,
 			lineNumbers: true,
@@ -73,6 +76,8 @@ app.controller('code', function code(
 	}
 
 	CodeMirror.commands.run = run;
+	CodeMirror.commands.save = run;
+	CodeMirror.commands.config = $scope.toogleEdit;
 
 	$scope.$watch('code', function(){
 		if(configEditing) {
