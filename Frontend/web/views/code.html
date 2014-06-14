@@ -1,6 +1,7 @@
 <section ng-controller="code" class="code">
 	<div class="menu">
-		<i class="ion-ios7-gear edit" ng-click="toogleEdit()"></i>
+		<i class="fa fa-fw fa-cog edit" ng-click="toogleEdit()"></i>
+		<i class="fa fa-fw fa-play run" ng-click="run()"></i>
 	</div>
 	<textarea ui-codemirror="cmOptions" ng-model="code"></textarea>
 </section>

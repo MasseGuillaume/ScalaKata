@@ -22,6 +22,7 @@ app.controller('code', function code(
 			coverGutterNextToScrollbar: true,
 			lineNumbers: true,
 			theme: 'solarized dark',
+			themes: [ "solarized dark", "solarized light", "monokai", "ambiance", "eclipse", "mdn-like"],
 			smartIndent: false,
 			autoCloseBrackets: true,
 			styleActiveLine: true,
