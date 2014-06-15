@@ -1,20 +1,36 @@
 package com.scalakata
 
 import play.api.libs.json._
+import play.api.libs.json.Json._
 import play.api.libs.functional.syntax._
 
 import spray.http._
-import spray.httpx.marshalling.Marshaller
+import spray.http.ContentTypes._
+import spray.http.ContentTypeRange._
 
-object FromJson {
-	implicit val evalrequest = Json.reads[EvalRequest]
-	implicit val completionrequest = Json.reads[CompletionRequest]
+import spray.httpx.marshalling.Marshaller
+import spray.httpx.unmarshalling.Unmarshaller
+
+
+object Request {
+	val json = ContentTypeRange(MediaTypes.`application/json`, HttpCharsets.`UTF-8`)
+
+	implicit private val evalrequest = Json.reads[EvalRequest]
+	implicit val EvalRequestUnmarshaller =
+		Unmarshaller.delegate[String, EvalRequest](json) { 
+			data => fromJson[EvalRequest](Json.parse(data)).get
+		}
+
+	implicit private val completionrequest = Json.reads[CompletionRequest]
+	implicit val CompletionRequestUnmarshaller =
+		Unmarshaller.delegate[String, CompletionRequest](json) {
+			data => fromJson[CompletionRequest](Json.parse(data)).get
+		}
 }
 
-object ToJson {
-	implicit val instrumentation = Json.writes[Instrumentation]
-	
-	implicit val severity = Writes[Severity] { s_ =>
+object Response {
+	implicit private val instrumentation = Json.writes[Instrumentation]
+	implicit private val severity = Writes[Severity] { s_ =>
 		val s = s_ match {
 			case Error => "error"
 			case Warning => "warning"
@@ -22,14 +38,18 @@ object ToJson {
 		}
 		JsString(s)
 	}
+	implicit private val compilationinfo = Json.writes[CompilationInfo]
+	implicit private val runtimeerror = Json.writes[RuntimeError]
 
-	implicit val compilationinfo = Json.writes[CompilationInfo]
-	implicit val runtimeerror = Json.writes[RuntimeError]
-	implicit val evalresponse = Json.writes[EvalResponse]
-	implicit val completionresponse = Json.writes[CompletionResponse]
+	implicit private val evalresponse = Json.writes[EvalResponse]
+	implicit val EvalResponseMarshaller = 
+		Marshaller.of[EvalResponse](`application/json`) { (eval, contentType, ctx) =>
+			ctx.marshalTo(HttpEntity(contentType, toJson(eval).toString))
+		}
+
+	implicit private val completionresponse = Json.writes[CompletionResponse]
+	implicit val CompletionResponseMarshaller = 
+		Marshaller.of[CompletionResponse](`application/json`) { (eval, contentType, ctx) =>
+			ctx.marshalTo(HttpEntity(contentType, toJson(eval).toString))
+		}
 }
-
-// implicit val EvalRequestMarshaller = 
-// 	Marshaller.of[EvalRequest](`application/json`) { (value, contentType, ctx) =>
-// 		ctx.marshalTo(HttpEntity(contentType, string))
-// 	}

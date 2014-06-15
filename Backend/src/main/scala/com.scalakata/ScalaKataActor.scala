@@ -8,14 +8,20 @@ class ScalaKataActor extends Actor with ScalaKata {
 	def receive = runRoute(route)
 }
 
-
 trait ScalaKata extends HttpService {
 	implicit def executionContext = actorRefFactory.dispatcher
 
 	val route = {
 		post {
 			path("eval") {
-				complete("OK")
+				content(as[EvalRequest]) { request =>
+					
+				}
+			} ~
+			path("completion") {
+				content(as[CompletionRequest]) { request =>
+
+				}
 			}
 		}
 	}
