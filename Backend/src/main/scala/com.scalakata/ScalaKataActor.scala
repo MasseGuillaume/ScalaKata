@@ -11,16 +11,29 @@ class ScalaKataActor extends Actor with ScalaKata {
 trait ScalaKata extends HttpService {
 	implicit def executionContext = actorRefFactory.dispatcher
 
+	import Request._
+	import Response._
+
 	val route = {
 		post {
 			path("eval") {
-				content(as[EvalRequest]) { request =>
-					
+				entity(as[EvalRequest]) { request =>
+					val EvalRequest(code) = request
+
+					complete(EvalResponse(List(
+						Instrumentation(1, code)
+					), List(
+						CompilationInfo("cool", 1, Info)
+					), false, None))
 				}
 			} ~
 			path("completion") {
-				content(as[CompletionRequest]) { request =>
+				entity(as[CompletionRequest]) { request =>
+					val CompletionRequest(code, pos) = request
 
+					complete(List(
+						CompletionResponse("map", "(a->b) -> [a] -> [b]")
+					))
 				}
 			}
 		}

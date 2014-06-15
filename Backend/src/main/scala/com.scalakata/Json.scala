@@ -49,7 +49,7 @@ object Response {
 
 	implicit private val completionresponse = Json.writes[CompletionResponse]
 	implicit val CompletionResponseMarshaller = 
-		Marshaller.of[CompletionResponse](`application/json`) { (eval, contentType, ctx) =>
+		Marshaller.of[List[CompletionResponse]](`application/json`) { (eval, contentType, ctx) =>
 			ctx.marshalTo(HttpEntity(contentType, toJson(eval).toString))
 		}
 }
