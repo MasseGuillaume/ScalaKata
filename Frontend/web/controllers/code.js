@@ -30,12 +30,18 @@ app.controller('code', function code(
 			theme: 'solarized dark',
 			themes: [ "solarized dark", "solarized light", "monokai", "ambiance", "eclipse", "mdn-like"],
 			smartIndent: false,
+			multiLineStrings: true,
 			autoCloseBrackets: true,
 			styleActiveLine: true,
 			keyMap: "sublime",
 			highlightSelectionMatches: { showToken: false }
 		};
 	// }
+	$scope.theme = function(){
+		return _.map($scope.cmOptions.theme.split(" "), function(t){
+			return "cm-s-" + t;
+		}).join(" ");
+	}
 
 	function setMode(edit){
 		if(edit) {
@@ -81,7 +87,9 @@ app.controller('code', function code(
 
 	$scope.$watch('code', function(){
 		if(configEditing) {
-			$scope.cmOptions = JSON.parse($scope.code);	
+			try {
+				$scope.cmOptions = JSON.parse($scope.code);
+			} catch(e){}
 		} else {
 			insightRenderer.clear();
 			errorsRenderer.clear();
