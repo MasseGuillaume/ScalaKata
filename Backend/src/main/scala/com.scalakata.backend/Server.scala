@@ -1,4 +1,4 @@
-package com.scalakata
+package com.scalakata.backend
 
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO

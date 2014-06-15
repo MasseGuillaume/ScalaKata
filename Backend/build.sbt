@@ -1,8 +1,10 @@
+import com.typesafe.sbt.SbtGit._
+
 name := "backend"
 
 organization := "com.scalakata"
 
-version := "0.1.0-SNAPSHOT"
+versionWithGit
 
 scalaVersion := "2.11.1"
 
@@ -14,6 +16,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
+	"com.scalakata"
 	"io.spray" %% "spray-can" % "1.3.1-20140423",
 	"io.spray" %% "spray-routing" % "1.3.1-20140423",
 	"com.typesafe.akka" %% "akka-actor" % "2.3.3",

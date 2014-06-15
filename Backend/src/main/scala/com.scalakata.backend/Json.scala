@@ -1,4 +1,4 @@
-package com.scalakata
+package com.scalakata.backend
 
 import play.api.libs.json._
 import play.api.libs.json.Json._

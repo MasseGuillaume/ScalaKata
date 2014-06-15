@@ -1,4 +1,4 @@
-package com.scalakata
+package com.scalakata.backend
 
 import akka.actor._
 import spray.routing.HttpService

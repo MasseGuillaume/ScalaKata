@@ -1,4 +1,4 @@
-package com.scalakata
+package com.scalakata.backend
 
 sealed trait Severity
 final case object Info extends Severity
