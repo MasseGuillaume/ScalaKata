@@ -6,6 +6,8 @@ organization := "com.scalakata"
 
 versionWithGit
 
+git.baseVersion := "0.1"
+
 scalaVersion := "2.11.1"
 
 Revolver.settings
@@ -16,7 +18,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-	"com.scalakata"
+	"com.scalakata" %% "eval" % "0.1.0-20140615T185506",
 	"io.spray" %% "spray-can" % "1.3.1-20140423",
 	"io.spray" %% "spray-routing" % "1.3.1-20140423",
 	"com.typesafe.akka" %% "akka-actor" % "2.3.3",

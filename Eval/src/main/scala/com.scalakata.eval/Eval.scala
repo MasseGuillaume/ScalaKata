@@ -1,76 +1,109 @@
 package com.scalakata.eval
 
-import scala.reflect.internal.util.Position
+// based on twitter util eval
+// https://github.com/twitter/util/tree/master/util-eval
 
-import java.security.AccessControlException
+import java.io._
+import java.math.BigInteger
+import java.net.URLClassLoader
+import java.security.MessageDigest
+import java.util.Random
 
-import scala.concurrent.duration._
-import java.util.concurrent.{TimeoutException, Callable, FutureTask, TimeUnit}
+import scala.tools.nsc.{Global, Settings}
+import scala.tools.nsc.interpreter.AbstractFileClassLoader
+import scala.tools.nsc.io.{AbstractFile, VirtualDirectory}
+import scala.tools.nsc.reporters.StoreReporter
+import scala.tools.nsc.util.{BatchSourceFile, Position}
 
-object ScalaEval {
-  def apply(code: String) = {
-    evalWithin(timeBudget.toMillis){
-      val baos = new java.io.ByteArrayOutputStream
-      try {
-        val result = 
-          Console.withOut(baos) { eval[Any](code) } match {
-            case n: Unit => ""
-            case e => e
-          }
+class Eval {
 
-        Compile(result.toString, baos.toString)
-      } catch {
-        case e: CompilerException => extractErrors(e)
-        case e: AccessControlException => SecurityError(e.toString)
-      }
+  def apply[T](code: String): Either[Map[String, List[(Int, String)]], T] = {
+    val id = uniqueId(code)
+    val className = "Evaluator__" + id
+    compile(wrapCodeInClass(className, code), className)
+    
+    val infos = check(className)
+
+    if(!infos.contains(reporter.ERROR)) {
+      val cls = classLoader.loadClass(className)
+      val t: T = cls.getConstructor().newInstance().asInstanceOf[() => Any].apply().asInstanceOf[T]
+      Right(t)
+    } else {
+      Left(infos.map{case (k, v) => (k.toString, v)})
+    }
+    
+  }
+
+  val jvmId = java.lang.Math.abs(new Random().nextInt())
+ 
+  private def uniqueId(code: String, idOpt: Option[Int] = Some(jvmId)): String = {
+    val digest = MessageDigest.getInstance("SHA-1").digest(code.getBytes())
+    val sha = new BigInteger(1, digest).toString(16)
+    idOpt match {
+      case Some(id) => sha + "_" + jvmId
+      case _ => sha
     }
   }
 
-  def evalWithin(timeout: Long)(f: => EvalResult): EvalResult = {
-    val task = new FutureTask(new Callable[EvalResult]() {
-      def call = f
-    })
-    val thread = new Thread(task)
-    try {
-      thread.start()
-      task.get(timeout, TimeUnit.MILLISECONDS)
-    } catch {
-      case e: TimeoutException => EvalTimeout(timeBudget.toString)
-      case ex: Throwable => RuntimeError(ex.getMessage)
-    } finally { 
-      if(thread.isAlive){
-        thread.interrupt()
-        thread.stop()
-      }
+  private def check(className: String): Map[reporter.Severity, List[(Int, String)]] = {
+    reporter.infos.map {
+      info => (
+        info.severity,
+        info.pos.point - preWrap(className).length,
+        info.msg
+      )
+    }.to[List]
+     .filterNot{ case (sev, _, msg) =>
+      // annoying
+      sev == reporter.WARNING &&
+      msg == ("a pure expression does nothing in statement " +
+              "position; you may be omitting necessary parentheses")
+    }.groupBy(_._1)
+     .mapValues{_.map{case (a,b,c) => (b,c)}}
+  }
+
+  def preWrap(className: String) =
+    "class " + className + " extends (() => Any) {\n" +
+    "  def apply() = {\n"
+  private def wrapCodeInClass(className: String, code: String) = {
+    preWrap(className) +
+    code + "\n" +
+    "  }\n" +
+    "}\n"
+  }
+
+  
+  val target = new VirtualDirectory("(memory)", None)
+
+  val settings = new Settings
+  settings.outputDirs.setSingleOutput(target)
+
+  val artifacts = sbt.BuildInfo.dependencyClasspath.
+    map(_.getAbsoluteFile).
+    mkString(File.pathSeparator)
+
+  settings.bootclasspath.value = artifacts
+  settings.classpath.value = artifacts
+
+  val reporter = new StoreReporter()
+
+  val global = new Global(settings, reporter)
+
+  var classLoader = new AbstractFileClassLoader(target, this.getClass.getClassLoader)
+
+  private def reset() {
+    target.clear
+    reporter.reset
+    classLoader = new AbstractFileClassLoader(target, this.getClass.getClassLoader)
+  }
+
+  private def compile(code: String, className: String): Unit = {
+    synchronized {
+      reset()
+      val compiler = new global.Run
+      val sourceFiles = List(new BatchSourceFile("(inline)", code))
+
+      compiler.compileSources(sourceFiles)
     }
   }
-
-  private def extractErrors(errors: CompilerException): CompileError = {
-    val cleanErrors = errors.m map{ case (position, message, severity) => {
-      val severityLabel = severity match {
-        case 0 => "info"
-        case 1 => "warning"
-        case 2 => "error"
-      }
-
-      val line = position.line - 3
-
-      val tabCount = position.inUltimateSource(position.source).lineContent.count(_ == '\t')
-      val column = (position.column - tabCount * Position.tabInc)
-
-      Error(line, column, message, severityLabel)
-    }}
-    CompileError(cleanErrors)
-  }
-  val timeBudget = 60.seconds
-  private val eval = new Eval(None)
 }
-
-sealed abstract class EvalResult
-case class Compile(result: String, console: String) extends EvalResult
-case class CompileError(errors: List[Error]) extends EvalResult
-case class RuntimeError(cause: String) extends EvalResult
-case class SecurityError(error: String) extends EvalResult
-case class EvalTimeout(timeout: String) extends EvalResult
-
-case class Error(line: Int, column: Int, message: String, severity: String)
