@@ -12,30 +12,43 @@ import java.util.Random
 import scala.tools.nsc.{Global, Settings}
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
 import scala.tools.nsc.io.{AbstractFile, VirtualDirectory}
-import scala.tools.nsc.reporters.StoreReporter
 import scala.tools.nsc.util.{BatchSourceFile, Position}
+import scala.tools.nsc.reporters.StoreReporter
 
-class Eval {
+class Eval(artifacts: String) {
 
-  def apply[T](code: String): Either[Map[String, List[(Int, String)]], T] = {
+  private val jvmId = java.lang.Math.abs(new Random().nextInt())
+
+  private val reporter = new StoreReporter()
+  private val settings = new Settings()
+  
+  private val target = new VirtualDirectory("(memory)", None)
+  private var classLoader = new AbstractFileClassLoader(target, this.getClass.getClassLoader)
+
+  settings.outputDirs.setSingleOutput(new VirtualDirectory("(memory)", None))
+  settings.bootclasspath.value = artifacts
+  settings.classpath.value = artifacts
+  settings.outputDirs.setSingleOutput(target)
+
+  private val compiler = new Global(settings, reporter)
+
+  def apply(code: String): (Option[Any], Map[String, List[(Int, String)]]) = {
     val id = uniqueId(code)
     val className = "Evaluator__" + id
     compile(wrapCodeInClass(className, code), className)
     
     val infos = check(className)
+    val infoss = infos.map{case (k, v) => (k.toString, v)}
 
     if(!infos.contains(reporter.ERROR)) {
       val cls = classLoader.loadClass(className)
-      val t: T = cls.getConstructor().newInstance().asInstanceOf[() => Any].apply().asInstanceOf[T]
-      Right(t)
+      val t: Any = cls.getConstructor().newInstance().asInstanceOf[() => Any].apply().asInstanceOf[Any]
+      (Some(t), infoss)
     } else {
-      Left(infos.map{case (k, v) => (k.toString, v)})
+      (None, infoss)
     }
-    
   }
 
-  val jvmId = java.lang.Math.abs(new Random().nextInt())
- 
   private def uniqueId(code: String, idOpt: Option[Int] = Some(jvmId)): String = {
     val digest = MessageDigest.getInstance("SHA-1").digest(code.getBytes())
     val sha = new BigInteger(1, digest).toString(16)
@@ -62,9 +75,10 @@ class Eval {
      .mapValues{_.map{case (a,b,c) => (b,c)}}
   }
 
-  def preWrap(className: String) =
+  private def preWrap(className: String) =
     "class " + className + " extends (() => Any) {\n" +
     "  def apply() = {\n"
+
   private def wrapCodeInClass(className: String, code: String) = {
     preWrap(className) +
     code + "\n" +
@@ -72,38 +86,17 @@ class Eval {
     "}\n"
   }
 
-  
-  val target = new VirtualDirectory("(memory)", None)
-
-  val settings = new Settings
-  settings.outputDirs.setSingleOutput(target)
-
-  val artifacts = sbt.BuildInfo.dependencyClasspath.
-    map(_.getAbsoluteFile).
-    mkString(File.pathSeparator)
-
-  settings.bootclasspath.value = artifacts
-  settings.classpath.value = artifacts
-
-  val reporter = new StoreReporter()
-
-  val global = new Global(settings, reporter)
-
-  var classLoader = new AbstractFileClassLoader(target, this.getClass.getClassLoader)
-
   private def reset() {
     target.clear
     reporter.reset
     classLoader = new AbstractFileClassLoader(target, this.getClass.getClassLoader)
   }
 
-  private def compile(code: String, className: String): Unit = {
-    synchronized {
-      reset()
-      val compiler = new global.Run
-      val sourceFiles = List(new BatchSourceFile("(inline)", code))
+  private def compile(code: String, className: String): Unit = synchronized {
+    reset()
+    val run = new compiler.Run
+    val sourceFiles = List(new BatchSourceFile("(inline)", code))
 
-      compiler.compileSources(sourceFiles)
-    }
+    run.compileSources(sourceFiles)
   }
 }

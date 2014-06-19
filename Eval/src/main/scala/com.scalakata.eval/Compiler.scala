@@ -9,53 +9,32 @@ import java.util.concurrent.{TimeoutException, Callable, FutureTask, TimeUnit}
 import scala.util.control.NonFatal
 import scala.concurrent.duration._
 
+import scala.tools.nsc.interactive.Global
+import scala.tools.nsc.Settings
+import scala.tools.nsc.reporters.StoreReporter
+import scala.tools.nsc.io.VirtualDirectory
+import scala.reflect.internal.util._
+import scala.tools.nsc.interactive.Response
+
 class Compiler {
 
-  val timeout = 60.seconds
-  val jvmId = java.lang.Math.abs(new Random().nextInt())
-
-  import scala.tools.nsc.interactive.Global
-  import scala.tools.nsc.Settings
-  import scala.tools.nsc.reporters.StoreReporter
-  import scala.tools.nsc.io.VirtualDirectory
-  import scala.reflect.internal.util._
-  import scala.tools.nsc.interactive.Response
-
-  val reporter = new StoreReporter()
-  val settings = new Settings()
-  
-  val artifacts = sbt.BuildInfo.dependencyClasspath.
-    map(_.getAbsoluteFile).
-    mkString(File.pathSeparator)
-
-  val target = new VirtualDirectory("(memory)", None)
-  var classLoader = new AbstractFileClassLoader(target, this.getClass.getClassLoader)
-
-  settings.outputDirs.setSingleOutput(new VirtualDirectory("(memory)", None))
-  settings.bootclasspath.value = artifacts
-  settings.classpath.value = artifacts
-  settings.outputDirs.setSingleOutput(target)
-
-  val compiler = new Global(settings, reporter)
-
   def insight(code: String): EvalResponse = {
-    if (code == "") EvalResponse.empty
+    if (code.isEmpty) EvalResponse.empty
     else {
       try { 
-        withTimeout{ eval(code) }(timeout) match {
-          case Some((insight, compilationInfos)) => EvalResponse(
-            insight, 
-            compilationInfos,
-            timeout = false,
-            runtimeError = None
-          )
-          case None => EvalResponse(
-            insight = Nil,
-            infos = Nil,
-            timeout = true,
-            runtimeError = None
-          )
-        }
+        withTimeout{
+          eval(code) match {
+            case (Some(v), cinfos) => 
+              EvalResponse.empty.copy(
+                insight = List(Instrumentation(v.toString, 0)),
+                infos = convert(cinfos)
+              )
+            case (_, cinfos) => EvalResponse.empty.copy(infos = convert(cinfos))
+          }
+
+        }(timeout).getOrElse(
+          EvalResponse.empty.copy(timeout = true)
+        )
       } catch {
         case NonFatal(e) => {
           e.printStackTrace
@@ -67,18 +46,35 @@ class Compiler {
             } yield {
               RuntimeError(e2.toString, e2.getStackTrace.head.getLineNumber)
             }
-          EvalResponse(
-            insight = Nil,
-            infos = Nil,
-            timeout = false,
-            runtimeError = error
-          )
+          EvalResponse.empty.copy(runtimeError = error)
         }
       }
     }
   }
 
   def autocomplete(code: String, pos: Int): List[CompletionResponse] = {
+
+    val beginWrap = "object ScalaKata {\n"
+    val endWrap = "\n}"
+
+    val wrapOffset = beginWrap.size
+
+    def wrap(code: String): BatchSourceFile = {
+      new BatchSourceFile("default", beginWrap + code + endWrap)
+    }
+
+    def reload(code: String): BatchSourceFile = {
+      val file = wrap(code)
+      withResponse[Unit](r => compiler.askReload(List(file), r)).get
+      file
+    }
+
+    def withResponse[A](op: Response[A] => Any): Response[A] = {
+      val response = new Response[A]
+      op(response)
+      response
+    }
+
     if(code.isEmpty) Nil
     else {
       val file = reload(code)
@@ -104,33 +100,30 @@ class Compiler {
     }
   }
 
-  private def eval[T](code: String): (T, List[CompilationInfo])  = {
-    def uniqueId: String = {
-      val digest = MessageDigest.getInstance("SHA-1").digest(code.getBytes())
-      val sha = new BigInteger(1, digest).toString(16)
-      s"${sha}_${jvmId}"
-    }
+  private val timeout = 60.seconds
+  private val jvmId = java.lang.Math.abs(new Random().nextInt())
 
-    synchronized {
-      def reset(): Unit = {
-        target.clear()
-        reporter.reset()
-        classLoader = new AbstractFileClassLoader(target, this.getClass.getClassLoader)
+  private val reporter = new StoreReporter()
+  private val settings = new Settings()
+  
+  private val artifacts = sbt.BuildInfo.dependencyClasspath.
+    map(_.getAbsoluteFile).
+    mkString(File.pathSeparator)
+  
+  settings.bootclasspath.value = artifacts
+  settings.classpath.value = artifacts
+
+  private val compiler = new Global(settings, reporter)
+  private val eval = new Eval(artifacts)
+
+  private def convert(infos: Map[String, List[(Int, String)]]): Map[Severity, List[CompilationInfo]] = {
+    infos.map{ case (k,vs) => 
+      val sev = k match {
+        case "ERROR" => Error
+        case "WARNING" => Warning
+        case "INFO" => Info
       }
-      reset()
-      val className = s"ScalaKata_$uniqueId"
-
-      val run = new compiler.Run
-      val sourceFiles = List(new BatchSourceFile("(inline)", code))
-      compiler.ask { () =>
-        run.compileSources(sourceFiles)
-      }
-      val infos = check
-
-      val cls = classLoader.loadClass(className)
-      val res = cls.getConstructor().newInstance().asInstanceOf[() => Any].apply().asInstanceOf[T]
-
-      (res, infos)
+      (sev, vs map {case (p, m) => CompilationInfo(m, p)})
     }
   }
 
@@ -141,7 +134,7 @@ class Compiler {
     val thread = new Thread( task )
     try {
       thread.start()
-      Some(task.get(timeout.toMillis, TimeUnit.MILLISECONDS))
+      Some(task.get(timeout.toMillis, TimeUnit.MILLISECONDS))     
     } catch {
       case e: TimeoutException => None
     } finally { 
@@ -150,53 +143,5 @@ class Compiler {
         thread.stop()
       }
     }
-  }
-
-  private val beginWrap = "object ScalaKata {\n"
-  private val endWrap = "\n}"
-
-  private val wrapOffset = beginWrap.size
-
-  private def check: List[CompilationInfo] = {
-    //parse(code)
-    def annoying(info: CompilationInfo) = {
-      info.message == "a pure expression does nothing in statement " +
-        "position; you may be omitting necessary parentheses" &&
-      info.severity == Warning
-    }
-    reporter.infos.map {
-      info => CompilationInfo(
-        message = info.msg,
-        position = info.pos.point - wrapOffset,
-        severity = convert(info.severity) 
-      )
-    }.filterNot(annoying).to[List]
-  }
-
-  private def wrap(code: String): BatchSourceFile = {
-    new BatchSourceFile("default", beginWrap + code + endWrap)
-  }
-
-  private def reload(code: String): BatchSourceFile = {
-    val file = wrap(code)
-    withResponse[Unit](r => compiler.askReload(List(file), r)).get
-    file
-  }
-
-  // private def parse(code: String): Unit = {
-  //   val file = reload(code)
-  //   withResponse[compiler.Tree](r => compiler.askStructure(false)(file, r)).get
-  // }
-
-  private def convert(severity: reporter.Severity): Severity = severity match {
-    case reporter.INFO => Info
-    case reporter.WARNING => Warning
-    case reporter.ERROR => Error
-  }
-
-  private def withResponse[A](op: Response[A] => Any): Response[A] = {
-    val response = new Response[A]
-    op(response)
-    response
   }
 }

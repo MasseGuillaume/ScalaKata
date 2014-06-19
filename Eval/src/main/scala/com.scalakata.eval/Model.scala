@@ -6,14 +6,13 @@ final case object Warning extends Severity
 final case object Error extends Severity
 
 case class Instrumentation(
-	line: Int,
-	result: String
+	result: String,
+	line: Int
 )
 
 case class CompilationInfo(
 	message: String,
-	position: Int,
-	severity: Severity
+	position: Int
 )
 
 case class RuntimeError(
@@ -27,13 +26,13 @@ case class EvalRequest(
 
 case class EvalResponse(
 	insight: List[Instrumentation],
-	infos: List[CompilationInfo],
+	infos: Map[Severity, List[CompilationInfo]],
 	timeout: Boolean,
 	runtimeError: Option[RuntimeError]
 )
 
 object EvalResponse {
-	def empty = EvalResponse(Nil, Nil, false, None)
+	def empty = EvalResponse(Nil, Map.empty, false, None)
 }
 
 case class CompletionRequest(

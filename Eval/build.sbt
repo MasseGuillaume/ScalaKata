@@ -25,5 +25,6 @@ buildInfoKeys := Seq[BuildInfoKey](
 buildInfoPackage := "com.scalakata.eval.sbt"
 
 initialCommands in console := """
-import com.scalakata.eval._
+import com.scalakata.eval.Compiler
+val c = new Compiler
 """
