@@ -15,19 +15,16 @@ import scala.tools.nsc.io.{AbstractFile, VirtualDirectory}
 import scala.tools.nsc.util.{BatchSourceFile, Position}
 import scala.tools.nsc.reporters.StoreReporter
 
-class Eval(artifacts: String) {
+class Eval(settings: Settings) {
 
   private val jvmId = java.lang.Math.abs(new Random().nextInt())
 
   private val reporter = new StoreReporter()
-  private val settings = new Settings()
+  
   
   private val target = new VirtualDirectory("(memory)", None)
   private var classLoader = new AbstractFileClassLoader(target, this.getClass.getClassLoader)
-
-  settings.outputDirs.setSingleOutput(new VirtualDirectory("(memory)", None))
-  settings.bootclasspath.value = artifacts
-  settings.classpath.value = artifacts
+  
   settings.outputDirs.setSingleOutput(target)
 
   private val compiler = new Global(settings, reporter)
@@ -92,7 +89,7 @@ class Eval(artifacts: String) {
     classLoader = new AbstractFileClassLoader(target, this.getClass.getClassLoader)
   }
 
-  private def compile(code: String, className: String): Unit = synchronized {
+  private def compile(code: String, className: String): Unit = {
     reset()
     val run = new compiler.Run
     val sourceFiles = List(new BatchSourceFile("(inline)", code))

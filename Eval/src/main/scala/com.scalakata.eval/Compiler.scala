@@ -109,12 +109,15 @@ class Compiler {
   private val artifacts = sbt.BuildInfo.dependencyClasspath.
     map(_.getAbsoluteFile).
     mkString(File.pathSeparator)
+
+  private val scalacOptions = sbt.BuildInfo.scalacOptions.to[List]
   
+  settings.processArguments(scalacOptions, true)
   settings.bootclasspath.value = artifacts
   settings.classpath.value = artifacts
 
   private val compiler = new Global(settings, reporter)
-  private val eval = new Eval(artifacts)
+  private val eval = new Eval(settings.copy)
 
   private def convert(infos: Map[String, List[(Int, String)]]): Map[Severity, List[CompilationInfo]] = {
     infos.map{ case (k,vs) => 
