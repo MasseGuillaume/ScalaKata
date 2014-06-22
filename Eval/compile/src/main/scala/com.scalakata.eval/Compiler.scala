@@ -1,5 +1,7 @@
 package com.scalakata.eval
 
+import sbt.BuildInfo
+
 import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -24,9 +26,15 @@ class Compiler {
       try { 
         withTimeout{
           eval(code) match {
-            case (Some(v), cinfos) => 
+            case (Some(instr), cinfos) =>
+
+              val i = 
+                instr.map{ case ((start, end), value) =>
+                  Instrumentation(value.toString, start, end)
+                }.to[List]
+
               EvalResponse.empty.copy(
-                insight = List(Instrumentation(v.toString, 0)),
+                insight = i,
                 infos = convert(cinfos)
               )
             case (_, cinfos) => EvalResponse.empty.copy(infos = convert(cinfos))
@@ -106,7 +114,8 @@ class Compiler {
   private val reporter = new StoreReporter()
   private val settings = new Settings()
   
-  private val artifacts = sbt.BuildInfo.dependencyClasspath.
+  private val artifacts = 
+    (BuildInfo.dependencyClasspath ++ BuildInfo.runtime_exportedProducts).
     map(_.getAbsoluteFile).
     mkString(File.pathSeparator)
 

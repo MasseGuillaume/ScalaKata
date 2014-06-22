@@ -7,7 +7,8 @@ final case object Error extends Severity
 
 case class Instrumentation(
 	result: String,
-	line: Int
+	start: Int,
+	end: Int
 )
 
 case class CompilationInfo(

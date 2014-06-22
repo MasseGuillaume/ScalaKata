@@ -15,7 +15,7 @@ object ScalaKataMacro {
     val result: Tree = {
       val eval = newTermName("eval$")
       annottees.map(_.tree).toList match {
-        case q"object $name { ..$body }" :: Nil => {
+        case q"class $name { ..$body }" :: Nil => {
 
           val instr = newTermName("instr$")
           implicit def lift = Liftable[c.universe.Position] { p =>
@@ -35,8 +35,8 @@ object ScalaKataMacro {
             case ident: Ident => instrument(ident)
             case otherwise => otherwise
           }
-          val t = q"""
-          object $name { 
+          q"""
+          class $name { 
             val $instr = scala.collection.mutable.Map.empty[(Int, Int), Any]
 
             def $eval() = {
@@ -45,8 +45,6 @@ object ScalaKataMacro {
             }
           }
           """
-          println(t)
-          t
         }
       }
     }

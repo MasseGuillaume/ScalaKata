@@ -12,8 +12,13 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 		@ScalaKata object SHA {
 			val a = "hello"
 			a
+			val b = "toto"
+			b
 		}
 
-		SHA.eval$() ==== MMap((241,241) -> "hello")
+		SHA.eval$() ==== MMap(
+			(241, 241) -> "hello",
+			(264, 264) -> "toto"
+		)
 	}
 }
