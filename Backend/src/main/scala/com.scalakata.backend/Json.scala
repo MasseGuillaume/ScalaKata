@@ -1,4 +1,7 @@
-package com.scalakata.backend
+package com.scalakata
+package backend
+
+import eval._
 
 import play.api.libs.json._
 import play.api.libs.json.Json._
@@ -30,16 +33,22 @@ object Request {
 
 object Response {
 	implicit private val instrumentation = Json.writes[Instrumentation]
-	implicit private val severity = Writes[Severity] { s_ =>
-		val s = s_ match {
-			case Error => "error"
-			case Warning => "warning"
-			case Info => "info"
-		}
-		JsString(s)
-	}
+	
 	implicit private val compilationinfo = Json.writes[CompilationInfo]
 	implicit private val runtimeerror = Json.writes[RuntimeError]
+	implicit private val compilationinfomap = new Writes[Map[Severity,List[CompilationInfo]]] { 
+		def writes(s: Map[Severity,List[CompilationInfo]]) = {
+			val a = s.map{ case (s, cis) =>
+				val sev = s match {
+					case Error => "error"
+					case Warning => "warning"
+					case Info => "info"
+				}
+				sev -> toJson(cis)
+			}
+			toJson(a)
+		}
+	}
 
 	implicit private val evalresponse = Json.writes[EvalResponse]
 	implicit val EvalResponseMarshaller = 

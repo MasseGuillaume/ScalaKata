@@ -27,7 +27,7 @@ object ScalaKataMacro {
             q"""
             {
               val t = $rhs
-              ${instr}(${rhs.pos}) = (t, ${rhs.pos.isRange})
+              ${instr}(${rhs.pos}) = t
               t
             }
             """

@@ -1,4 +1,7 @@
-package com.scalakata.backend
+package com.scalakata
+package backend
+
+import eval._
 
 import akka.actor._
 import spray.routing.HttpService
@@ -14,26 +17,20 @@ trait ScalaKata extends HttpService {
 	import Request._
 	import Response._
 
+	val compiler = new Compiler
+
 	val route = {
 		post {
 			path("eval") {
 				entity(as[EvalRequest]) { request =>
 					val EvalRequest(code) = request
-
-					complete(EvalResponse(List(
-						Instrumentation(1, code)
-					), List(
-						CompilationInfo("cool", 1, Info)
-					), false, None))
+					complete(compiler.insight(code))
 				}
 			} ~
 			path("completion") {
 				entity(as[CompletionRequest]) { request =>
 					val CompletionRequest(code, pos) = request
-
-					complete(List(
-						CompletionResponse("map", "(a->b) -> [a] -> [b]")
-					))
+					complete(compiler.autocomplete(code, pos))
 				}
 			}
 		}
