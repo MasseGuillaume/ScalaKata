@@ -8,7 +8,9 @@ class CommpilerSpecs extends Specification { def is = s2"""
   val c = new Compiler
 
   def assert(code: String, expected: String) = {
-  	val EvalResponse(List(Instrumentation(result,_,_)), _, _, _) = c.insight(code)
+    val i = c.insight(code)
+    println(i.insight)
+  	val EvalResponse(List(Instrumentation(result,_,_)), _, _, _) = i
   	result ==== expected
   }
 

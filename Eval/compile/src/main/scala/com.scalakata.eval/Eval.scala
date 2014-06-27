@@ -1,14 +1,5 @@
 package com.scalakata.eval
 
-// based on twitter util eval
-// https://github.com/twitter/util/tree/master/util-eval
-
-import java.io._
-import java.math.BigInteger
-import java.net.URLClassLoader
-import java.security.MessageDigest
-import java.util.Random
-
 import scala.tools.nsc.{Global, Settings}
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
 import scala.tools.nsc.io.{AbstractFile, VirtualDirectory}
@@ -22,12 +13,11 @@ object Eval {
 class Eval(settings: Settings) {
   private val reporter = new StoreReporter()
   
-  
   private val target = new VirtualDirectory("(memory)", None)
   private var classLoader = new AbstractFileClassLoader(target, this.getClass.getClassLoader)
   
   settings.outputDirs.setSingleOutput(target)
-  settings.Ymacroexpand.value = "normal"
+  settings.Ymacroexpand.value = settings.MacroExpand.Normal
 
   private val compiler = new Global(settings, reporter)
   
@@ -78,7 +68,7 @@ class Eval(settings: Settings) {
         |$code
         |}""".stripMargin
   
-  private def reset() {
+  private def reset(): Unit = {
     target.clear
     reporter.reset
     classLoader = new AbstractFileClassLoader(target, this.getClass.getClassLoader)

@@ -6,19 +6,33 @@ import org.specs2._
 
 class InstrumentationSpecs extends Specification { def is = s2"""
 	good $good
+	all $all
 """
 
 	def good = {
 		@ScalaKata object SHA {
-			val a = "hello"
-			a
-			val b = "toto"
-			b
+			val allo = "hello"
+			allo
+			val placeholder = "toto"
+			placeholder
 		}
 
+		// fail because of range pos
 		SHA.eval$() ==== MMap(
-			(241, 241) -> "hello",
-			(264, 264) -> "toto"
+			(244, 248) -> "hello",
+			(280, 291) -> "toto"
 		)
+	}
+
+
+	def all = {
+		@ScalaKata object SHA {
+			val (a, b) = (1, 2)
+			var (c, d) = (3, 4)
+			List.empty[Int]
+			List.fill(2)("t")
+		}
+		println(SHA.eval$())
+		ok
 	}
 }
