@@ -1,6 +1,5 @@
 package com.scalakata.eval
 
-
 import org.specs2._
 
 class CommpilerSpecs extends Specification { def is = s2"""
@@ -20,6 +19,6 @@ class CommpilerSpecs extends Specification { def is = s2"""
     	   |""".stripMargin, 
 
 		"2"
-	)
+	 )
   }
 }

@@ -20,9 +20,6 @@ object Eval {
 }
 
 class Eval(settings: Settings) {
-
-  private val jvmId = java.lang.Math.abs(new Random().nextInt())
-
   private val reporter = new StoreReporter()
   
   
@@ -33,40 +30,33 @@ class Eval(settings: Settings) {
   settings.Ymacroexpand.value = "normal"
 
   private val compiler = new Global(settings, reporter)
+  
+  private val codePackage = "com.scalakata.eval"
+  private val objectName = "MEval"
 
   def apply(code: String): (Option[Eval.Instrumentation], Map[String, List[(Int, String)]]) = {
-    val id = uniqueId(code)
-    val objectName = "Evaluator__" + id
-    val codeT = wrapCodeInClass(objectName, code)
-    println(codeT)
-    compile(codeT)
+    compile(wrapCode(code))
 
-    val infos = check(objectName)
+    val infos = check()
     val infoss = infos.map{case (k, v) => (k.toString, v)}
 
     if(!infos.contains(reporter.ERROR)) {
-      val cls = classLoader.loadClass(objectName)
-      val instr = cls.getConstructor().newInstance().asInstanceOf[{ 
-        def eval$(): Eval.Instrumentation
-      }].eval$()
-
+      import scala.reflect.runtime.{universe => ru}
+      val m = ru.runtimeMirror(classLoader)
+      val lm = m.staticModule(codePackage + "." + objectName)
+      val obj = m.reflectModule(lm)
+      val instr = obj.instance.asInstanceOf[{def eval$(): Eval.Instrumentation}].eval$()
       (Some(instr), infoss)
     } else {
       (None, infoss)
     }
   }
 
-  private def uniqueId(code: String): String = {
-    val digest = MessageDigest.getInstance("SHA-1").digest(code.getBytes())
-    val sha = new BigInteger(1, digest).toString(16)
-    s"${sha}_${jvmId}"
-  }
-
-  private def check(objectName: String): Map[reporter.Severity, List[(Int, String)]] = {
+  private def check(): Map[reporter.Severity, List[(Int, String)]] = {
     reporter.infos.map {
       info => (
         info.severity,
-        info.pos.point - preWrap(objectName).length,
+        info.pos.point - preWrap.length,
         info.msg
       )
     }.to[List]
@@ -79,15 +69,15 @@ class Eval(settings: Settings) {
      .mapValues{_.map{case (a,b,c) => (b,c)}}
   }
 
-  private def preWrap(objectName: String) =
-    s"@com.scalakata.eval.ScalaKata class $objectName {\n"
+  private val preWrap =
+    s"""|package com.scalakata.eval
+        |@com.scalakata.eval.ScalaKata object $objectName {""".stripMargin
 
-  private def wrapCodeInClass(objectName: String, code: String) = {
-    preWrap(objectName) + 
-      code + "\n" +
-    "}"
-  }
-
+  private def wrapCode(code: String) = 
+    s"""|$preWrap
+        |$code
+        |}""".stripMargin
+  
   private def reset() {
     target.clear
     reporter.reset

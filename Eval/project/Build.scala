@@ -36,7 +36,7 @@ object EvalBuild extends Build {
 		base = file("compile"),
 		settings = default ++ buildInfoSettings ++ Seq(
 			name := "eval",
-			//scalacOptions in Compile += "-Yrangepos",
+			scalacOptions in Compile += "-Yrangepos",
 			libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
 			sourceGenerators in Compile <+= buildInfo,
 			buildInfoKeys := Seq[BuildInfoKey](

@@ -62,7 +62,7 @@ class Compiler {
 
   def autocomplete(code: String, pos: Int): List[CompletionResponse] = {
 
-    val beginWrap = "object ScalaKata {\n"
+    val beginWrap = "class ScalaKata {\n"
     val endWrap = "\n}"
 
     val wrapOffset = beginWrap.size
