@@ -2,7 +2,9 @@ app.run(function(scalaEval){
 	CodeMirror.commands.autocomplete = function(cm) {
 		scalaEval.autocomplete(
 			cm.getDoc().getValue(), 
-			cm.getDoc().indexFromPos(cm.getCursor())).then(function(data){
+			cm.getDoc().indexFromPos(cm.getCursor())).then(function(r){
+
+			var data = r.data;
 
 			// unavailable
 			if(angular.isString(data.completions)) {
@@ -36,7 +38,7 @@ app.run(function(scalaEval){
 				var term = currentLine.substr(curFrom.ch, curTo.ch - curFrom.ch);
 
 
-				var completions = data.completions.filter(function(c){
+				var completions = data.filter(function(c){
 
 					return c.name.toLowerCase().indexOf(term.toLowerCase()) != -1;
 

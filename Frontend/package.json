@@ -20,6 +20,7 @@
     "gulp-autoprefixer": "0.0.6",
     "gulp-rename": "~1.1.0",
     "gulp-spawn": "~0.3.0",
+    "request": "~2.36.0",
     "tiny-lr": "0.0.5"
   },
   "engines": {

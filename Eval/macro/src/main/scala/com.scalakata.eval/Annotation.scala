@@ -18,7 +18,6 @@ object ScalaKataMacro {
       val eval = newTermName("eval$")
       annottees.map(_.tree).toList match {
         case q"object $name { ..$body }" :: Nil => {
-
           val instr = newTermName("instr$")
           implicit def lift = Liftable[c.universe.Position] { p =>
             q"(${p.point}, ${p.end})"

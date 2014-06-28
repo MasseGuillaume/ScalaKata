@@ -9,7 +9,8 @@ var gulp = require('gulp'),
     lrserver = require('tiny-lr')(),
     spawn = require("gulp-spawn"),
     refresh = require('gulp-livereload'),
-    rename = require('gulp-rename');
+    rename = require('gulp-rename'),
+    request = require('request');
 
 var livereloadport = 35729,
     serverport = 5000;
@@ -54,11 +55,20 @@ gulp.task('default', function() {
 });
 
 gulp.task('serve', function(){
-    var server = express();
+    var server = express(),
+        apiUrl = "http://localhost:8080";
+
     server.use(livereload({port: livereloadport}));
     server.use(express.static('web'));
     server.use(express.static('bower_components'));
     server.use(express.static('dist'));
+
+    ['/eval', '/completion'].forEach(function(u){
+        server.use(u, function(req, res) {
+            req.pipe(request(apiUrl + u)).pipe(res);
+        });
+    })
+
     server.listen(serverport);
     lrserver.listen(livereloadport);
 });

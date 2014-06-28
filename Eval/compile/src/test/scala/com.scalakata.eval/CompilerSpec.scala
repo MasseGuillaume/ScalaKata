@@ -7,20 +7,15 @@ class CommpilerSpecs extends Specification { def is = s2"""
 """
   val c = new Compiler
 
-  def assert(code: String, expected: String) = {
-    val i = c.insight(code)
-    println(i.insight)
-  	val EvalResponse(List(Instrumentation(result,_,_)), _, _, _) = i
-  	result ==== expected
-  }
-
   def works = {
-    assert(
-    	"""|val a = 1+1
-    	   |a
-    	   |""".stripMargin, 
+    val code = 
+    	"""|val a = List(1,2)
+         |val b = 2""".stripMargin
 
-		"2"
-	 )
+    val result = c.insight(code)
+
+    result ==== EvalResponse.empty.copy(insight = 
+      List(Instrumentation("List(1,2)",13,13), Instrumentation("2",10,10))
+    )
   }
 }

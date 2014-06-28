@@ -55,17 +55,17 @@ app.factory('errorsRenderer', function() {
 			});
 			errorUnderlines = [];
 		},
-		render: function(cm, data, code){
-			["errors", "warnings", "infos"].forEach(function(severity){
-				if (data[severity]){
-					data[severity].forEach(function(value) {	
+		render: function(cm, infos, runtimeError, code){
+			["error", "warning", "info"].forEach(function(severity){
+				if (infos[severity]){
+					infos[severity].forEach(function(value) {	
 						errorMessages.push(errorMessage(cm, severity, value));							
 						errorUnderlines.push(errorUnderline(cm, severity, value, code));
 					});
 				}
 			});
-			if(angular.isDefined(data.runtimeError.line)) {
-				var value = data.runtimeError;
+			if(angular.isDefined(runtimeError)) {
+				var value = runtimeError;
 				var severity = "runtime-error";
 
 				errorMessages.push(errorMessage(cm, severity, value));							

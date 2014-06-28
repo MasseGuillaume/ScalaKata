@@ -73,10 +73,11 @@ app.controller('code', function code(
 	
 	function run(){
 		if(!configEditing) {
-			scalaEval.insight($scope.code).then(function(data){
+			scalaEval.insight($scope.code).then(function(r){
+				var data = r.data;
 				var code = $scope.code.split("\n");
-				insightRenderer.render(cm, $scope.cmOptions.mode, code, data.insight);
-				errorsRenderer.render(cm, data, code);
+				insightRenderer.render(cm, $scope.cmOptions.mode, data.insight);
+				errorsRenderer.render(cm, data.infos, data.runtimeError, code);
 			});
 		}
 	}
