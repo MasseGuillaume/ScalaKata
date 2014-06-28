@@ -32,7 +32,6 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 			List.empty[Int]
 			List.fill(2)("t")
 		}
-		println(SHA.eval$())
 		ok
 	}
 }

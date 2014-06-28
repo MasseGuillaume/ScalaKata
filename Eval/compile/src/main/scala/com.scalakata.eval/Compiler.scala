@@ -30,7 +30,11 @@ class Compiler {
 
               val i = 
                 instr.map{ case ((start, end), value) =>
-                  Instrumentation(value.toString, start, end)
+                  val v = value match {
+                    case a: String => '"' + a + '"'
+                    case other => other.toString
+                  }
+                  Instrumentation(v, start, end)
                 }.to[List]
 
               EvalResponse.empty.copy(

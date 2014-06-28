@@ -37,9 +37,7 @@ class Eval(settings: Settings) {
       val obj = m.reflectModule(lm)
       val instr = obj.instance.asInstanceOf[{def eval$(): Eval.Instrumentation}].eval$()
       val offset = preWrap.length
-      println(offset)
       val instrPos = instr.map{ case ((s, e), i) =>
-        println(s)
         ((s - offset, e - offset), i)
       }
       (Some(instrPos), infoss)
@@ -81,8 +79,6 @@ class Eval(settings: Settings) {
   }
 
   private def compile(code: String): Unit = {
-    println(code)
-
     reset()
     val run = new compiler.Run
     val sourceFiles = List(new BatchSourceFile("(inline)", code))
