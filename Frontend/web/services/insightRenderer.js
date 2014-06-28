@@ -1,7 +1,7 @@
 app.factory('insightRenderer', function() {
 	var widgets = [];
 
-	function apply(cm, cmOptions, insight){
+	function apply(cm, cmOptions, insight, code){
 		var start = cm.getDoc().posFromIndex(insight.start),
 			end = cm.getDoc().posFromIndex(insight.end);		// TODO: use it
 
@@ -23,9 +23,9 @@ app.factory('insightRenderer', function() {
 			});
 			widgets = [];
 		},
-		render: function(cm, cmOptions, insights){
+		render: function(cm, cmOptions, insights, code){
 			widgets = insights.map(function(insight){
-				return apply(cm, cmOptions, insight);
+				return apply(cm, cmOptions, insight, code);
 			});
 		}
 	}

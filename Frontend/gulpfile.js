@@ -1,4 +1,5 @@
 var gulp = require('gulp'),
+    gulpUtil = require('gulp-util'),
     clean = require('gulp-clean'),
     concat = require('gulp-concat'),
     express = require('express'),   
@@ -10,7 +11,12 @@ var gulp = require('gulp'),
     spawn = require("gulp-spawn"),
     refresh = require('gulp-livereload'),
     rename = require('gulp-rename'),
-    request = require('request');
+    request = require('request'),
+    usemin = require('gulp-usemin'),
+    uglify = require('gulp-uglify'),
+    minifyHtml = require('gulp-minify-html'),
+    minifyCss = require('gulp-minify-css'),
+    rev = require('gulp-rev');
 
 var livereloadport = 35729,
     serverport = 5000;
@@ -18,7 +24,7 @@ var livereloadport = 35729,
 gulp.task('styles', function() {
     gulp.src('styles/main.less')
         .pipe(less())
-        .pipe(gulp.dest('dist/styles'))
+        .pipe(gulp.dest('tmp/styles'))
         .pipe(refresh(lrserver));
 });
 
@@ -54,23 +60,27 @@ gulp.task('default', function() {
     gulp.start('install', 'styles', 'serve', 'watch', 'browser');
 });
 
-gulp.task('serve', function(){
+function serveF(assets){
     var server = express(),
         apiUrl = "http://localhost:8080";
 
     server.use(livereload({port: livereloadport}));
-    server.use(express.static('web'));
-    server.use(express.static('bower_components'));
-    server.use(express.static('dist'));
-
     ['/eval', '/completion'].forEach(function(u){
         server.use(u, function(req, res) {
             req.pipe(request(apiUrl + u)).pipe(res);
         });
-    })
+    });
+
+    assets.forEach(function(a){
+        server.use(express.static(a));
+    });
 
     server.listen(serverport);
     lrserver.listen(livereloadport);
+}
+
+gulp.task('serve', function(){
+    serveF(['web', 'bower_components', 'tmp']);   
 });
 
 gulp.task('watch', function() {
@@ -79,4 +89,26 @@ gulp.task('watch', function() {
     gulp.watch('web/**/*.js', ['js']);
     gulp.watch('bower.json', ['bower']);
     gulp.watch('package.json', ['npm']);
+});
+
+gulp.task('build', ['usemin', 'font']);
+gulp.task('buildServe', ['usemin', 'font', 'serveDist']);
+
+gulp.task('serveDist', function(){
+    serveF(['dist']);
+});
+
+gulp.task('font', function(){
+    gulp.src('bower_components/fontawesome/fonts/fontawesome-webfont.woff')
+    .pipe(gulp.dest('dist/fonts/'));
+})
+
+gulp.task('usemin', function() {
+  gulp.src('web/**/*.html')
+    .pipe(usemin({
+      css: [minifyCss(), 'concat'],
+      html: [minifyHtml({empty: true, quotes: true})],
+      js: [uglify(), rev()]
+    }))
+    .pipe(gulp.dest('dist/'));
 });

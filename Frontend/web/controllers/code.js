@@ -1,6 +1,6 @@
-app.controller('code', function code(
-	$scope, $timeout, 
-	LANGUAGE, scalaEval, insightRenderer, errorsRenderer){
+app.controller('code',
+			 ["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRenderer", "errorsRenderer", 
+function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer ,  errorsRenderer){
 
 	var cm, 
 		code,
@@ -13,9 +13,9 @@ app.controller('code', function code(
 		code = "";
 	}
 
-	// if(angular.isDefined(window.localStorage['codemirror'])) {
-	// 	$scope.cmOptions = JSON.parse(window.localStorage['codemirror']);
-	// } else {
+	if(angular.isDefined(window.localStorage['codemirror'])) {
+		$scope.cmOptions = JSON.parse(window.localStorage['codemirror']);
+	} else {
 		var keys = {}
 		keys[ctrl + "Space"] = "autocomplete";
 		keys[ctrl + "Enter"] = "run";
@@ -36,7 +36,7 @@ app.controller('code', function code(
 			keyMap: "sublime",
 			highlightSelectionMatches: { showToken: false }
 		};
-	// }
+	}
 	$scope.theme = function(){
 		return _.map($scope.cmOptions.theme.split(" "), function(t){
 			return "cm-s-" + t;
@@ -76,7 +76,7 @@ app.controller('code', function code(
 			scalaEval.insight($scope.code).then(function(r){
 				var data = r.data;
 				var code = $scope.code.split("\n");
-				insightRenderer.render(cm, $scope.cmOptions.mode, data.insight);
+				insightRenderer.render(cm, $scope.cmOptions.mode, data.insight, code);
 				errorsRenderer.render(cm, data.infos, data.runtimeError, code);
 			});
 		}
@@ -99,4 +99,4 @@ app.controller('code', function code(
 	});
 
 	$scope.run = run;
-});
+}]);

@@ -1,5 +1,6 @@
-// based on http://clintberry.com/2013/angular-js-websocket-service/
-app.factory("scalaEval", function($q, $rootScope, $location, $http) {
+app.factory("scalaEval",
+		["$q", "$rootScope", "$location", "$http",
+function( $q ,  $rootScope ,  $location ,  $http) {
 
 	var url;
 	if($location.host() === "scalakata.com") {
@@ -16,4 +17,4 @@ app.factory("scalaEval", function($q, $rootScope, $location, $http) {
 			return $http.post(url + "completion", {"code": code, "position": position});
 		}
 	};
-});
+}]);

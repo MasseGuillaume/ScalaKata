@@ -1,4 +1,4 @@
-app.run(function(scalaEval){
+app.run(["scalaEval", function(scalaEval){
 	CodeMirror.commands.autocomplete = function(cm) {
 		scalaEval.autocomplete(
 			cm.getDoc().getValue(), 
@@ -55,4 +55,4 @@ app.run(function(scalaEval){
 			});
 		})
 	};
-});
+}]);
