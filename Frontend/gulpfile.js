@@ -91,8 +91,8 @@ gulp.task('watch', function() {
     gulp.watch('package.json', ['npm']);
 });
 
-gulp.task('build', ['usemin', 'font']);
-gulp.task('buildServe', ['usemin', 'font', 'serveDist']);
+gulp.task('build', ['usemin', 'font', 'fav']);
+gulp.task('buildServe', ['build', 'serveDist', 'browser']);
 
 gulp.task('serveDist', function(){
     serveF(['dist']);
@@ -101,6 +101,11 @@ gulp.task('serveDist', function(){
 gulp.task('font', function(){
     gulp.src('bower_components/fontawesome/fonts/fontawesome-webfont.woff')
     .pipe(gulp.dest('dist/fonts/'));
+})
+
+gulp.task('fav', function(){
+    gulp.src('favicon.ico')
+    .pipe(gulp.dest('dist/'));
 })
 
 gulp.task('usemin', function() {

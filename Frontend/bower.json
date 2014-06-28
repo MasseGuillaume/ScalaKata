@@ -5,14 +5,14 @@
   "authors": ["Guillaume Massé"],
   "description": "ScalaKata",
   "dependencies": {
-    "angular": "~1.2.16",
+    "angular": "~1.2.18",
     "fontawesome": "~4.1.0",
-    "codemirror": "#350e8b7d9cc16a4e75b25fb8d2deaea972920a13",
-    "angular-ui-codemirror": "~0.0.5"
+    "codemirror": "#bc9c42b4af78a345dc73edd425f3718dbb37f142",
+    "angular-ui-codemirror": "~0.1.2"
   },
   "resolutions": {
-    "angular": "~1.2.16",
-    "codemirror": "350e8b7d9cc16a4e75b25fb8d2deaea972920a13"
+    "angular": "~1.2.18",
+    "codemirror": "bc9c42b4af78a345dc73edd425f3718dbb37f142"
   },
   "keywords": [
   ],
