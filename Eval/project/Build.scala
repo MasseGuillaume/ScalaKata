@@ -9,10 +9,13 @@ object Settings {
 		versionWithGit ++ Seq(
 			organization := "com.scalakata",
 			git.baseVersion := "0.1.0",
-			scalaVersion := "2.11.1",
+			scalaVersion := "2.11.2-SNAPSHOT",
 			libraryDependencies += "org.specs2" %% s"specs2" % "2.3.12" % "test",
-			resolvers += Resolver.sonatypeRepo("releases"),
-			addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0" cross CrossVersion.full)
+			resolvers ++= Seq(
+				Resolver.sonatypeRepo("releases"),
+				Resolver.sonatypeRepo("snapshots")
+			),
+			addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0-SNAPSHOT" cross CrossVersion.full)
 		)
 }
 

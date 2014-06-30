@@ -19,11 +19,12 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 
 		// fail because of range pos
 		SHA.eval$() ==== MMap(
-			(244, 248) -> "hello",
-			(280, 291) -> "toto"
+			(290,301) -> "toto",
+			(280,286) -> "toto",
+			(243,250) -> "hello",
+			(254,258) -> "hello"
 		)
 	}
-
 
 	def all = {
 		@ScalaKata object SHA {
