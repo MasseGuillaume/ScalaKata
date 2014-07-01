@@ -13,7 +13,7 @@ object ScalaKataMacro {
   def impl(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
 
-    def instrument(body: Seq[Tree], offset: Int) = {
+    def instrument(body: Seq[Tree], name: c.universe.TermName, offset: Int) = {
       val instr = newTermName("instr$")
 
       implicit def lift = Liftable[c.universe.Position] { p =>
@@ -44,7 +44,7 @@ object ScalaKataMacro {
         case otherwise => otherwise
       }
       q"""
-      object ${newTermName("Instrumented")} { 
+      object $name { 
         val $instr = scala.collection.mutable.Map.empty[(Int, Int), Any]
 
         def ${newTermName("eval$")}() = {
@@ -57,10 +57,10 @@ object ScalaKataMacro {
 
     val result: Tree = {
       annottees.map(_.tree).toList match {
-        case q"object A { ..$bodyO }" :: Nil => {
+        case q"object $name { ..$bodyO }" :: Nil => {
           bodyO match {
             case (obj @ q"object B { ..$body }") :: Nil => {
-              instrument(body, obj.pos.point + 2)
+              instrument(body, name, obj.pos.point + 2)
             }
           }
         }

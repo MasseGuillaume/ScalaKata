@@ -20,10 +20,8 @@ class Eval(settings: Settings) {
   settings.Ymacroexpand.value = settings.MacroExpand.Normal
 
   private val compiler = new Global(settings, reporter)
+  private val objectName = "A"
   
-  private val codePackage = "com.scalakata.eval"
-  private val objectName = "MEval"
-
   def apply(code: String): (Option[Eval.Instrumentation], Map[String, List[(Int, String)]]) = {
     compile(wrapCode(code))
 
@@ -33,14 +31,10 @@ class Eval(settings: Settings) {
     if(!infos.contains(reporter.ERROR)) {
       import scala.reflect.runtime.{universe => ru}
       val m = ru.runtimeMirror(classLoader)
-      val lm = m.staticModule(codePackage + "." + objectName)
+      val lm = m.staticModule(s"com.scalakata.eval.$objectName")
       val obj = m.reflectModule(lm)
       val instr = obj.instance.asInstanceOf[{def eval$(): Eval.Instrumentation}].eval$()
-      val offset = preWrap.length
-      val instrPos = instr.map{ case ((s, e), i) =>
-        ((s - offset, e - offset), i)
-      }
-      (Some(instrPos), infoss)
+      (Some(instr), infoss)
     } else {
       (None, infoss)
     }
@@ -65,12 +59,11 @@ class Eval(settings: Settings) {
 
   private val preWrap =
     s"""|package com.scalakata.eval
-        |@com.scalakata.eval.ScalaKata object $objectName {""".stripMargin
+        |@com.scalakata.eval.ScalaKata object $objectName{object B{""".stripMargin
 
   private def wrapCode(code: String) = 
-    s"""|$preWrap
-        |$code
-        |}""".stripMargin
+    s"""|${preWrap}${code}
+        |}}""".stripMargin
   
   private def reset(): Unit = {
     target.clear

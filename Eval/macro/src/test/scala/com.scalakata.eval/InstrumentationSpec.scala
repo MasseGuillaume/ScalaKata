@@ -10,13 +10,13 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 
 	def relative = {
 		@ScalaKata
-		object A { object B {0
+		object A{object B{0
 			1
 		}}
 
 		Instrumented.eval$() ==== MMap(
 			(0,1) -> 0,
-			(6,7) -> 1
+			(5,6) -> 1
 		)
 	}
 }
