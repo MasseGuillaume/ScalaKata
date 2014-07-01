@@ -44,8 +44,8 @@ object EvalBuild extends Build {
 			name := "eval",
 			sourceGenerators in Compile <+= buildInfo,
 			buildInfoKeys := Seq[BuildInfoKey](
-				BuildInfoKey.map((dependencyClasspath in Compile)){ case (k, v) => k -> v.map(_.data) },
-				BuildInfoKey.map((exportedProducts in Runtime in macro)){ case (k, v) => k -> v.map(_.data) },
+				BuildInfoKey.map((dependencyClasspath in Compile)){ case (k, v) ⇒ k -> v.map(_.data) },
+				BuildInfoKey.map((exportedProducts in Runtime in macro)){ case (k, v) ⇒ k -> v.map(_.data) },
 				(scalacOptions in Compile)
 			),
 			buildInfoPackage := "com.scalakata.eval.sbt"

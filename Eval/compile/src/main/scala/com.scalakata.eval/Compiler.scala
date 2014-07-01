@@ -26,13 +26,13 @@ class Compiler {
       try { 
         withTimeout{
           eval(code) match {
-            case (Some(instr), cinfos) =>
+            case (Some(instr), cinfos) ⇒
 
               val i = 
-                instr.map{ case ((start, end), value) =>
+                instr.map{ case ((start, end), value) ⇒
                   val v = value match {
-                    case a: String => '"' + a + '"'
-                    case other => other.toString
+                    case a: String ⇒ '"' + a + '"'
+                    case other ⇒ other.toString
                   }
                   Instrumentation(v, start, end)
                 }.to[List]
@@ -41,14 +41,14 @@ class Compiler {
                 insight = i,
                 infos = convert(cinfos)
               )
-            case (_, cinfos) => EvalResponse.empty.copy(infos = convert(cinfos))
+            case (_, cinfos) ⇒ EvalResponse.empty.copy(infos = convert(cinfos))
           }
 
         }(timeout).getOrElse(
           EvalResponse.empty.copy(timeout = true)
         )
       } catch {
-        case NonFatal(e) => {
+        case NonFatal(e) ⇒ {
           e.printStackTrace
 
           val error = 
@@ -77,11 +77,11 @@ class Compiler {
 
     def reload(code: String): BatchSourceFile = {
       val file = wrap(code)
-      withResponse[Unit](r => compiler.askReload(List(file), r)).get
+      withResponse[Unit](r ⇒ compiler.askReload(List(file), r)).get
       file
     }
 
-    def withResponse[A](op: Response[A] => Any): Response[A] = {
+    def withResponse[A](op: Response[A] ⇒ Any): Response[A] = {
       val response = new Response[A]
       op(response)
       response
@@ -92,20 +92,20 @@ class Compiler {
       val file = reload(code)
       val ajustedPos = pos + wrapOffset
       val position = new OffsetPosition(file, ajustedPos)
-      val response = withResponse[List[compiler.Member]](r => 
+      val response = withResponse[List[compiler.Member]](r ⇒ 
         compiler.askTypeCompletion(position, r)
       )
 
       response.get match {
-        case Left(members) => compiler.ask( () => {
-          members.map(member => 
+        case Left(members) ⇒ compiler.ask( () ⇒ {
+          members.map(member ⇒ 
             CompletionResponse(
               name = member.sym.decodedName,
               signature = member.sym.signatureString
             )
           )
         })
-        case Right(e) => 
+        case Right(e) ⇒ 
           e.printStackTrace
           Nil
       }
@@ -133,17 +133,17 @@ class Compiler {
   private val eval = new Eval(settings.copy)
 
   private def convert(infos: Map[String, List[(Int, String)]]): Map[Severity, List[CompilationInfo]] = {
-    infos.map{ case (k,vs) => 
+    infos.map{ case (k,vs) ⇒ 
       val sev = k match {
-        case "ERROR" => Error
-        case "WARNING" => Warning
-        case "INFO" => Info
+        case "ERROR" ⇒ Error
+        case "WARNING" ⇒ Warning
+        case "INFO" ⇒ Info
       }
-      (sev, vs map {case (p, m) => CompilationInfo(m, p)})
+      (sev, vs map {case (p, m) ⇒ CompilationInfo(m, p)})
     }
   }
 
-  private def withTimeout[T](f: => T)(timeout: Duration): Option[T]= {
+  private def withTimeout[T](f: ⇒ T)(timeout: Duration): Option[T]= {
     val task = new FutureTask(new Callable[T]() {
       def call = f
     })
@@ -152,7 +152,7 @@ class Compiler {
       thread.start()
       Some(task.get(timeout.toMillis, TimeUnit.MILLISECONDS))     
     } catch {
-      case e: TimeoutException => None
+      case e: TimeoutException ⇒ None
     } finally { 
       if( thread.isAlive ){
         thread.interrupt()

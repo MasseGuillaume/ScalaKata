@@ -10,7 +10,7 @@ object Scalakata extends Plugin {
     )
   )
 
-  lazy val sample = Command.command("sampleCommand") { state =>
+  lazy val sample = Command.command("sampleCommand") { state ⇒
     println("Hello SBT World!")
     state
   }

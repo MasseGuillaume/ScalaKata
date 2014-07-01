@@ -1,6 +1,6 @@
 package com.scalakata.eval
 
-import scala.collection.mutable.{Map => MMap}
+import scala.collection.mutable.{Map ⇒ MMap}
 
 import org.specs2._
 

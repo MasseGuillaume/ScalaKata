@@ -14,11 +14,13 @@ Revolver.settings
 
 resolvers ++= Seq(
 	"spray repo" at "http://repo.spray.io",
-	"typesafe releases" at "http://repo.typesafe.com/typesafe/releases"
+	"typesafe releases" at "http://repo.typesafe.com/typesafe/releases",
+	Resolver.sonatypeRepo("snapshots")
 )
 
 libraryDependencies ++= Seq(
-	"com.scalakata" %% "eval" % "0.1.0-20140628T012537",
+	"com.scalakata" %% "eval" % "0.1.0-20140630T230635",
+	"com.scalakata" %% "frontend" % "0.1-20140630T194910",
 	"io.spray" %% "spray-can" % "1.3.1-20140423",
 	"io.spray" %% "spray-routing" % "1.3.1-20140423",
 	"com.typesafe.akka" %% "akka-actor" % "2.3.3",

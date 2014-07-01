@@ -26,10 +26,10 @@ class Eval(settings: Settings) {
     compile(wrapCode(code))
 
     val infos = check()
-    val infoss = infos.map{case (k, v) => (k.toString, v)}
+    val infoss = infos.map{case (k, v) ⇒ (k.toString, v)}
 
     if(!infos.contains(reporter.ERROR)) {
-      import scala.reflect.runtime.{universe => ru}
+      import scala.reflect.runtime.{universe ⇒ ru}
       val m = ru.runtimeMirror(classLoader)
       val lm = m.staticModule(s"com.scalakata.eval.$objectName")
       val obj = m.reflectModule(lm)
@@ -42,19 +42,19 @@ class Eval(settings: Settings) {
 
   private def check(): Map[reporter.Severity, List[(Int, String)]] = {
     reporter.infos.map {
-      info => (
+      info ⇒ (
         info.severity,
         info.pos.point - preWrap.length,
         info.msg
       )
     }.to[List]
-     .filterNot{ case (sev, _, msg) =>
+     .filterNot{ case (sev, _, msg) ⇒
       // annoying
       sev == reporter.WARNING &&
       msg == ("a pure expression does nothing in statement " +
               "position; you may be omitting necessary parentheses")
     }.groupBy(_._1)
-     .mapValues{_.map{case (a,b,c) => (b,c)}}
+     .mapValues{_.map{case (a,b,c) ⇒ (b,c)}}
   }
 
   private val preWrap =

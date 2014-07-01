@@ -16,7 +16,7 @@ object ScalaKataMacro {
     def instrument(body: Seq[Tree], name: c.universe.TermName, offset: Int) = {
       val instr = newTermName("instr$")
 
-      implicit def lift = Liftable[c.universe.Position] { p =>
+      implicit def lift = Liftable[c.universe.Position] { p ⇒
         q"(${p.point - offset}, ${p.end - offset})"
       }
       def inst(expr: Tree, rhs: Tree): Tree = {
@@ -30,18 +30,18 @@ object ScalaKataMacro {
       }
 
       val bodyI = body.map {
-        case ident: Ident => inst(ident, ident)
-        case expr @ q"val $pat = $exprV" => q"val $pat = ${inst(expr, exprV)}"
-        case expr @ q"var $pat = $exprV" => q"var $pat = ${inst(expr, exprV)}"
-        case select @ q"$expr.$name" => inst(select, select)
-        case apply @ q"$expr(..$params)" => inst(apply, apply)
-        case tree @ q"(..$exprs)" => inst(tree, tree)
-        case block @ q"{ ..$stats }" => inst(block, block)
-        case trycatch @ q"try $expr catch { case ..$cases }" => inst(trycatch, trycatch)
-        case function @ q"(..$params) => $expr" => inst(function, function)
-        case fort @ q"for (..$enums) $expr" => inst(fort, fort)
-        case fory @ q"for (..$enums) yield $expr" => inst(fory, fory)
-        case otherwise => otherwise
+        case ident: Ident ⇒ inst(ident, ident)
+        case expr @ q"val $pat = $exprV" ⇒ q"val $pat = ${inst(expr, exprV)}"
+        case expr @ q"var $pat = $exprV" ⇒ q"var $pat = ${inst(expr, exprV)}"
+        case select @ q"$expr.$name" ⇒ inst(select, select)
+        case apply @ q"$expr(..$params)" ⇒ inst(apply, apply)
+        case tree @ q"(..$exprs)" ⇒ inst(tree, tree)
+        case block @ q"{ ..$stats }" ⇒ inst(block, block)
+        case trycatch @ q"try $expr catch { case ..$cases }" ⇒ inst(trycatch, trycatch)
+        case function @ q"(..$params) ⇒ $expr" ⇒ inst(function, function)
+        case fort @ q"for (..$enums) $expr" ⇒ inst(fort, fort)
+        case fory @ q"for (..$enums) yield $expr" ⇒ inst(fory, fory)
+        case otherwise ⇒ otherwise
       }
       q"""
       object $name { 
@@ -57,9 +57,9 @@ object ScalaKataMacro {
 
     val result: Tree = {
       annottees.map(_.tree).toList match {
-        case q"object $name { ..$bodyO }" :: Nil => {
+        case q"object $name { ..$bodyO }" :: Nil ⇒ {
           bodyO match {
-            case (obj @ q"object B { ..$body }") :: Nil => {
+            case (obj @ q"object B { ..$body }") :: Nil ⇒ {
               instrument(body, name, obj.pos.point + 2)
             }
           }

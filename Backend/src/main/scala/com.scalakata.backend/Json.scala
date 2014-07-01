@@ -21,13 +21,13 @@ object Request {
 	implicit private val evalrequest = Json.reads[EvalRequest]
 	implicit val EvalRequestUnmarshaller =
 		Unmarshaller.delegate[String, EvalRequest](json) { 
-			data => fromJson[EvalRequest](Json.parse(data)).get
+			data ⇒ fromJson[EvalRequest](Json.parse(data)).get
 		}
 
 	implicit private val completionrequest = Json.reads[CompletionRequest]
 	implicit val CompletionRequestUnmarshaller =
 		Unmarshaller.delegate[String, CompletionRequest](json) {
-			data => fromJson[CompletionRequest](Json.parse(data)).get
+			data ⇒ fromJson[CompletionRequest](Json.parse(data)).get
 		}
 }
 
@@ -38,11 +38,11 @@ object Response {
 	implicit private val runtimeerror = Json.writes[RuntimeError]
 	implicit private val compilationinfomap = new Writes[Map[Severity,List[CompilationInfo]]] { 
 		def writes(s: Map[Severity,List[CompilationInfo]]) = {
-			val a = s.map{ case (s, cis) =>
+			val a = s.map{ case (s, cis) ⇒
 				val sev = s match {
-					case Error => "error"
-					case Warning => "warning"
-					case Info => "info"
+					case Error ⇒ "error"
+					case Warning ⇒ "warning"
+					case Info ⇒ "info"
 				}
 				sev -> toJson(cis)
 			}
@@ -52,13 +52,13 @@ object Response {
 
 	implicit private val evalresponse = Json.writes[EvalResponse]
 	implicit val EvalResponseMarshaller = 
-		Marshaller.of[EvalResponse](`application/json`) { (eval, contentType, ctx) =>
+		Marshaller.of[EvalResponse](`application/json`) { (eval, contentType, ctx) ⇒
 			ctx.marshalTo(HttpEntity(contentType, toJson(eval).toString))
 		}
 
 	implicit private val completionresponse = Json.writes[CompletionResponse]
 	implicit val CompletionResponseMarshaller = 
-		Marshaller.of[List[CompletionResponse]](`application/json`) { (eval, contentType, ctx) =>
+		Marshaller.of[List[CompletionResponse]](`application/json`) { (eval, contentType, ctx) ⇒
 			ctx.marshalTo(HttpEntity(contentType, toJson(eval).toString))
 		}
 }

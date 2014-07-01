@@ -20,19 +20,28 @@ trait ScalaKata extends HttpService {
 	val compiler = new Compiler
 
 	val route = {
-		post {
-			path("eval") {
-				entity(as[EvalRequest]) { request =>
+		path("eval") {
+			post {
+				entity(as[EvalRequest]) { request ⇒
 					val EvalRequest(code) = request
 					complete(compiler.insight(code))
 				}
-			} ~
-			path("completion") {
-				entity(as[CompletionRequest]) { request =>
+			}
+		} ~
+		path("completion") {
+			post {
+				entity(as[CompletionRequest]) { request ⇒
 					val CompletionRequest(code, pos) = request
 					complete(compiler.autocomplete(code, pos))
 				}
 			}
+		} ~
+		pathSingleSlash {
+          getFromResource("index.html")
+        } ~
+		path(Rest) { path ⇒
+			println(path)
+			getFromResource(path)
 		}
 	}
 }
