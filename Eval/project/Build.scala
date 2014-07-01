@@ -10,7 +10,11 @@ object Settings {
 			organization := "com.scalakata",
 			git.baseVersion := "0.1.0",
 			scalaVersion := "2.11.2-SNAPSHOT",
-			libraryDependencies += "org.specs2" %% s"specs2" % "2.3.12" % "test",
+			scalacOptions += "-Yrangepos",
+			libraryDependencies ++= Seq(
+				"org.scala-lang" % "scala-compiler" % scalaVersion.value,
+				"org.specs2" %% s"specs2" % "2.3.12" % "test"
+			),
 			resolvers ++= Seq(
 				Resolver.sonatypeRepo("releases"),
 				Resolver.sonatypeRepo("snapshots")
@@ -27,9 +31,7 @@ object EvalBuild extends Build {
 		base = file("macro"),
 		settings = default ++ Seq(
 			name := "macro",
-			scalacOptions += "-Yrangepos",
-			libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
-			libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _)
+			libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
 		)
 	)
 
@@ -40,7 +42,6 @@ object EvalBuild extends Build {
 		base = file("compile"),
 		settings = default ++ buildInfoSettings ++ Seq(
 			name := "eval",
-			libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
 			sourceGenerators in Compile <+= buildInfo,
 			buildInfoKeys := Seq[BuildInfoKey](
 				BuildInfoKey.map((dependencyClasspath in Compile)){ case (k, v) => k -> v.map(_.data) },

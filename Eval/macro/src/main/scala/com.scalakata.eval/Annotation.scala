@@ -1,6 +1,6 @@
 package com.scalakata.eval
 
-import scala.reflect.macros.blackbox.Context
+import scala.reflect.macros.whitebox.Context
 
 import scala.language.experimental.macros
 import scala.annotation.StaticAnnotation
@@ -13,49 +13,56 @@ object ScalaKataMacro {
   def impl(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
 
+    def instrument(body: Seq[Tree], offset: Int) = {
+      val instr = newTermName("instr$")
+
+      implicit def lift = Liftable[c.universe.Position] { p =>
+        q"(${p.point - offset}, ${p.end - offset})"
+      }
+      def inst(expr: Tree, rhs: Tree): Tree = {
+        q"""
+        {
+          val t = $rhs
+          ${instr}(${expr.pos}) = t
+          t
+        }
+        """
+      }
+
+      val bodyI = body.map {
+        case ident: Ident => inst(ident, ident)
+        case expr @ q"val $pat = $exprV" => q"val $pat = ${inst(expr, exprV)}"
+        case expr @ q"var $pat = $exprV" => q"var $pat = ${inst(expr, exprV)}"
+        case select @ q"$expr.$name" => inst(select, select)
+        case apply @ q"$expr(..$params)" => inst(apply, apply)
+        case tree @ q"(..$exprs)" => inst(tree, tree)
+        case block @ q"{ ..$stats }" => inst(block, block)
+        case trycatch @ q"try $expr catch { case ..$cases }" => inst(trycatch, trycatch)
+        case function @ q"(..$params) => $expr" => inst(function, function)
+        case fort @ q"for (..$enums) $expr" => inst(fort, fort)
+        case fory @ q"for (..$enums) yield $expr" => inst(fory, fory)
+        case otherwise => otherwise
+      }
+      q"""
+      object ${newTermName("Instrumented")} { 
+        val $instr = scala.collection.mutable.Map.empty[(Int, Int), Any]
+
+        def ${newTermName("eval$")}() = {
+          ..$bodyI
+          $instr
+        }
+      }
+      """
+    }
 
     val result: Tree = {
-      val eval = newTermName("eval$")
       annottees.map(_.tree).toList match {
-        case q"object $name { ..$body }" :: Nil => {
-          val instr = newTermName("instr$")
-          implicit def lift = Liftable[c.universe.Position] { p =>
-            q"(${p.point}, ${p.end})"
-          }
-          def instrument(rhs: Tree): Tree = {
-            q"""
-            {
-              val t = $rhs
-              ${instr}(${rhs.pos}) = t
-              t
-            }
-            """
-          }
-
-          val bodyI = body.map {
-            case ident: Ident => instrument(ident)
-            case q"val $pat = $expr" => q"val $pat = ${instrument(expr)}"
-            case q"var $pat = $expr" => q"var $pat = ${instrument(expr)}"
-            case select @ q"$expr.$name" => instrument(select)
-            case apply @ q"$expr(..$params)" => instrument(apply)
-            case tree @ q"(..$exprs)" => instrument(tree)
-            case block @ q"{ ..$stats }" => instrument(block)
-            case trycatch @ q"try $expr catch { case ..$cases }" => instrument(trycatch)
-            case function @ q"(..$params) => $expr" => instrument(function)
-            case fort @ q"for (..$enums) $expr" => instrument(fort)
-            case fory @ q"for (..$enums) yield $expr" => instrument(fory)
-            case otherwise => otherwise
-          }
-          q"""
-          object $name { 
-            val $instr = scala.collection.mutable.Map.empty[(Int, Int), Any]
-
-            def $eval() = {
-              ..$bodyI
-              $instr
+        case q"object A { ..$bodyO }" :: Nil => {
+          bodyO match {
+            case (obj @ q"object B { ..$body }") :: Nil => {
+              instrument(body, obj.pos.point + 2)
             }
           }
-          """
         }
       }
     }
