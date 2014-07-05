@@ -6,7 +6,7 @@ versionWithGit
 
 git.baseVersion := "0.1"
 
-scalaVersion := "2.11.1" // whatever
+autoScalaLibrary := false
 
 resourceDirectory in Compile := {
 	baseDirectory.value / "dist"

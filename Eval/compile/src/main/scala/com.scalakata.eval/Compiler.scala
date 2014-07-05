@@ -128,6 +128,7 @@ class Compiler {
   settings.processArguments(scalacOptions, true)
   settings.bootclasspath.value = artifacts
   settings.classpath.value = artifacts
+  settings.Yrangepos.value = true
 
   private val compiler = new Global(settings, reporter)
   private val eval = new Eval(settings.copy)
