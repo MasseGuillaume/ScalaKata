@@ -1,12 +1,24 @@
 package com.scalakata.eval
 
+import sbt.BuildInfo
+
+import java.io.File
+
 import org.specs2._
 
 class CommpilerSpecs extends Specification { def is = s2"""
   works $works
   range $range
 """
-  val c = new Compiler
+
+  val artifacts =
+    (BuildInfo.dependencyClasspath ++ BuildInfo.runtime_exportedProducts).
+      map(_.getAbsoluteFile).
+      mkString(File.pathSeparator)
+
+  val scalacOptions = sbt.BuildInfo.scalacOptions.to[Seq]
+  
+  val c = new Compiler(artifacts, scalacOptions)
 
   def works = {
     // val code = 

@@ -1,7 +1,5 @@
 package com.scalakata.eval
 
-import sbt.BuildInfo
-
 import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -18,7 +16,7 @@ import scala.tools.nsc.io.VirtualDirectory
 import scala.reflect.internal.util._
 import scala.tools.nsc.interactive.Response
 
-class Compiler {
+class Compiler(artifacts: String, scalacOptions: Seq[String]) {
 
   def insight(code: String): EvalResponse = {
     if (code.isEmpty) EvalResponse.empty
@@ -118,14 +116,7 @@ class Compiler {
   private val reporter = new StoreReporter()
   private val settings = new Settings()
   
-  private val artifacts = 
-    (BuildInfo.dependencyClasspath ++ BuildInfo.runtime_exportedProducts).
-    map(_.getAbsoluteFile).
-    mkString(File.pathSeparator)
-
-  private val scalacOptions = sbt.BuildInfo.scalacOptions.to[List]
-  
-  settings.processArguments(scalacOptions, true)
+  settings.processArguments(scalacOptions.to[List], true)
   settings.bootclasspath.value = artifacts
   settings.classpath.value = artifacts
   settings.Yrangepos.value = true

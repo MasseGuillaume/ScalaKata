@@ -18,7 +18,7 @@ class Eval(settings: Settings) {
   
   settings.outputDirs.setSingleOutput(target)
   settings.Ymacroexpand.value = settings.MacroExpand.Normal
-
+  
   private val compiler = new Global(settings, reporter)
   private val objectName = "A"
   

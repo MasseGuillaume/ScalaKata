@@ -35,8 +35,6 @@ object EvalBuild extends Build {
 		)
 	)
 
-
-
 	lazy val compile = Project(
 		id = "compile",
 		base = file("compile"),

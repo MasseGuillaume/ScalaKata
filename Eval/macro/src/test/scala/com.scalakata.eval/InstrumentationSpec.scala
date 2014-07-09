@@ -10,7 +10,7 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 
 	def relative = {
 		@ScalaKata
-		object A{object B{0
+		object Instrumented{object B{0
 			1
 		}}
 
