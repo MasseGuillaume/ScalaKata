@@ -22,68 +22,74 @@ object EvalBuild extends Build {
 	lazy val test = Project(
 		id = "test",
 		base = file("."),
-		settings = 
+		settings = kataSettings
+	)
+
+	lazy val kataSettings = 
 		Project.defaultSettings ++
+		addCommandAlias("kstart", ";backend:reStart ;backend:openBrowser") ++
+		addCommandAlias("kstop", "backend:reStop") ++
 		inConfig(Backend)(
 			Classpaths.ivyBaseSettings ++
 			Classpaths.jvmBaseSettings ++ 
 			Defaults.compileBase ++ 
 			Defaults.configSettings ++
-			Revolver.settings
+			Revolver.settings ++
+			Seq(
+				mainClass in Revolver.reStart := Some("com.scalakata.backend.Boot"),
+				fullClasspath in Revolver.reStart <<= fullClasspath,
+				Revolver.reStart <<= InputTask(Actions.startArgsParser) { args =>
+					(
+						streams,
+						Revolver.reLogTag,
+						thisProjectRef,
+						Revolver.reForkOptions,
+						mainClass in Revolver.reStart,
+						fullClasspath in Revolver.reStart,
+						startArgs in Revolver.reStart,
+						args
+					).map(Actions.restartApp)
+					 .dependsOn(products in Compile)
+				},
+				kataUrl := new URL("http://localhost:8080"),
+				openBrowser := { 
+					Thread.sleep(2000)
+					s"google-chrome ${kataUrl.value.toString}"! 
+				},
+				libraryDependencies +=
+					"com.scalakata" % s"backend_${scalaBinaryVersion.value}" % "0.1-20140710T173908"
+			)
 		) ++
 		inConfig(Kata)(
 			Classpaths.ivyBaseSettings ++
 			Classpaths.jvmBaseSettings ++
 			Defaults.configSettings ++
-			Defaults.compileBase
-		) ++ 
-		addCommandAlias("kstart", ";backend:reStart ;openBrowser") ++
-		addCommandAlias("kstop", "backend:reStop") ++
+			Defaults.compileBase ++
+			Seq(
+				scalaVersion := "2.11.2-SNAPSHOT",
+				scalaSource := sourceDirectory.value / "scala",
+				scalacOptions += "-Yrangepos",
+				libraryDependencies ++= Seq(
+					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % "0.1.0-20140710T173600",
+					"org.scala-lang" % "scala-compiler" % scalaVersion.value,
+					compilerPlugin("org.scalamacros" % s"paradise_${scalaVersion.value}" % "2.1.0-SNAPSHOT")
+				)
+			)
+		) ++
 		Seq(
 			resolvers ++= Seq(
 				Resolver.sonatypeRepo("releases"),
 				Resolver.sonatypeRepo("snapshots")
 			),
-			mainClass in (Backend, Revolver.reStart) := Some("com.scalakata.backend.Boot"),
-			fullClasspath in (Backend, Revolver.reStart) <<= fullClasspath in Backend,
-			Revolver.reStart in Backend <<= InputTask(Actions.startArgsParser) { args =>
-				(
-					streams, 
-					Revolver.reLogTag in Backend,
-					thisProjectRef, 
-					Revolver.reForkOptions in Backend, 
-					mainClass in (Backend, Revolver.reStart), 
-					fullClasspath in (Backend, Revolver.reStart), 
-					startArgs in (Backend, Revolver.reStart), 
-					args
-				).map(Actions.restartApp)
-				 .dependsOn(products in Compile)
-			},
 			startArgs in (Backend, Revolver.reStart) := Seq(
 				(fullClasspath in Kata).value.
 					map(_.data).
 					map(_.getAbsoluteFile).
     				mkString(File.pathSeparator),
-    			kataUrl.value.getHost,
-    			kataUrl.value.getPort.toString
-			),
-			scalaVersion in Kata := "2.11.2-SNAPSHOT",
-			scalaVersion in Backend := (scalaVersion in Kata).value,
-			libraryDependencies in Kata ++= Seq(
-				"org.scalamacros" % s"paradise_${(scalaVersion in Kata).value}" % "2.1.0-SNAPSHOT",
-				"org.scala-lang" % "scala-compiler" % (scalaVersion in Kata).value
-				//"org.scala-lang" % "scala-reflect" % (scalaVersion in Kata).value ???
-			),
-			libraryDependencies in Backend ++= Seq(
-				"com.scalakata" % s"backend_${(scalaBinaryVersion in Backend).value}" % "0.1-20140706T182100"
-			),
-			scalaSource in Kata := sourceDirectory.value / "kata",
-			//dependencyClasspath in Kata := update.value.select(configurationFilter("kata")) map(Attributed.blank),
-			kataUrl := new URL("http://localhost:8080"),
-			openBrowser := { 
-				Thread.sleep(500)
-				s"google-chrome ${kataUrl.value.toString}"! 
-			}
+    			(kataUrl in Backend).value.getHost,
+    			(kataUrl in Backend).value.getPort.toString
+			) ++ (scalacOptions in Kata).value,
+			scalaVersion := "2.11.1",
+			scalaVersion in Backend := (scalaVersion in Kata).value
 		)
-	)
 }
