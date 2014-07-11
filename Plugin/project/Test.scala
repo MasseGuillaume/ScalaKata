@@ -15,6 +15,8 @@ object EvalBuild extends Build {
 	private lazy val Backend = config("backend")
 	
 	val openBrowser = TaskKey[Unit]("open-browser", "task to open browser to kata url")
+	val serverReady = TaskKey[Unit]("server-ready", "wait for kata server to be ready")
+	val readyPort = SettingKey[Int]("ready-port", "port to send ready command")
 	val kataUrl = SettingKey[URL]("kata-url", "url to scala kata")
 	val startArgs = TaskKey[Seq[String]]("start-args",
     	"The arguments to be passed to the applications main method when being started")
@@ -29,6 +31,7 @@ object EvalBuild extends Build {
 		Project.defaultSettings ++
 		addCommandAlias("kstart", ";backend:reStart ;backend:openBrowser") ++
 		addCommandAlias("kstop", "backend:reStop") ++
+		addCommandAlias("krestart", ";backend:reStop ;backend:reStart") ++
 		inConfig(Backend)(
 			Classpaths.ivyBaseSettings ++
 			Classpaths.jvmBaseSettings ++ 
@@ -53,12 +56,21 @@ object EvalBuild extends Build {
 					 .dependsOn(products in Compile)
 				},
 				kataUrl := new URL("http://localhost:8080"),
+				readyPort := 8081,
+				serverReady := {
+					val socket = new java.net.ServerSocket(readyPort.value)
+					socket.accept()
+					()
+				},
 				openBrowser := { 
-					Thread.sleep(2000)
+					serverReady.value
 					s"google-chrome ${kataUrl.value.toString}"! 
 				},
-				libraryDependencies +=
-					"com.scalakata" % s"backend_${scalaBinaryVersion.value}" % "0.1-20140710T173908"
+				libraryDependencies ++= Seq(
+					"com.scalakata" % s"backend_${scalaBinaryVersion.value}" % "0.1-20140711T153920",
+					"com.scalakata" % s"eval_${scalaBinaryVersion.value}" % "0.1.0-20140710T224721",
+					"com.scalakata" % "frontend" % "0.1-20140711T152757"
+				)
 			)
 		) ++
 		inConfig(Kata)(
@@ -69,10 +81,9 @@ object EvalBuild extends Build {
 			Seq(
 				offline := true,
 				scalaVersion := "2.11.2-SNAPSHOT",
-				scalaSource := sourceDirectory.value / "scala",
 				scalacOptions += "-Yrangepos",
 				libraryDependencies ++= Seq(
-					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % "0.1.0-20140710T173600",
+					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % "0.1.0-20140710T224721",
 					"org.scala-lang" % "scala-compiler" % scalaVersion.value,
 					compilerPlugin("org.scalamacros" % s"paradise_${scalaVersion.value}" % "2.1.0-SNAPSHOT")
 				)
@@ -84,7 +95,8 @@ object EvalBuild extends Build {
 				Resolver.sonatypeRepo("snapshots")
 			),
 			startArgs in (Backend, Revolver.reStart) := Seq(
-				(fullClasspath in Kata).value.
+				(readyPort in Backend).value.toString,
+				((fullClasspath in Compile).value ++ (dependencyClasspath in Kata).value).
 					map(_.data).
 					map(_.getAbsoluteFile).
 					mkString(File.pathSeparator),
