@@ -10,10 +10,11 @@ class CommpilerSpecs extends Specification { def is = s2"""
   works $works
   range $range
   runtimeErrors $runtimeErrors
+  compile classpath $compileClasspath
 """
 
   val artifacts =
-    (BuildInfo.dependencyClasspath ++ BuildInfo.runtime_exportedProducts).
+    (BuildInfo.fullClasspath ++ BuildInfo.runtime_exportedProducts).
       map(_.getAbsoluteFile).
       mkString(File.pathSeparator)
 
@@ -54,6 +55,13 @@ class CommpilerSpecs extends Specification { def is = s2"""
         |1/0""".stripMargin
     c.insight(code) ==== EvalResponse.empty.copy(
       runtimeError = Some(RuntimeError("java.lang.ArithmeticException: / by zero", 1))
+    )
+  }
+
+  def compileClasspath = {
+    val c = compiler
+    c.insight("com.example.test.Testing.onetwothree") ==== EvalResponse.empty.copy(
+      insight = List(Instrumentation("123", 25, 36))
     )
   }
 }

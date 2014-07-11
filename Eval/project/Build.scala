@@ -43,9 +43,9 @@ object EvalBuild extends Build {
 		base = file("compile"),
 		settings = default ++ buildInfoSettings ++ Seq(
 			name := "eval",
-			sourceGenerators in Compile <+= buildInfo,
+			sourceGenerators in Test <+= buildInfo,
 			buildInfoKeys := Seq[BuildInfoKey](
-				BuildInfoKey.map((dependencyClasspath in Compile)){ case (k, v) ⇒ k -> v.map(_.data) },
+				BuildInfoKey.map((fullClasspath in Compile)){ case (k, v) ⇒ k -> v.map(_.data) },
 				BuildInfoKey.map((exportedProducts in Runtime in macro)){ case (k, v) ⇒ k -> v.map(_.data) },
 				(scalacOptions in Compile)
 			),

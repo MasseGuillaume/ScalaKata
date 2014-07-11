@@ -6,6 +6,9 @@ import scala.tools.nsc.io.{AbstractFile, VirtualDirectory}
 import scala.tools.nsc.util.{BatchSourceFile, Position}
 import scala.tools.nsc.reporters.StoreReporter
 
+import java.net.{URL, URLClassLoader}
+import java.io.File
+
 object Eval {
   type Instrumentation = scala.collection.mutable.Map[(Int, Int), Any]
 }
@@ -13,9 +16,18 @@ object Eval {
 class Eval(settings: Settings) {
   private val reporter = new StoreReporter()
   
+  private val artifactLoader = {
+    val loaderFiles =
+      settings.classpath.value.split(File.pathSeparator).map(a => {
+        println(a)
+        new URL(s"file://$a")
+      })
+    new URLClassLoader(loaderFiles, this.getClass.getClassLoader)
+  }
+
   private val target = new VirtualDirectory("(memory)", None)
-  private var classLoader = new AbstractFileClassLoader(target, this.getClass.getClassLoader)
-  
+  private var classLoader: AbstractFileClassLoader = _
+
   settings.outputDirs.setSingleOutput(target)
   settings.Ymacroexpand.value = settings.MacroExpand.Normal
   
@@ -71,7 +83,7 @@ class Eval(settings: Settings) {
   private def reset(): Unit = {
     target.clear
     reporter.reset
-    classLoader = new AbstractFileClassLoader(target, this.getClass.getClassLoader)
+    classLoader = new AbstractFileClassLoader(target, artifactLoader)
   }
 
   private def compile(code: String): Unit = {
