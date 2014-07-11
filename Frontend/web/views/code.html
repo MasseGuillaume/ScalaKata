@@ -1,0 +1,7 @@
+<section ng-controller="code" class="code">
+	<div ng-class="theme()" class="menu">
+		<i class="fa fa-fw fa-play"  ng-click="run()"></i>
+		<i class="fa fa-fw fa-cogs" ng-click="toogleEdit()"></i>
+	</div>
+	<textarea ui-codemirror="cmOptions" ng-model="code"></textarea>
+</section>

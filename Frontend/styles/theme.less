@@ -1,0 +1,48 @@
+.cm-s-solarized {
+	.solarized-pallette;
+
+	&.menu {
+		background-color: transparent;
+	}
+
+	&.cm-s-dark {
+		&.menu {
+			color: @base01;
+			i:hover {
+				color: @base1;
+			}
+		}
+
+		.insight {
+			background-color: @base02;
+			border-bottom-color: black;
+		}
+	}
+
+	&.cm-s-light {
+		&.menu {
+			color: @base1;
+			i:hover {
+				color: @base01;
+			}
+		}
+
+		.insight {
+			background-color: @base2;
+			border-bottom-color: #ddd;
+		}
+	}
+
+	.insight {
+		border-bottom: none;
+		border-bottom-style: solid;
+		border-bottom-width: 1px;
+	}
+}
+
+.menu {
+	color: grey;
+	i:hover {
+		color: green;
+	}
+}

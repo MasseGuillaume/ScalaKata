@@ -1,0 +1,41 @@
+body {
+	height: 100%;
+	margin: 0;
+}
+
+.menu {
+	position: fixed;
+	top: 0;
+	right: 0;
+	margin: 16px;
+	z-index: 20;
+
+	i {
+		display: block;
+		font-size: 32px;
+		margin-top: 10px;
+		cursor: pointer;
+	}
+}
+
+.code {
+	.error {
+		display: inline-block;
+		border-bottom: 1px dashed red;
+	}
+	.error-message {
+		line-height: 22px;
+		color: red;
+		padding-left: 16px;
+		i {
+			margin-right: 5px;
+			margin-left: 5px;
+		}
+	}
+
+	.insight {
+		line-height: 21px;
+		margin-left: 15px;
+		border-bottom: 1px solid black;
+	}
+}
