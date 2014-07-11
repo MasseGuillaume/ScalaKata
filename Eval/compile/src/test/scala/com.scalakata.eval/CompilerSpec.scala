@@ -9,6 +9,7 @@ import org.specs2._
 class CommpilerSpecs extends Specification { def is = s2"""
   works $works
   range $range
+  runtimeErrors $runtimeErrors
 """
 
   val artifacts =
@@ -17,23 +18,23 @@ class CommpilerSpecs extends Specification { def is = s2"""
       mkString(File.pathSeparator)
 
   val scalacOptions = sbt.BuildInfo.scalacOptions.to[Seq]
+  def compiler = new Compiler(artifacts, scalacOptions)
   
-  val c = new Compiler(artifacts, scalacOptions)
-
   def works = {
-    // val code = 
-    // 	"""|val a = List(1,2)
-    //      |val b = 2""".stripMargin
+    val c = compiler
+    val code = 
+    	"""|val a = List(1,2)
+         |val b = 2""".stripMargin
 
-    // val result = c.insight(code)
+    val result = c.insight(code)
 
-    // result ==== EvalResponse.empty.copy(insight = 
-    //   List(Instrumentation("List(1,2)",13,13), Instrumentation("2",10,10))
-    // )
-    ok
+    result ==== EvalResponse.empty.copy(insight = 
+      List(Instrumentation("List(1, 2)",4,17), Instrumentation("2",22,27))
+    )
   }
 
   def range = {
+    val c = compiler
     val code = 
      """|0
         |1""".stripMargin
@@ -43,6 +44,16 @@ class CommpilerSpecs extends Specification { def is = s2"""
         Instrumentation("1", 2, 3),
         Instrumentation("0", 0, 1)
       )
+    )
+  }
+
+  def runtimeErrors = {
+    val c = compiler
+    val code = 
+     """|0
+        |1/0""".stripMargin
+    c.insight(code) ==== EvalResponse.empty.copy(
+      runtimeError = Some(RuntimeError("java.lang.ArithmeticException: / by zero", 1))
     )
   }
 }

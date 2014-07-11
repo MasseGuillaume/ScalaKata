@@ -36,6 +36,7 @@ object EvalBuild extends Build {
 			Defaults.configSettings ++
 			Revolver.settings ++
 			Seq(
+				offline := true,
 				mainClass in Revolver.reStart := Some("com.scalakata.backend.Boot"),
 				fullClasspath in Revolver.reStart <<= fullClasspath,
 				Revolver.reStart <<= InputTask(Actions.startArgsParser) { args =>
@@ -66,6 +67,7 @@ object EvalBuild extends Build {
 			Defaults.configSettings ++
 			Defaults.compileBase ++
 			Seq(
+				offline := true,
 				scalaVersion := "2.11.2-SNAPSHOT",
 				scalaSource := sourceDirectory.value / "scala",
 				scalacOptions += "-Yrangepos",
@@ -85,9 +87,9 @@ object EvalBuild extends Build {
 				(fullClasspath in Kata).value.
 					map(_.data).
 					map(_.getAbsoluteFile).
-    				mkString(File.pathSeparator),
-    			(kataUrl in Backend).value.getHost,
-    			(kataUrl in Backend).value.getPort.toString
+					mkString(File.pathSeparator),
+				(kataUrl in Backend).value.getHost,
+				(kataUrl in Backend).value.getPort.toString
 			) ++ (scalacOptions in Kata).value,
 			scalaVersion := "2.11.1",
 			scalaVersion in Backend := (scalaVersion in Kata).value

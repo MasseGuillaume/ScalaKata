@@ -44,7 +44,7 @@ class Eval(settings: Settings) {
     reporter.infos.map {
       info ⇒ (
         info.severity,
-        info.pos.point - preWrap.length,
+        info.pos.point - offset,
         info.msg
       )
     }.to[List]
@@ -60,6 +60,9 @@ class Eval(settings: Settings) {
   private val preWrap =
     s"""|package com.scalakata.eval
         |@com.scalakata.eval.ScalaKata object $objectName{object B{""".stripMargin
+
+  private val offset = preWrap.length
+  val lineOffset = preWrap.lines.length - 1
 
   private def wrapCode(code: String) = 
     s"""|${preWrap}${code}

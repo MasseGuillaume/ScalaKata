@@ -1,5 +1,7 @@
 import com.typesafe.sbt.SbtGit._
 
+offline := true
+
 name := "backend"
 
 organization := "com.scalakata"
@@ -36,3 +38,7 @@ libraryDependencies ++= Seq(
 	"com.typesafe.akka" %% "akka-actor" % "2.3.3",
 	"com.typesafe.play" %% "play-json" % "2.4-2014-06-14-ea7daf3"
 )
+
+licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html"))
+
+seq(bintrayPublishSettings:_*)

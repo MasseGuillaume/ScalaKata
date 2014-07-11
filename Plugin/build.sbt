@@ -8,16 +8,8 @@ versionWithGit
 
 git.baseVersion := "0.1"
 
-// scalaVersion := "2.10.4"
+licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html"))
 
-// resolvers ++= Seq(
-// 	"spray repo" at "http://repo.spray.io",
-// 	"typesafe releases" at "http://repo.typesafe.com/typesafe/releases",
-// 	Resolver.sonatypeRepo("releases")
-// )
+seq(bintrayPublishSettings:_*)
 
-// libraryDependencies ++= Seq(
-// 	"io.spray" %% "spray-client" % "1.3.1",
-// 	// ? "com.typesafe.akka" %% "akka-actor" % "2.3.3",
-// 	"com.typesafe.play" %% "play-json" % "2.4-2014-06-14-ea7daf3"
-// )
+scalaVersion := "2.10.4"

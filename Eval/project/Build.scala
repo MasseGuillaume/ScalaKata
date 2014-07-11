@@ -6,10 +6,13 @@ import sbtbuildinfo.Plugin._
 object Settings {
 	lazy val default = 
 		Project.defaultSettings ++
+		bintray.Plugin.bintrayPublishSettings ++
 		versionWithGit ++ Seq(
+			offline := true,
 			organization := "com.scalakata",
 			git.baseVersion := "0.1.0",
 			scalaVersion := "2.11.2-SNAPSHOT",
+			licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html")),
 			scalacOptions += "-Yrangepos",
 			libraryDependencies ++= Seq(
 				"org.scala-lang" % "scala-compiler" % scalaVersion.value,
@@ -46,7 +49,8 @@ object EvalBuild extends Build {
 				BuildInfoKey.map((exportedProducts in Runtime in macro)){ case (k, v) ⇒ k -> v.map(_.data) },
 				(scalacOptions in Compile)
 			),
-			buildInfoPackage := "com.scalakata.eval.sbt"
+			buildInfoPackage := "com.scalakata.eval.sbt",
+			parallelExecution in Test := false
 		)
 	)
 }

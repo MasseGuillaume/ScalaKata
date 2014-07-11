@@ -47,16 +47,13 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
         )
       } catch {
         case NonFatal(e) ⇒ {
-          e.printStackTrace
+          
+          def virtual(line: Int) = -line
+          val pos = virtual(e.getCause.getStackTrace.drop(1).head.getLineNumber)
 
-          val error = 
-            for {
-              e1 <- Option(e.getCause)
-              e2 <- Option(e1.getCause)
-            } yield {
-              RuntimeError(e2.toString, e2.getStackTrace.head.getLineNumber)
-            }
-          EvalResponse.empty.copy(runtimeError = error)
+          EvalResponse.empty.copy(runtimeError = 
+            Some(RuntimeError(e.getCause.toString, pos - eval.lineOffset)) 
+          )
         }
       }
     }
