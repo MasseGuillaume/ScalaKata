@@ -104,7 +104,7 @@ gulp.task('font', function(){
 })
 
 gulp.task('fav', function(){
-    gulp.src('favicon.ico')
+    gulp.src('web/favicon.ico')
     .pipe(gulp.dest('dist/'));
 })
 

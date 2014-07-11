@@ -1,17 +1,16 @@
 import sbt._
 import Keys._
-import com.typesafe.sbt.SbtGit._
 import sbtbuildinfo.Plugin._
 
 object Settings {
 	lazy val default = 
 		Project.defaultSettings ++
 		bintray.Plugin.bintrayPublishSettings ++
-		versionWithGit ++ Seq(
+		Seq(
 			offline := true,
 			organization := "com.scalakata",
-			git.baseVersion := "0.1.0",
 			scalaVersion := "2.11.2-SNAPSHOT",
+			version := "0.1.0",
 			licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html")),
 			scalacOptions += "-Yrangepos",
 			libraryDependencies ++= Seq(

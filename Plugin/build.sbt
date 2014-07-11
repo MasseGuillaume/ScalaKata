@@ -4,9 +4,9 @@ name := "plugin"
 
 organization := "com.scalakata"
 
-versionWithGit
+version := "0.1.0"
 
-git.baseVersion := "0.1"
+addSbtPlugin("io.spray" % "sbt-revolver" % "0.7.2")
 
 licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html"))
 

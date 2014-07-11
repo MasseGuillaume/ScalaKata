@@ -4,9 +4,7 @@ offline := true
 
 organization := "com.scalakata"
 
-versionWithGit
-
-git.baseVersion := "0.1"
+version := "0.1.0"
 
 autoScalaLibrary := false
 

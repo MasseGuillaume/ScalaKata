@@ -3,10 +3,11 @@ app.factory('insightRenderer', function() {
 
 	function apply(cm, cmOptions, insight, code){
 		var start = cm.getDoc().posFromIndex(insight.start),
-			end = cm.getDoc().posFromIndex(insight.end);		// TODO: use it
+			end = cm.getDoc().posFromIndex(insight.end);		// TODO: use range
 
 		start.ch = Infinity;
 
+		// fix overlaping
 		var pre = document.createElement("pre");
 		pre.className = "cm-s-solarized insight";
 		pre.attributes["ng-class"] = "cm-s-{snippets.getThemeShort()}";
