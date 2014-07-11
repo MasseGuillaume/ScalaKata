@@ -29,11 +29,11 @@ app.factory('errorsRenderer', function() {
 
 		var icon = msg.appendChild(document.createElement("i"));
 		icon.className = "fa ";
-		if(severity == "errors") {
+		if(severity == "error") {
 			icon.className += "fa-times-circle";
-		} else if(severity == "warnings") {
+		} else if(severity == "warning") {
 			icon.className += "fa-exclamation-triangle";
-		} else if(severity == "infos") {
+		} else if(severity == "info") {
 			icon.className += "fa-info-circle";
 		}
 		msg.appendChild(document.createTextNode(value.message));
@@ -42,20 +42,23 @@ app.factory('errorsRenderer', function() {
 		return cm.addLineWidget(line, msg);
 	}
 
-	return {
-		clear: function(){
-			// clear line errors
-			errorMessages.forEach(function (value){
-				value.clear();
-			});
-			errorMessages = [];
+	function clearFun(){
+		// clear line errors
+		errorMessages.forEach(function (value){
+			value.clear();
+		});
+		errorMessages = [];
 
-			errorUnderlines.forEach(function (value){
-				value.clear();
-			});
-			errorUnderlines = [];
-		},
+		errorUnderlines.forEach(function (value){
+			value.clear();
+		});
+		errorUnderlines = [];
+	}
+
+	return {
+		clear: clearFun,
 		render: function(cm, infos, runtimeError, code){
+			clearFun();
 			["error", "warning", "info"].forEach(function(severity){
 				if (infos[severity]){
 					infos[severity].forEach(function(value) {	

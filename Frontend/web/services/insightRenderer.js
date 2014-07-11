@@ -16,13 +16,14 @@ app.factory('insightRenderer', function() {
 			clear: function(){ pre.parentElement.removeChild(pre); }
 		}
 	}
+	function clearFun(){
+		widgets.forEach(function(w){ 
+			w.clear();
+		});
+		widgets = [];
+	}
 	return {
-		clear: function(){
-			widgets.forEach(function(w){ 
-				w.clear();
-			});
-			widgets = [];
-		},
+		clear: clearFun,
 		render: function(cm, cmOptions, insights, code){
 			widgets = insights.map(function(insight){
 				return apply(cm, cmOptions, insight, code);
