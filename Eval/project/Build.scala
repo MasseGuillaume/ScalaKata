@@ -5,9 +5,9 @@ import sbtbuildinfo.Plugin._
 object Settings {
 	lazy val default = 
 		Project.defaultSettings ++
+		bintray.Plugin.bintraySettings ++
 		bintray.Plugin.bintrayPublishSettings ++
 		Seq(
-			offline := true,
 			organization := "com.scalakata",
 			scalaVersion := "2.11.2-SNAPSHOT",
 			version := "0.1.0",

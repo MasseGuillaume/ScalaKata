@@ -8,13 +8,12 @@ version := "0.1.0"
 
 scalaVersion := "2.11.2-SNAPSHOT"
 
-offline := true
-
 Revolver.settings
 
 resolvers ++= Seq(
 	"spray repo" at "http://repo.spray.io",
 	"typesafe releases" at "http://repo.typesafe.com/typesafe/releases",
+	"masseguillaume" at "http://dl.bintray.com/content/masseguillaume/maven",
 	Resolver.sonatypeRepo("snapshots")
 )
 

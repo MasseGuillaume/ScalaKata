@@ -62,11 +62,11 @@ object Scalakata extends Plugin {
 					val socket = new java.net.ServerSocket(readyPort.value)
 					socket.accept()
 					socket.close()
-					println("got it")
 					s"google-chrome ${kataUrl.value.toString}"!
 
 					()
 				},
+				resolvers += "masseguillaume" at "http://dl.bintray.com/content/masseguillaume/maven",
 				libraryDependencies ++= Seq(
 					"com.scalakata" % s"backend_${scalaBinaryVersion.value}" % "0.1.0",
 					"com.scalakata" % s"eval_${scalaBinaryVersion.value}" % "0.1.0",
@@ -83,6 +83,7 @@ object Scalakata extends Plugin {
 				offline := true,
 				scalaVersion := "2.11.2-SNAPSHOT",
 				scalacOptions += "-Yrangepos",
+				resolvers += "masseguillaume" at "http://dl.bintray.com/content/masseguillaume/maven",
 				libraryDependencies ++= Seq(
 					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % "0.1.0",
 					"org.scala-lang" % "scala-compiler" % scalaVersion.value,
