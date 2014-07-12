@@ -11,7 +11,7 @@ resolvers += Resolver.url(
     url("http://dl.bintray.com/content/masseguillaume/sbt-plugins"))(
         Resolver.ivyStylePatterns)
 
-addSbtPlugin("com.scalakata" % "plugin" % "0.1.0")
+addSbtPlugin("com.scalakata" % "plugin" % "0.2.0")
 ```
 
 and to your build definition build.sbt
