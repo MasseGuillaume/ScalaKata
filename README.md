@@ -25,3 +25,5 @@ or in your Build.scala
 ```scala
 com.scalakata.Scalakata.kataSettings
 ```
+
+start with ```kstart```
