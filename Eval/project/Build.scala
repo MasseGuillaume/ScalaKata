@@ -10,7 +10,7 @@ object Settings {
 		Seq(
 			organization := "com.scalakata",
 			scalaVersion := "2.11.2-SNAPSHOT",
-			version := "0.1.0",
+			version := "0.2.0-SNAPSHOT",
 			licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html")),
 			scalacOptions += "-Yrangepos",
 			libraryDependencies ++= Seq(
@@ -37,6 +37,14 @@ object EvalBuild extends Build {
 		)
 	)
 
+	lazy val classPathtest = Project(
+		id = "classpathTest",
+		base = file("classPathtest"),
+		settings = default ++ Seq(
+			/* dont */ publish := { }
+		)
+	)
+
 	lazy val compile = Project(
 		id = "compile",
 		base = file("compile"),
@@ -44,7 +52,7 @@ object EvalBuild extends Build {
 			name := "eval",
 			sourceGenerators in Test <+= buildInfo,
 			buildInfoKeys := Seq[BuildInfoKey](
-				BuildInfoKey.map((fullClasspath in Compile)){ case (k, v) ⇒ k -> v.map(_.data) },
+				BuildInfoKey.map((fullClasspath in classPathtest in Compile)){ case (k, v) ⇒ k -> v.map(_.data) },
 				BuildInfoKey.map((exportedProducts in Runtime in macro)){ case (k, v) ⇒ k -> v.map(_.data) },
 				(scalacOptions in Compile)
 			),

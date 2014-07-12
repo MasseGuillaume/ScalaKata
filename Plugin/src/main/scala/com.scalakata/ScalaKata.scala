@@ -66,11 +66,10 @@ object Scalakata extends Plugin {
 
 					()
 				},
-				resolvers += "masseguillaume" at "http://dl.bintray.com/content/masseguillaume/maven",
 				libraryDependencies ++= Seq(
-					"com.scalakata" % s"backend_${scalaBinaryVersion.value}" % "0.1.0",
-					"com.scalakata" % s"eval_${scalaBinaryVersion.value}" % "0.1.0",
-					"com.scalakata" % "frontend" % "0.1.0"
+					"com.scalakata" % s"backend_${scalaBinaryVersion.value}" % "0.2.0-SNAPSHOT",
+					"com.scalakata" % s"eval_${scalaBinaryVersion.value}" % "0.2.0-SNAPSHOT",
+					"com.scalakata" % "frontend" % "0.2.0-SNAPSHOT"
 				)
 			)
 		) ++
@@ -83,16 +82,16 @@ object Scalakata extends Plugin {
 				offline := true,
 				scalaVersion := "2.11.2-SNAPSHOT",
 				scalacOptions += "-Yrangepos",
-				resolvers += "masseguillaume" at "http://dl.bintray.com/content/masseguillaume/maven",
 				libraryDependencies ++= Seq(
-					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % "0.1.0",
+					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % "0.2.0-SNAPSHOT",
 					"org.scala-lang" % "scala-compiler" % scalaVersion.value,
 					compilerPlugin("org.scalamacros" % s"paradise_${scalaVersion.value}" % "2.1.0-SNAPSHOT")
 				)
 			)
 		) ++
 		Seq(
-			resolvers ++= Seq(
+			resolvers in Kata += "masseguillaume" at "http://dl.bintray.com/content/masseguillaume/maven",
+			resolvers in Kata ++= Seq(
 				Resolver.sonatypeRepo("releases"),
 				Resolver.sonatypeRepo("snapshots")
 			),
@@ -106,6 +105,6 @@ object Scalakata extends Plugin {
 				(kataUrl in Backend).value.getPort.toString
 			) ++ (scalacOptions in Kata).value,
 			scalaVersion in Backend <<= scalaVersion in Kata,
-			scalaVersion := "2.11.1"
+			resolvers in Backend <<= resolvers in Kata
 		)
 }

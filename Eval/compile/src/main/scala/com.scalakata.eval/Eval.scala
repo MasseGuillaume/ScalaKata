@@ -19,7 +19,7 @@ class Eval(settings: Settings) {
   private val artifactLoader = {
     val loaderFiles =
       settings.classpath.value.split(File.pathSeparator).map(a => {
-        new URL(s"file://$a")
+        new URL(s"file://$a/")
       })
     new URLClassLoader(loaderFiles, this.getClass.getClassLoader)
   }
@@ -42,7 +42,7 @@ class Eval(settings: Settings) {
     if(!infos.contains(reporter.ERROR)) {
       import scala.reflect.runtime.{universe ⇒ ru}
       val m = ru.runtimeMirror(classLoader)
-      val lm = m.staticModule(s"com.scalakata.eval.$objectName")
+      val lm = m.staticModule(objectName)
       val obj = m.reflectModule(lm)
       val instr = obj.instance.asInstanceOf[{def eval$(): Eval.Instrumentation}].eval$()
       (Some(instr), infoss)
@@ -69,8 +69,7 @@ class Eval(settings: Settings) {
   }
 
   private val preWrap =
-    s"""|package com.scalakata.eval
-        |@com.scalakata.eval.ScalaKata object $objectName{object B{""".stripMargin
+    s"@com.scalakata.eval.ScalaKata object $objectName{object B{"
 
   private val offset = preWrap.length
   val lineOffset = preWrap.lines.length - 1
