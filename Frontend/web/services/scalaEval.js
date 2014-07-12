@@ -15,6 +15,9 @@ function( $q ,  $rootScope ,  $location ,  $http) {
 		},
 		"autocomplete": function(code, position){
 			return $http.post(url + "completion", {"code": code, "position": position});
+		},
+		"typeAt": function(code, position){
+			return $http.post(url + "typeAt", {"code": code, "position": position});
 		}
 	};
 }]);

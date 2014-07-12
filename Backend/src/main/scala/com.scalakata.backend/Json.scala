@@ -29,6 +29,12 @@ object Request {
 		Unmarshaller.delegate[String, CompletionRequest](json) {
 			data ⇒ fromJson[CompletionRequest](Json.parse(data)).get
 		}
+
+	implicit private val typeatrequest = Json.reads[TypeAtRequest]
+	implicit val TypeAtRequestUnmarshaller =
+		Unmarshaller.delegate[String, TypeAtRequest](json) {
+			data ⇒ fromJson[TypeAtRequest](Json.parse(data)).get
+		}
 }
 
 object Response {
@@ -59,6 +65,12 @@ object Response {
 	implicit private val completionresponse = Json.writes[CompletionResponse]
 	implicit val CompletionResponseMarshaller = 
 		Marshaller.of[List[CompletionResponse]](`application/json`) { (eval, contentType, ctx) ⇒
+			ctx.marshalTo(HttpEntity(contentType, toJson(eval).toString))
+		}
+
+	implicit private val typeatresponse = Json.writes[TypeAtResponse]
+	implicit val typeatresponseMarshaller = 
+		Marshaller.of[Option[TypeAtResponse]](`application/json`) { (eval, contentType, ctx) ⇒
 			ctx.marshalTo(HttpEntity(contentType, toJson(eval).toString))
 		}
 }

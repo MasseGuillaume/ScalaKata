@@ -42,11 +42,18 @@ trait ScalaKata extends HttpService {
 				}
 			}
 		} ~
+		path("typeAt") {
+			post {
+				entity(as[TypeAtRequest]) { request ⇒
+					val TypeAtRequest(code, pos) = request
+					complete(compiler.typeAt(code, pos, pos))
+				}	
+			}
+		} ~
 		pathSingleSlash {
           getFromResource("index.html")
         } ~
 		path(Rest) { path ⇒
-			println(path)
 			getFromResource(path)
 		}
 	}

@@ -1,20 +1,11 @@
 app.run(["scalaEval", function(scalaEval){
-	CodeMirror.commands.autocomplete = function(cm) {
-		scalaEval.autocomplete(
+	function hint(cm, sf, cf, single){
+		sf(
 			cm.getDoc().getValue(), 
-			cm.getDoc().indexFromPos(cm.getCursor())).then(function(r){
-
+			cm.getDoc().indexFromPos(cm.getCursor())
+		).then(function(r){
 			var data = r.data;
 
-			// unavailable
-			if(angular.isString(data.completions)) {
-				CodeMirror.showHint(cm, function(){
-					return {from: cm.getCursor(), to: cm.getCursor(), list: [ " /*" + data.completions + "*/ "] };
-				});
-				return;
-			}
-
-			// ok
 			CodeMirror.showHint(cm, function(cm, options){
 				var i;
 				var cur= cm.getCursor();
@@ -37,22 +28,44 @@ app.run(["scalaEval", function(scalaEval){
 
 				var term = currentLine.substr(curFrom.ch, curTo.ch - curFrom.ch);
 
+				options.completeSingle = single;
+				if(single){
+					return {from: curFrom, to: curTo, list: cf(data)};
+				} else {
+					curFrom.ch = Math.Infinity;
+					curTo.ch = Math.Infinity;
+					return {from: curFrom, to: curTo, list: cf(data)};
+				}
+			});
+		});
+	}
 
-				var completions = data.filter(function(c){
-
+	CodeMirror.commands.typeAt = function(cm) {
+		hint(cm, scalaEval.typeAt, function(data){
+			return [
+				{
+					text: " // " + data.tpe,
+					render: function(el, _, _1){
+						el.innerHTML = data.tpe;
+					}
+				}
+			];
+		}, false);
+	}
+	CodeMirror.commands.autocomplete = function(cm) {
+		hint(cm, scalaEval.autocomplete, function(c){ 
+			return data.filter(function(c){
 					return c.name.toLowerCase().indexOf(term.toLowerCase()) != -1;
-
-				}).map(function(c){ return {
+			}).map(function(c){
+				return {
 					text: c.name,
 					completion: c,
 					alignWithWord: true,
 					render: function(el, _, _1){
 						el.innerHTML = "<span class=\"autocomplete-result-name\">" + c.name + "</span> <span class=\"autocomplete-result-signature\">" + c.signature +"</span>";
-					},
-				}});
-
-				return {from: curFrom, to: curTo, list: completions};
+					}
+				}
 			});
-		})
+		}, true);
 	};
 }]);

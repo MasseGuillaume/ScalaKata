@@ -65,7 +65,7 @@ function serveF(assets){
         apiUrl = "http://localhost:8080";
 
     server.use(livereload({port: livereloadport}));
-    ['/eval', '/completion'].forEach(function(u){
+    ['/eval', '/completion', '/typeAt'].forEach(function(u){
         server.use(u, function(req, res) {
             req.pipe(request(apiUrl + u)).pipe(res);
         });
