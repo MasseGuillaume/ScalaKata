@@ -36,6 +36,15 @@ object EvalResponse {
 	def empty = EvalResponse(Nil, Map.empty, false, None)
 }
 
+case class TypeAtRequest(
+	code: String,
+	position: Int
+)
+
+case class TypeAtResponse(
+	tpe: String
+)
+
 case class CompletionRequest(
 	code: String,
 	position: Int

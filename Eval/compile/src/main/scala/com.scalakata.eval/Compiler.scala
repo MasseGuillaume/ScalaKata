@@ -47,7 +47,7 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
         )
       } catch {
         case NonFatal(e) ⇒ {
-          
+
           def virtual(line: Int) = -line
           val pos = virtual(e.getCause.getStackTrace.drop(1).head.getLineNumber)
 
@@ -59,39 +59,38 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
     }
   }
 
-  def autocomplete(code: String, pos: Int): List[CompletionResponse] = {
+  private val beginWrap = "class ScalaKata {\n"
+  private val endWrap = "\n}"
 
-    val beginWrap = "class ScalaKata {\n"
-    val endWrap = "\n}"
+  private val wrapOffset = beginWrap.size
 
-    val wrapOffset = beginWrap.size
+  private def wrap(code: String): BatchSourceFile = {
+    new BatchSourceFile("default", beginWrap + code + endWrap)
+  }
 
-    def wrap(code: String): BatchSourceFile = {
-      new BatchSourceFile("default", beginWrap + code + endWrap)
-    }
+  private def reload(code: String): BatchSourceFile = {
+    val file = wrap(code)
+    withResponse[Unit](r ⇒ compiler.askReload(List(file), r)).get
+    file
+  }
 
-    def reload(code: String): BatchSourceFile = {
-      val file = wrap(code)
-      withResponse[Unit](r ⇒ compiler.askReload(List(file), r)).get
-      file
-    }
+  private def withResponse[A](op: Response[A] ⇒ Any): Response[A] = {
+    val response = new Response[A]
+    op(response)
+    response
+  }
 
-    def withResponse[A](op: Response[A] ⇒ Any): Response[A] = {
-      val response = new Response[A]
-      op(response)
-      response
-    }
-
+  def autocomplete(code: String, p: Int): List[CompletionResponse] = {
     if(code.isEmpty) Nil
     else {
       val file = reload(code)
-      val ajustedPos = pos + wrapOffset
-      val position = new OffsetPosition(file, ajustedPos)
-      val response = withResponse[List[compiler.Member]](r ⇒ 
-        compiler.askTypeCompletion(position, r)
+      val ajustedPos = p + wrapOffset
+      val pos = new OffsetPosition(file, ajustedPos)
+      val response1 = withResponse[List[compiler.Member]](r ⇒ 
+        compiler.askTypeCompletion(pos, r)
       )
 
-      response.get match {
+      val r1 = response1.get match {
         case Left(members) ⇒ compiler.ask( () ⇒ {
           members.map(member ⇒ 
             CompletionResponse(
@@ -103,6 +102,61 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
         case Right(e) ⇒ 
           e.printStackTrace
           Nil
+      }
+
+      val response2 = withResponse[List[compiler.Member]](r ⇒ 
+        compiler.askScopeCompletion(pos, r)
+      )
+
+      val r2 = response2.get match {
+        case Left(members) ⇒ compiler.ask( () ⇒ {
+          members.map(member ⇒ 
+            CompletionResponse(
+              name = member.sym.decodedName,
+              signature = member.sym.signatureString
+            )
+          )
+        })
+        case Right(e) ⇒ 
+          e.printStackTrace
+          Nil
+      }
+
+      r1 ::: r2
+    }
+  }
+
+  def typeAt(code: String, start: Int, end: Int): Option[TypeAtResponse] = {
+    if(code.isEmpty) None
+    else {
+      val astart = start + wrapOffset
+      val aend = end + wrapOffset
+
+      val file = reload(code)
+      val response = withResponse[compiler.Tree](r ⇒ 
+        compiler.askTypeAt(compiler.rangePos(file, astart, astart, aend), r)
+      )
+
+      response.get match {
+        case Left(tree) ⇒ compiler.ask( () ⇒ {
+          // thanks ensime
+          val res = 
+            tree match {
+              case compiler.Select(qual, name) =>
+                qual
+              case t: compiler.ImplDef if t.impl != null =>
+                t.impl
+              case t: compiler.ValOrDefDef if t.tpt != null =>
+                t.tpt
+              case t: compiler.ValOrDefDef if t.rhs != null =>
+                t.rhs
+              case t => t
+            }
+          Some(TypeAtResponse(res.tpe.toString))
+        })
+        case Right(e) ⇒ 
+          e.printStackTrace
+          None
       }
     }
   }

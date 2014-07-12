@@ -11,6 +11,7 @@ class CommpilerSpecs extends Specification { def is = s2"""
   range $range
   runtimeErrors $runtimeErrors
   compile classpath $compileClasspath
+  typeAt $typeAt
 """
 
   val artifacts =
@@ -54,7 +55,7 @@ class CommpilerSpecs extends Specification { def is = s2"""
      """|0
         |1/0""".stripMargin
     c.insight(code) ==== EvalResponse.empty.copy(
-      runtimeError = Some(RuntimeError("java.lang.ArithmeticException: / by zero", 1))
+      runtimeError = Some(RuntimeError("java.lang.ArithmeticException: / by zero", 2))
     )
   }
 
@@ -63,5 +64,16 @@ class CommpilerSpecs extends Specification { def is = s2"""
     c.insight("com.example.test.Testing.onetwothree") ==== EvalResponse.empty.copy(
       insight = List(Instrumentation("123", 25, 36))
     )
+  }
+  
+  // def works = ok
+  // def range = ok
+  // def runtimeErrors = ok
+  // def compileClasspath = ok
+
+  def typeAt = {
+    val c = compiler
+    c.typeAt("""val a = List(1,2,3,4).groupBy(identity)""", 3, 4) ==== 
+      Some(TypeAtResponse("scala.collection.immutable.Map[Int,List[Int]]"))
   }
 }
