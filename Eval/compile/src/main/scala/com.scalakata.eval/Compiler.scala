@@ -122,7 +122,7 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
           Nil
       }
 
-      r1 ::: r2
+      (r1 ::: r2).distinct
     }
   }
 

@@ -13,14 +13,14 @@ function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer , 
 		code = "";
 	}
 
-	// if(angular.isDefined(window.localStorage['codemirror'])) {
-	// 	$scope.cmOptions = JSON.parse(window.localStorage['codemirror']);
-	// } else {
+	if(angular.isDefined(window.localStorage['codemirror'])) {
+		$scope.cmOptions = JSON.parse(window.localStorage['codemirror']);
+	} else {
 		var keys = {}
 		keys[ctrl + "Space"] = "autocomplete";
 		keys[ctrl + "Enter"] = "run";
-		// keys[ctrl + ","] = "config";
-		keys[ctrl + ","] = "typeAt";
+		keys[ctrl + ","] = "config";
+		keys[ctrl + "."] = "typeAt";
 
 		$scope.cmOptions = {
 			"_to config codemirror see_": "http://codemirror.net/doc/manual.html#config",
@@ -37,7 +37,7 @@ function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer , 
 			keyMap: "sublime",
 			highlightSelectionMatches: { showToken: false }
 		};
-	// }
+	}
 	$scope.theme = function(){
 		return _.map($scope.cmOptions.theme.split(" "), function(t){
 			return "cm-s-" + t;

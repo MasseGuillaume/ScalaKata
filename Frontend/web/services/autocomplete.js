@@ -30,7 +30,7 @@ app.run(["scalaEval", function(scalaEval){
 
 				options.completeSingle = single;
 				if(single){
-					return {from: curFrom, to: curTo, list: cf(data)};
+					return {from: curFrom, to: curTo, list: cf(data, term)};
 				} else {
 					curFrom.ch = Math.Infinity;
 					curTo.ch = Math.Infinity;
@@ -53,7 +53,7 @@ app.run(["scalaEval", function(scalaEval){
 		}, false);
 	}
 	CodeMirror.commands.autocomplete = function(cm) {
-		hint(cm, scalaEval.autocomplete, function(c){ 
+		hint(cm, scalaEval.autocomplete, function(data, term){ 
 			return data.filter(function(c){
 					return c.name.toLowerCase().indexOf(term.toLowerCase()) != -1;
 			}).map(function(c){

@@ -8,9 +8,10 @@ object Settings {
 		bintray.Plugin.bintraySettings ++
 		bintray.Plugin.bintrayPublishSettings ++
 		Seq(
+			offline := true,
 			organization := "com.scalakata",
 			scalaVersion := "2.11.2-SNAPSHOT",
-			version := "0.2.0-SNAPSHOT",
+			version := "0.2.0",
 			licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html")),
 			scalacOptions += "-Yrangepos",
 			libraryDependencies ++= Seq(
