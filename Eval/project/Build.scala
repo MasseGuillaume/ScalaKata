@@ -11,11 +11,12 @@ object Settings {
 			offline := true,
 			organization := "com.scalakata",
 			scalaVersion := "2.11.2-SNAPSHOT",
-			version := "0.2.0",
+			version := "0.3.0-SNAPSHOT",
 			licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html")),
 			scalacOptions += "-Yrangepos",
 			libraryDependencies ++= Seq(
 				"org.scala-lang" % "scala-compiler" % scalaVersion.value,
+				 "org.scala-lang" % "scala-reflect" % scalaVersion.value,
 				"org.specs2" %% s"specs2" % "2.3.12" % "test"
 			),
 			resolvers ++= Seq(
@@ -33,8 +34,7 @@ object EvalBuild extends Build {
 		id = "macro",
 		base = file("macro"),
 		settings = default ++ Seq(
-			name := "macro",
-			libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
+			name := "macro"
 		)
 	)
 

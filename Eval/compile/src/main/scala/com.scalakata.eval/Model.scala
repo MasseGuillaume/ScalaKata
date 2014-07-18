@@ -7,6 +7,7 @@ final case object Error extends Severity
 
 case class Instrumentation(
 	result: String,
+	xml: Boolean,
 	start: Int,
 	end: Int
 )

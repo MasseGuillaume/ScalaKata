@@ -7,12 +7,12 @@
   "dependencies": {
     "angular": "~1.2.18",
     "fontawesome": "~4.1.0",
-    "codemirror": "#bc9c42b4af78a345dc73edd425f3718dbb37f142",
+    "codemirror": "git@github.com:MasseGuillaume/CodeMirror.git#c62ac77286c23c64037977ed48eca5620af93735",
     "angular-ui-codemirror": "~0.1.2"
   },
   "resolutions": {
     "angular": "~1.2.18",
-    "codemirror": "bc9c42b4af78a345dc73edd425f3718dbb37f142"
+    "codemirror": "c62ac77286c23c64037977ed48eca5620af93735"
   },
   "keywords": [
   ],

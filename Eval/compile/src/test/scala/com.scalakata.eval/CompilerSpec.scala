@@ -31,7 +31,7 @@ class CommpilerSpecs extends Specification { def is = s2"""
     val result = c.insight(code)
 
     result ==== EvalResponse.empty.copy(insight = 
-      List(Instrumentation("List(1, 2)",4,17), Instrumentation("2",22,27))
+      List(Instrumentation("List(1, 2)", false, 4, 17), Instrumentation("2", false, 22, 27))
     )
   }
 
@@ -43,8 +43,8 @@ class CommpilerSpecs extends Specification { def is = s2"""
 
     c.insight(code) ==== EvalResponse.empty.copy(insight =
       List(
-        Instrumentation("1", 2, 3),
-        Instrumentation("0", 0, 1)
+        Instrumentation("1", false, 2, 3),
+        Instrumentation("0", false, 0, 1)
       )
     )
   }
@@ -62,7 +62,7 @@ class CommpilerSpecs extends Specification { def is = s2"""
   def compileClasspath = {
     val c = compiler
     c.insight("com.example.test.Testing.onetwothree") ==== EvalResponse.empty.copy(
-      insight = List(Instrumentation("123", 25, 36))
+      insight = List(Instrumentation("123", false, 25, 36))
     )
   }
   

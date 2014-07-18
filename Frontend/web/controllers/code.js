@@ -27,7 +27,7 @@ function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer , 
 			extraKeys: keys,
 			fixedGutter: true,
 			coverGutterNextToScrollbar: true,
-			lineNumbers: true,
+			lineNumbers: false,
 			theme: 'solarized dark',
 			themes: [ "solarized dark", "solarized light", "monokai", "ambiance", "eclipse", "mdn-like"],
 			smartIndent: false,
@@ -36,12 +36,7 @@ function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer , 
 			styleActiveLine: true,
 			keyMap: "sublime",
 			highlightSelectionMatches: { showToken: false }
-		};
-	}
-	$scope.theme = function(){
-		return _.map($scope.cmOptions.theme.split(" "), function(t){
-			return "cm-s-" + t;
-		}).join(" ");
+		}
 	}
 
 	function setMode(edit){

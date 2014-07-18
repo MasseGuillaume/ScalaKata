@@ -1,5 +1,5 @@
 app.run(["scalaEval", function(scalaEval){
-	function hint(cm, sf, cf, single){
+	function hint(cm, sf, cf, single, clazz){
 		sf(
 			cm.getDoc().getValue(), 
 			cm.getDoc().indexFromPos(cm.getCursor())
@@ -34,7 +34,7 @@ app.run(["scalaEval", function(scalaEval){
 				} else {
 					curFrom.ch = Math.Infinity;
 					curTo.ch = Math.Infinity;
-					return {from: curFrom, to: curTo, list: cf(data)};
+					return {from: curFrom, to: curTo, list: cf(data), className: clazz};
 				}
 			});
 		});
@@ -50,7 +50,7 @@ app.run(["scalaEval", function(scalaEval){
 					}
 				}
 			];
-		}, false);
+		}, false, "typeAt");
 	}
 	CodeMirror.commands.autocomplete = function(cm) {
 		hint(cm, scalaEval.autocomplete, function(data, term){ 
@@ -66,6 +66,6 @@ app.run(["scalaEval", function(scalaEval){
 					}
 				}
 			});
-		}, true);
+		}, true, "autocomplete");
 	};
 }]);

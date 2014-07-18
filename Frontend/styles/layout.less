@@ -3,6 +3,12 @@ body {
 	margin: 0;
 }
 
+@media print {
+	.menu {
+		display: none;
+	}
+}
+
 .menu {
 	position: fixed;
 	top: 0;
@@ -37,5 +43,6 @@ body {
 		line-height: 21px;
 		margin-left: 15px;
 		border-bottom: 1px solid black;
+		z-index: 2;
 	}
 }

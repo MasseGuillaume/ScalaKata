@@ -28,11 +28,18 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
 
               val i = 
                 instr.map{ case ((start, end), value) ⇒
-                  val v = value match {
-                    case a: String ⇒ '"' + a + '"'
-                    case other ⇒ other.toString
+                  val (v, xml) = value match {
+                    case a: String ⇒ {
+                      val quote = 
+                        if (a.lines.size > 1) "\"\"\""
+                        else "\""
+                      (quote + a + quote, false)
+                    }
+                    case xml: scala.xml.Elem ⇒
+                      (xml.toString, true)
+                    case other ⇒ (other.toString, false)
                   }
-                  Instrumentation(v, start, end)
+                  Instrumentation(v, xml, start, end)
                 }.to[List]
 
               EvalResponse.empty.copy(

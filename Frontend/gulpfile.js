@@ -33,6 +33,11 @@ gulp.task('html', function(){
         .pipe(refresh(lrserver));
 });
 
+gulp.task('js2', function(){
+    gulp.src('bower_components/codemirror/**/*.js')
+        .pipe(refresh(lrserver));
+});
+
 gulp.task('js', function(){
     gulp.src('web/**/*.js')
         .pipe(refresh(lrserver));
@@ -57,7 +62,8 @@ gulp.task('npm', function(){
 });
 
 gulp.task('default', function() {
-    gulp.start('install', 'styles', 'serve', 'watch', 'browser');
+    // 'install'
+    gulp.start('styles', 'serve', 'watch', 'browser');
 });
 
 function serveF(assets){
@@ -80,10 +86,11 @@ function serveF(assets){
 }
 
 gulp.task('serve', function(){
-    serveF(['web', 'bower_components', 'tmp']);   
+    serveF(['web', 'bower_components', 'tmp']);
 });
 
 gulp.task('watch', function() {
+    gulp.watch('bower_components/codemirror/**/*.js', ['js2']);
     gulp.watch('styles/**/*.less', ['styles']);
     gulp.watch('web/**/*.html', ['html']);
     gulp.watch('web/**/*.js', ['js']);

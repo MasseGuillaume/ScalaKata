@@ -5,7 +5,7 @@
   "description": "ScalaKata",
   "repository": "https://github.com/MasseGuillaume/ScalaMirror",
   "devDependencies": {
-    "gulp": "~3.5.2",
+    "gulp": "~3.6.0",
     "gulp-clean": "~0.2.4",
     "gulp-concat": "~2.1.7",
     "express": "~3.5.0",
