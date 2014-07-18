@@ -66,6 +66,10 @@ object Scalakata extends Plugin {
 
 					()
 				},
+				resolvers ++= Seq(
+					"spray repo" at "http://repo.spray.io",
+					"typesafe releases" at "http://repo.typesafe.com/typesafe/releases"
+				),
 				libraryDependencies ++= Seq(
 					"com.scalakata" % s"backend_${scalaBinaryVersion.value}" % "0.3.0-SNAPSHOT",
 					"com.scalakata" % s"eval_${scalaBinaryVersion.value}" % "0.3.0-SNAPSHOT",
@@ -86,15 +90,15 @@ object Scalakata extends Plugin {
 					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % "0.3.0-SNAPSHOT",
 					"org.scala-lang" % "scala-compiler" % scalaVersion.value,
 					compilerPlugin("org.scalamacros" % s"paradise_${scalaVersion.value}" % "2.1.0-SNAPSHOT")
+				),
+				resolvers in Kata ++= Seq(
+					"masseguillaume" at "http://dl.bintray.com/content/masseguillaume/maven",
+					Resolver.sonatypeRepo("releases"),
+					Resolver.sonatypeRepo("snapshots")
 				)
 			)
 		) ++
 		Seq(
-			resolvers in Kata += "masseguillaume" at "http://dl.bintray.com/content/masseguillaume/maven",
-			resolvers in Kata ++= Seq(
-				Resolver.sonatypeRepo("releases"),
-				Resolver.sonatypeRepo("snapshots")
-			),
 			startArgs in (Backend, Revolver.reStart) := Seq(
 				(readyPort in Backend).value.toString,
 				((fullClasspath in Compile).value ++ (dependencyClasspath in Kata).value).
