@@ -28,13 +28,11 @@ class Eval(settings: Settings) {
   private var classLoader: AbstractFileClassLoader = _
 
   settings.outputDirs.setSingleOutput(target)
-  settings.Ymacroexpand.value = settings.MacroExpand.Normal
   
   private val compiler = new Global(settings, reporter)
-  private val objectName = "A"
   
-  def apply(code: String): (Option[Eval.Instrumentation], Map[String, List[(Int, String)]]) = {
-    compile(wrapCode(code))
+  def apply(code: String, objectName: String): (Option[Eval.Instrumentation], Map[String, List[(Int, String)]]) = {
+    compile(code)
 
     val infos = check()
     val infoss = infos.map{case (k, v) ⇒ (k.toString, v)}
@@ -68,15 +66,16 @@ class Eval(settings: Settings) {
      .mapValues{_.map{case (a,b,c) ⇒ (b,c)}}
   }
 
-  private val preWrap =
-    s"@com.scalakata.eval.ScalaKata object $objectName{object B{"
+  // private val preWrap =
+  //   s"@com.scalakata.eval.ScalaKata object $objectName{object A{"
 
-  private val offset = preWrap.length
-  val lineOffset = preWrap.lines.length - 1
+  private val offset = 0 //preWrap.length
+  // val lineOffset = preWrap.lines.length - 1
+  val lineOffset = 0
 
-  private def wrapCode(code: String) = 
-    s"""|${preWrap}${code}
-        |}}""".stripMargin
+  // private def wrapCode(code: String) = 
+  //   s"""|${preWrap}${code}
+  //       |}}""".stripMargin
   
   private def reset(): Unit = {
     target.clear

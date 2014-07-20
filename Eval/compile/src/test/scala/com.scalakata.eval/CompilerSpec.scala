@@ -12,6 +12,7 @@ class CommpilerSpecs extends Specification { def is = s2"""
   runtimeErrors $runtimeErrors
   compile classpath $compileClasspath
   typeAt $typeAt
+  extract value classes $valueClass 
 """
 
   val artifacts =
@@ -76,4 +77,25 @@ class CommpilerSpecs extends Specification { def is = s2"""
     c.typeAt("""val a = List(1,2,3,4).groupBy(identity)""", 3, 4) ==== 
       Some(TypeAtResponse("scala.collection.immutable.Map[Int,List[Int]]"))
   }
+
+  def valueClass = {
+    val c = compiler
+    val code = 
+     """|class Meter(val value: Int) extends AnyVal {
+        |  def +(m: Meter): Meter = new Meter(value + m.value)
+        |}
+        |val x = new Meter(3)
+        |val y = new Meter(4)
+        |x + y
+        |""".stripMargin
+    val res = c.insight(code)
+    println(res)
+
+    res ==== EvalResponse.empty.copy(insight =
+      List(
+        Instrumentation("Meter@7", false, 2, 3)
+      )
+    )
+  }
 }
+

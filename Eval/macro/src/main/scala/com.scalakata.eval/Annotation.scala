@@ -59,7 +59,7 @@ object ScalaKataMacro {
       annottees.map(_.tree).toList match {
         case q"object $name { ..$bodyO }" :: Nil ⇒ {
           bodyO match {
-            case (obj @ q"object B { ..$body }") :: Nil ⇒ {
+            case (obj @ q"object $name2 { ..$body }") :: Nil ⇒ {
               instrument(body, name, obj.pos.point + 2)
             }
           }

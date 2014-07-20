@@ -21,70 +21,39 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
   def insight(code: String): EvalResponse = {
     if (code.isEmpty) EvalResponse.empty
     else {
-      try { 
-        withTimeout{
-          eval(code) match {
-            case (Some(instr), cinfos) ⇒
+      try {
+        val (offset, wcode) = PreProcessing.extractValueClasses(wraps(code))
+        try { 
+          withTimeout{
+            eval(wcode, objectName) match {
+              case (Some(instr), cinfos) ⇒
+                EvalResponse.empty.copy(
+                  insight = PostProcessing(instr),
+                  infos = convert(cinfos)
+                )
+              case (_, cinfos) ⇒ EvalResponse.empty.copy(infos = convert(cinfos))
+            }
+          }(timeout).getOrElse(
+            EvalResponse.empty.copy(timeout = true)
+          )
+        } catch {
+          case NonFatal(e) ⇒ {
+            def virtual(line: Int) = -line
+            val pos = virtual(e.getCause.getStackTrace.drop(1).head.getLineNumber)
 
-              val i = 
-                instr.map{ case ((start, end), value) ⇒
-                  val (v, xml) = value match {
-                    case a: String ⇒ {
-                      val quote = 
-                        if (a.lines.size > 1) "\"\"\""
-                        else "\""
-                      (quote + a + quote, false)
-                    }
-                    case xml: scala.xml.Elem ⇒
-                      (xml.toString, true)
-                    case other ⇒ (other.toString, false)
-                  }
-                  Instrumentation(v, xml, start, end)
-                }.to[List]
-
-              EvalResponse.empty.copy(
-                insight = i,
-                infos = convert(cinfos)
-              )
-            case (_, cinfos) ⇒ EvalResponse.empty.copy(infos = convert(cinfos))
+            EvalResponse.empty.copy(runtimeError = 
+              Some(RuntimeError(e.getCause.toString, pos - offset)) 
+            )
           }
-
-        }(timeout).getOrElse(
-          EvalResponse.empty.copy(timeout = true)
-        )
+        }
       } catch {
         case NonFatal(e) ⇒ {
-
-          def virtual(line: Int) = -line
-          val pos = virtual(e.getCause.getStackTrace.drop(1).head.getLineNumber)
-
           EvalResponse.empty.copy(runtimeError = 
-            Some(RuntimeError(e.getCause.toString, pos - eval.lineOffset)) 
+            Some(RuntimeError(e.getCause.toString, 0)) 
           )
         }
       }
     }
-  }
-
-  private val beginWrap = "class ScalaKata {\n"
-  private val endWrap = "\n}"
-
-  private val wrapOffset = beginWrap.size
-
-  private def wrap(code: String): BatchSourceFile = {
-    new BatchSourceFile("default", beginWrap + code + endWrap)
-  }
-
-  private def reload(code: String): BatchSourceFile = {
-    val file = wrap(code)
-    withResponse[Unit](r ⇒ compiler.askReload(List(file), r)).get
-    file
-  }
-
-  private def withResponse[A](op: Response[A] ⇒ Any): Response[A] = {
-    val response = new Response[A]
-    op(response)
-    response
   }
 
   def autocomplete(code: String, p: Int): List[CompletionResponse] = {
@@ -147,25 +116,44 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
       response.get match {
         case Left(tree) ⇒ compiler.ask( () ⇒ {
           // thanks ensime
-          val res = 
-            tree match {
-              case compiler.Select(qual, name) =>
-                qual
-              case t: compiler.ImplDef if t.impl != null =>
-                t.impl
-              case t: compiler.ValOrDefDef if t.tpt != null =>
-                t.tpt
-              case t: compiler.ValOrDefDef if t.rhs != null =>
-                t.rhs
-              case t => t
-            }
-          Some(TypeAtResponse(res.tpe.toString))
+          def s(res: compiler.Tree) = Some(TypeAtResponse(res.tpe.toString))
+          tree match {
+            case compiler.Select(qual, name) => s(qual)
+            case t: compiler.ImplDef if t.impl != null => s(t.impl)
+            case t: compiler.ValOrDefDef if t.tpt != null => s(t.tpt)
+            case t: compiler.ValOrDefDef if t.rhs != null => s(t.rhs)
+            case t => s(t)
+          }
         })
         case Right(e) ⇒ 
           e.printStackTrace
           None
       }
     }
+  }
+
+  private val objectName = "Instrumented"
+  private val beginWrap = s"object $objectName {\n"
+  private val endWrap = "\n}"
+
+  private val wrapOffset = beginWrap.size
+
+
+  private def wraps(code: String): String = beginWrap + code + endWrap
+  private def wrap(code: String): BatchSourceFile = {
+    new BatchSourceFile("default", PreProcessing.extractValueClasses(wraps(code)))
+  }
+
+  private def reload(code: String): BatchSourceFile = {
+    val file = wrap(code)
+    withResponse[Unit](r ⇒ compiler.askReload(List(file), r)).get
+    file
+  }
+
+  private def withResponse[A](op: Response[A] ⇒ Any): Response[A] = {
+    val response = new Response[A]
+    op(response)
+    response
   }
 
   private val timeout = 60.seconds
@@ -178,6 +166,7 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
   settings.bootclasspath.value = artifacts
   settings.classpath.value = artifacts
   settings.Yrangepos.value = true
+  settings.Ymacroexpand.value = settings.MacroExpand.Normal
 
   private val compiler = new Global(settings, reporter)
   private val eval = new Eval(settings.copy)
