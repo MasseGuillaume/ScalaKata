@@ -8,7 +8,6 @@ object Settings {
 		bintray.Plugin.bintraySettings ++
 		bintray.Plugin.bintrayPublishSettings ++
 		Seq(
-			offline := true,
 			organization := "com.scalakata",
 			scalaVersion := "2.11.2-SNAPSHOT",
 			version := "0.3.0-SNAPSHOT",

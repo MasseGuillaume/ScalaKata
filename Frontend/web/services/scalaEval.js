@@ -10,6 +10,9 @@ function( $q ,  $rootScope ,  $location ,  $http) {
 	}
 	
 	return {
+		"initialCommands": function(){
+			return $http.get(url + "initialCommands");
+		},
 		"insight": function(code){
 			return $http.post(url + "eval", {"code": code});
 		},

@@ -1,10 +1,6 @@
-offline := true
-
 name := "backend"
 
 organization := "com.scalakata"
-
-offline := true
 
 version := "0.3.0-SNAPSHOT"
 
@@ -20,8 +16,8 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-	"com.scalakata" %% "eval" % "0.3.0-SNAPSHOT" % "provided",
-	"com.scalakata" % "frontend" % "0.3.0-SNAPSHOT" % "provided",
+	"com.scalakata" %% "eval" % "0.3.0-SNAPSHOT",
+	"com.scalakata" % "frontend" % "0.3.0-SNAPSHOT",
 	"io.spray" %% "spray-can" % "1.3.1-20140423",
 	"io.spray" %% "spray-routing" % "1.3.1-20140423",
 	"com.typesafe.akka" %% "akka-actor" % "2.3.3",

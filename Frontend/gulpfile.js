@@ -71,9 +71,10 @@ function serveF(assets){
         apiUrl = "http://localhost:8080";
 
     server.use(livereload({port: livereloadport}));
-    ['/eval', '/completion', '/typeAt'].forEach(function(u){
-        server.use(u, function(req, res) {
-            req.pipe(request(apiUrl + u)).pipe(res);
+    ['eval', 'completion', 'typeAt', "initialCommands"].forEach(function(u){
+        var url = "/" + u
+        server.use(url, function(req, res) {
+            req.pipe(request(apiUrl + url)).pipe(res);
         });
     });
 

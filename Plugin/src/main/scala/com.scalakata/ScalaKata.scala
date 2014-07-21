@@ -40,7 +40,6 @@ object Scalakata extends Plugin {
 			Defaults.configSettings ++
 			Revolver.settings ++
 			Seq(
-				offline := true,
 				mainClass in Revolver.reStart := Some("com.scalakata.backend.Boot"),
 				fullClasspath in Revolver.reStart <<= fullClasspath,
 				Revolver.reStart <<= InputTask(Actions.startArgsParser) { args =>
@@ -66,10 +65,6 @@ object Scalakata extends Plugin {
 
 					()
 				},
-				resolvers ++= Seq(
-					"spray repo" at "http://repo.spray.io",
-					"typesafe releases" at "http://repo.typesafe.com/typesafe/releases"
-				),
 				libraryDependencies ++= Seq(
 					"com.scalakata" % s"backend_${scalaBinaryVersion.value}" % "0.3.0-SNAPSHOT",
 					"com.scalakata" % s"eval_${scalaBinaryVersion.value}" % "0.3.0-SNAPSHOT",
@@ -83,7 +78,6 @@ object Scalakata extends Plugin {
 			Defaults.configSettings ++
 			Defaults.compileBase ++
 			Seq(
-				offline := true,
 				scalaVersion := "2.11.2-SNAPSHOT",
 				scalacOptions += "-Yrangepos",
 				libraryDependencies ++= Seq(
@@ -91,14 +85,11 @@ object Scalakata extends Plugin {
 					"org.scala-lang" % "scala-compiler" % scalaVersion.value,
 					compilerPlugin("org.scalamacros" % s"paradise_${scalaVersion.value}" % "2.1.0-SNAPSHOT")
 				),
-				resolvers in Kata ++= Seq(
-					"masseguillaume" at "http://dl.bintray.com/content/masseguillaume/maven",
-					Resolver.sonatypeRepo("releases"),
-					Resolver.sonatypeRepo("snapshots")
-				)
+				initialCommands := ""
 			)
 		) ++
 		Seq(
+			scalaVersion in Backend <<= scalaVersion in Kata,
 			startArgs in (Backend, Revolver.reStart) := Seq(
 				(readyPort in Backend).value.toString,
 				((fullClasspath in Compile).value ++ (dependencyClasspath in Kata).value).
@@ -106,9 +97,15 @@ object Scalakata extends Plugin {
 					map(_.getAbsoluteFile).
 					mkString(File.pathSeparator),
 				(kataUrl in Backend).value.getHost,
-				(kataUrl in Backend).value.getPort.toString
+				(kataUrl in Backend).value.getPort.toString,
+				(initialCommands in Kata).value
 			) ++ (scalacOptions in Kata).value,
-			scalaVersion in Backend <<= scalaVersion in Kata,
-			resolvers in Backend <<= resolvers in Kata
+			resolvers ++= Seq(
+				"spray repo" at "http://repo.spray.io",
+				"typesafe releases" at "http://repo.typesafe.com/typesafe/releases",
+				"masseguillaume" at "http://dl.bintray.com/content/masseguillaume/maven",
+				Resolver.sonatypeRepo("releases"),
+				Resolver.sonatypeRepo("snapshots")
+			)
 		)
 }

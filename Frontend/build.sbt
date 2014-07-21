@@ -1,7 +1,5 @@
 name := "frontend"
 
-offline := true
-
 organization := "com.scalakata"
 
 version := "0.3.0-SNAPSHOT"

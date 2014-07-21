@@ -8,6 +8,7 @@ import spray.routing.HttpService
 
 class ScalaKataActor(
 	override val artifacts: String,
+	override val initialCommands: String,
 	override val scalacOptions: Seq[String]) extends Actor with ScalaKata {
 
 	def actorRefFactory = context
@@ -17,6 +18,7 @@ class ScalaKataActor(
 trait ScalaKata extends HttpService {
 	val artifacts: String
 	val scalacOptions: Seq[String]
+	val initialCommands: String
 
 	implicit def executionContext = actorRefFactory.dispatcher
 
@@ -26,6 +28,11 @@ trait ScalaKata extends HttpService {
 	val compiler = new Compiler(artifacts, scalacOptions)
 
 	val route = {
+		path("initialCommands") {
+			get {
+				complete(initialCommands)
+			}
+		} ~
 		path("eval") {
 			post {
 				entity(as[EvalRequest]) { request ⇒

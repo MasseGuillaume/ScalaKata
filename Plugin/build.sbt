@@ -2,8 +2,6 @@ import bintray.Keys._
 
 sbtPlugin := true
 
-offline := true
-
 name := "plugin"
 
 organization := "com.scalakata"

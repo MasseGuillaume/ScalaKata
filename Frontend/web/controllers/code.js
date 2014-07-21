@@ -2,16 +2,24 @@ app.controller('code',
 			 ["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRenderer", "errorsRenderer", 
 function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer ,  errorsRenderer){
 
-	var cm, 
-		code,
-		configEditing = false,
+	var cm,
+		state = {},
 		ctrl = CodeMirror.keyMap["default"] == CodeMirror.keyMap.pcDefault ? "Ctrl-" : "Cmd-";
 
-	if(angular.isDefined(window.localStorage['code'])) {
-		code = window.localStorage['code'];
-	} else {
-		code = "";
-	}
+	$scope.code = "";
+	state.configEditing = false;
+
+	scalaEval.initialCommands().then(function(r){
+		if(r.data === "") {
+			if(angular.isDefined(window.localStorage['code'])) {
+				$scope.code = window.localStorage['code'];
+			} else {
+				$scope.code = "";
+			}
+		} else {
+			$scope.code = r.data;
+		}
+	});
 
 	if(angular.isDefined(window.localStorage['codemirror'])) {
 		$scope.cmOptions = JSON.parse(window.localStorage['codemirror']);
@@ -41,7 +49,7 @@ function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer , 
 
 	function setMode(edit){
 		if(edit) {
-			code = $scope.code;
+			state.code = $scope.code;
 			insightRenderer.clear();
 			errorsRenderer.clear();
 			$timeout(function(){
@@ -54,7 +62,6 @@ function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer , 
 				cm.focus();
 			}
 			$timeout(function(){
-				$scope.code = code;
 				$scope.cmOptions.mode = 'text/x-' + LANGUAGE;
 				window.localStorage['codemirror'] = JSON.stringify($scope.cmOptions);
 			});
@@ -64,32 +71,39 @@ function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer , 
 
 	$scope.toogleEdit = function(){
 		configEditing = !configEditing;
-		setMode(configEditing);
+		setMode(configEditing, true);
 	};
+
+	function clear(){
+		insightRenderer.clear();
+		errorsRenderer.clear();
+	}
 	
 	function run(){
-		if(!configEditing) {
-			scalaEval.insight($scope.code).then(function(r){
-				var data = r.data;
-				var code = $scope.code.split("\n");
-				insightRenderer.render(cm, $scope.cmOptions.mode, data.insight, code);
-				errorsRenderer.render(cm, data.infos, data.runtimeError, code);
-			});
-		}
+		if(configEditing) return;
+
+		insightRenderer.clear();
+		errorsRenderer.clear();
+
+		scalaEval.insight($scope.code).then(function(r){
+			var data = r.data;
+			var code = $scope.code.split("\n");
+			insightRenderer.render(cm, $scope.cmOptions.mode, data.insight, code);
+			errorsRenderer.render(cm, data.infos, data.runtimeError, code);
+		});
 	}
 
 	CodeMirror.commands.run = run;
 	CodeMirror.commands.save = run;
 	CodeMirror.commands.config = $scope.toogleEdit;
 
-	$scope.$watch('code', function(){
-		if(configEditing) {
+	$scope.$watch('state', function(){
+		if(state.configEditing) {
 			try {
 				$scope.cmOptions = JSON.parse($scope.code);
 			} catch(e){}
 		} else {
-			insightRenderer.clear();
-			errorsRenderer.clear();
+			clear();
 			window.localStorage['code'] = $scope.code;
 		}
 	});
