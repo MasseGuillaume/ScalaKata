@@ -1,4 +1,4 @@
-# Scala Kata [![Build Status](https://api.travis-ci.org/MasseGuillaume/ScalaKata.png?branch=master)](https://travis-ci.org/MasseGuillaume/ScalaKata) [![Stories in Ready](https://badge.waffle.io/MasseGuillaume/ScalaKata.png?label=Ready)](https://waffle.io/MasseGuillaume/ScalaKata)
+# Scala Kata [![Gittip](http://img.shields.io/gittip/MasseGuillaume.svg?style=flat)](https://www.gittip.com/MasseGuillaume/) [![Build Status](http://img.shields.io/travis/MasseGuillaume/ScalaKata.svg?style=flat)](https://travis-ci.org/MasseGuillaume/ScalaKata) [![Stories in Ready](https://badge.waffle.io/MasseGuillaume/ScalaKata.png?label=Ready)](https://waffle.io/MasseGuillaume/ScalaKata)
 
 ![scala kata editor with scalaz example](https://raw.githubusercontent.com/MasseGuillaume/ScalaKata/develop/example.png)
 *hacking scalaz*
