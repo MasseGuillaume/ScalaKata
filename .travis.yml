@@ -1,0 +1,17 @@
+language: scala
+before_script: ./publish/bintray.sh
+script: sbt ++${TRAVIS_SCALA_VERSION} test publishTravis
+
+scala:
+  - 2.11.1
+jdk:
+  - openjdk7
+  - oraclejdk7
+  - oraclejdk8
+notifications:
+  email:
+    - masgui@gmail.com
+env:
+  global:
+   - secure: "HsBKxCc1SydicZr8GtI2oifOSvGdkVhPiIpkpbV1OKLvtNhbWLb+6fAJfQGF8y7FwUFHRw79tlcVqC9bazOEl6q+Nn86UuhS1Xn3ijtQ+wYSt+Xbvxk/Dmok90xUsAFuHircl386rQQn1eLbB00Ock7q7EZj6ZT1tdaZNgsxUaU="
+   - secure: "IRxUaifbCvhCZywU/Oo1AlXjaRhfATqX4+P3/SiuZl57ps7kjYfcXx7kcPWLTkPV5pkr/rJw9Aqgj1PKl83DdZ8AKP3FcIc51ul8AMk8sqm03fClBYwMKZ5wAcMNgJhnNcBKFrjU6Rsfni/mvCVKlOQRrfCpscSEmblKEZ/hbow="

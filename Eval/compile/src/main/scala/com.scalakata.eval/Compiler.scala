@@ -93,6 +93,9 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
       val file = reload(code)
       val ajustedPos = p + wrapOffset
       val pos = new OffsetPosition(file, ajustedPos)
+
+      // TODO: https://github.com/scala-ide/scala-ide/blob/4.0.0-m3-luna/org.scala-ide.sdt.core/src/org/scalaide/core/completion/ScalaCompletions.scala#L170
+
       val response1 = withResponse[List[compiler.Member]](r ⇒ 
         compiler.askTypeCompletion(pos, r)
       )
