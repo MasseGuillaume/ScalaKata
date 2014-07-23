@@ -1,6 +1,5 @@
-app.controller('code',
-			 ["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRenderer", "errorsRenderer", 
-function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer ,  errorsRenderer){
+app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRenderer", "errorsRenderer",
+				 function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer ,  errorsRenderer){
 
 	var cm,
 		state = {},
@@ -47,6 +46,11 @@ function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer , 
 		}
 	}
 
+	function clear(){
+		insightRenderer.clear();
+		errorsRenderer.clear();
+	}
+
 	function setMode(edit){
 		if(edit) {
 			state.code = $scope.code;
@@ -57,12 +61,16 @@ function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer , 
 				$scope.code = JSON.stringify($scope.cmOptions, null, '\t');
 			});
 		} else {
-			$scope.cmOptions.onLoad = function(cm_) { 
+			$scope.cmOptions.onLoad = function(cm_) {
 				cm = cm_;
 				cm.focus();
+				cm.on('changes', function(){
+					clear();
+				})
 			}
 			$timeout(function(){
 				$scope.cmOptions.mode = 'text/x-' + LANGUAGE;
+				$scope.code = state.code;
 				window.localStorage['codemirror'] = JSON.stringify($scope.cmOptions);
 			});
 		}
@@ -70,20 +78,14 @@ function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer , 
 	setMode(false);
 
 	$scope.toogleEdit = function(){
-		configEditing = !configEditing;
-		setMode(configEditing, true);
+		state.configEditing = !state.configEditing;
+		setMode(state.configEditing);
 	};
 
-	function clear(){
-		insightRenderer.clear();
-		errorsRenderer.clear();
-	}
-	
 	function run(){
-		if(configEditing) return;
+		if(state.configEditing) return;
 
-		insightRenderer.clear();
-		errorsRenderer.clear();
+		clear();
 
 		scalaEval.insight($scope.code).then(function(r){
 			var data = r.data;
@@ -97,7 +99,7 @@ function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer , 
 	CodeMirror.commands.save = run;
 	CodeMirror.commands.config = $scope.toogleEdit;
 
-	$scope.$watch('state', function(){
+	$scope.$watch('code', function(){
 		if(state.configEditing) {
 			try {
 				$scope.cmOptions = JSON.parse($scope.code);

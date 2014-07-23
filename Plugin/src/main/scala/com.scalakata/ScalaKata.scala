@@ -15,7 +15,7 @@ object Scalakata extends Plugin {
 
 	lazy val Kata = config("kata")
 	lazy val Backend = config("backend")
-	
+
 	lazy val openBrowser = TaskKey[Unit]("open-browser", "task to open browser to kata url")
 	lazy val readyPort = SettingKey[Int]("ready-port", "port to send ready command")
 	lazy val kataUrl = SettingKey[URL]("kata-url", "url to scala kata")
@@ -28,15 +28,15 @@ object Scalakata extends Plugin {
 		settings = kataSettings
 	)
 
-	lazy val kataSettings = 
+	lazy val kataSettings =
 		Project.defaultSettings ++
 		addCommandAlias("kstart", ";backend:reStart ;backend:openBrowser") ++
 		addCommandAlias("kstop", "backend:reStop") ++
 		addCommandAlias("krestart", ";backend:reStop ;backend:reStart") ++
 		inConfig(Backend)(
 			Classpaths.ivyBaseSettings ++
-			Classpaths.jvmBaseSettings ++ 
-			Defaults.compileBase ++ 
+			Classpaths.jvmBaseSettings ++
+			Defaults.compileBase ++
 			Defaults.configSettings ++
 			Revolver.settings ++
 			Seq(
@@ -57,7 +57,7 @@ object Scalakata extends Plugin {
 				},
 				kataUrl := new URL("http://localhost:8080"),
 				readyPort := 8081,
-				openBrowser := { 
+				openBrowser := {
 					val socket = new java.net.ServerSocket(readyPort.value)
 					socket.accept()
 					socket.close()
@@ -66,9 +66,9 @@ object Scalakata extends Plugin {
 					()
 				},
 				libraryDependencies ++= Seq(
-					"com.scalakata" % s"backend_${scalaBinaryVersion.value}" % "0.3.0-SNAPSHOT",
-					"com.scalakata" % s"eval_${scalaBinaryVersion.value}" % "0.3.0-SNAPSHOT",
-					"com.scalakata" % "frontend" % "0.3.0-SNAPSHOT"
+					"com.scalakata" % s"backend_${scalaBinaryVersion.value}" % "0.3.0",
+					"com.scalakata" % s"eval_${scalaBinaryVersion.value}" % "0.3.0",
+					"com.scalakata" % "frontend" % "0.3.0"
 				)
 			)
 		) ++
@@ -78,12 +78,12 @@ object Scalakata extends Plugin {
 			Defaults.configSettings ++
 			Defaults.compileBase ++
 			Seq(
-				scalaVersion := "2.11.2-SNAPSHOT",
+				scalaVersion := "2.11.2",
 				scalacOptions += "-Yrangepos",
 				libraryDependencies ++= Seq(
-					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % "0.3.0-SNAPSHOT",
+					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % "0.3.0",
 					"org.scala-lang" % "scala-compiler" % scalaVersion.value,
-					compilerPlugin("org.scalamacros" % s"paradise_${scalaVersion.value}" % "2.1.0-SNAPSHOT")
+					compilerPlugin("org.scalamacros" % s"paradise_${scalaVersion.value}" % "2.1.0-M1")
 				),
 				initialCommands := ""
 			)
@@ -104,8 +104,7 @@ object Scalakata extends Plugin {
 				"spray repo" at "http://repo.spray.io",
 				"typesafe releases" at "http://repo.typesafe.com/typesafe/releases",
 				"masseguillaume" at "http://dl.bintray.com/content/masseguillaume/maven",
-				Resolver.sonatypeRepo("releases"),
-				Resolver.sonatypeRepo("snapshots")
+				Resolver.sonatypeRepo("releases")
 			)
 		)
 }

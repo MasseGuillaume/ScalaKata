@@ -2,22 +2,21 @@ name := "backend"
 
 organization := "com.scalakata"
 
-version := "0.3.0-SNAPSHOT"
+version := "0.3.0"
 
-scalaVersion := "2.11.2-SNAPSHOT"
+scalaVersion := "2.11.2"
 
 Revolver.settings
 
 resolvers ++= Seq(
 	"spray repo" at "http://repo.spray.io",
 	"typesafe releases" at "http://repo.typesafe.com/typesafe/releases",
-	"masseguillaume" at "http://dl.bintray.com/content/masseguillaume/maven",
-	Resolver.sonatypeRepo("snapshots")
+	"masseguillaume" at "http://dl.bintray.com/content/masseguillaume/maven"
 )
 
 libraryDependencies ++= Seq(
-	"com.scalakata" %% "eval" % "0.3.0-SNAPSHOT",
-	"com.scalakata" % "frontend" % "0.3.0-SNAPSHOT",
+	"com.scalakata" %% "eval" % "0.3.0",
+	"com.scalakata" % "frontend" % "0.3.0",
 	"io.spray" %% "spray-can" % "1.3.1-20140423",
 	"io.spray" %% "spray-routing" % "1.3.1-20140423",
 	"com.typesafe.akka" %% "akka-actor" % "2.3.3",

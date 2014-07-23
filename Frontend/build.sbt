@@ -2,11 +2,11 @@ name := "frontend"
 
 organization := "com.scalakata"
 
-version := "0.3.0-SNAPSHOT"
+version := "0.3.0"
 
 autoScalaLibrary := false
 
-scalaVersion := "2.11.1"
+scalaVersion := "2.11.2"
 
 resourceDirectory in Compile := {
 	baseDirectory.value / "dist"

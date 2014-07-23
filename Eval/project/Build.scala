@@ -3,14 +3,14 @@ import Keys._
 import sbtbuildinfo.Plugin._
 
 object Settings {
-	lazy val default = 
+	lazy val default =
 		Project.defaultSettings ++
 		bintray.Plugin.bintraySettings ++
 		bintray.Plugin.bintrayPublishSettings ++
 		Seq(
 			organization := "com.scalakata",
-			scalaVersion := "2.11.2-SNAPSHOT",
-			version := "0.3.0-SNAPSHOT",
+			scalaVersion := "2.11.2",
+			version := "0.3.0",
 			licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html")),
 			scalacOptions += "-Yrangepos",
 			libraryDependencies ++= Seq(
@@ -18,11 +18,8 @@ object Settings {
 				 "org.scala-lang" % "scala-reflect" % scalaVersion.value,
 				"org.specs2" %% s"specs2" % "2.3.12" % "test"
 			),
-			resolvers ++= Seq(
-				Resolver.sonatypeRepo("releases"),
-				Resolver.sonatypeRepo("snapshots")
-			),
-			addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0-SNAPSHOT" cross CrossVersion.full)
+			resolvers += Resolver.sonatypeRepo("releases"),
+			addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0-M1" cross CrossVersion.full)
 		)
 }
 
