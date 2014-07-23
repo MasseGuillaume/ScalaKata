@@ -42,7 +42,7 @@ object Scalakata extends Plugin {
 			Seq(
 				mainClass in Revolver.reStart := Some("com.scalakata.backend.Boot"),
 				fullClasspath in Revolver.reStart <<= fullClasspath,
-				Revolver.reStart <<= InputTask(Actions.startArgsParser) { args =>
+				Revolver.reStart <<= InputTask(Actions.startArgsParser) { args ⇒
 					(
 						streams,
 						Revolver.reLogTag,

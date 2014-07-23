@@ -21,16 +21,16 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
   def insight(code: String): EvalResponse = {
     if (code.isEmpty) EvalResponse.empty
     else {
-      try { 
+      try {
         withTimeout{
           eval(code) match {
             case (Some(instr), cinfos) ⇒
 
-              val i = 
+              val i =
                 instr.map{ case ((start, end), value) ⇒
                   val (v, xml) = value match {
                     case a: String ⇒ {
-                      val quote = 
+                      val quote =
                         if (a.lines.size > 1) "\"\"\""
                         else "\""
                       (quote + a + quote, false)
@@ -58,8 +58,8 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
           def virtual(line: Int) = -line
           val pos = virtual(e.getCause.getStackTrace.drop(1).head.getLineNumber)
 
-          EvalResponse.empty.copy(runtimeError = 
-            Some(RuntimeError(e.getCause.toString, pos - eval.lineOffset)) 
+          EvalResponse.empty.copy(runtimeError =
+            Some(RuntimeError(e.getCause.toString, pos - eval.lineOffset))
           )
         }
       }
@@ -88,85 +88,86 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
   }
 
   def autocomplete(code: String, p: Int): List[CompletionResponse] = {
-    if(code.isEmpty) Nil
-    else {
-      val file = reload(code)
-      val ajustedPos = p + wrapOffset
-      val pos = new OffsetPosition(file, ajustedPos)
+    def completion(f: (compiler.Position, compiler.Response[List[compiler.Member]]) ⇒ Unit,
+                   pos: compiler.Position):
+                   List[CompletionResponse] = {
 
-      // TODO: https://github.com/scala-ide/scala-ide/blob/4.0.0-m3-luna/org.scala-ide.sdt.core/src/org/scalaide/core/completion/ScalaCompletions.scala#L170
-
-      val response1 = withResponse[List[compiler.Member]](r ⇒ 
-        compiler.askTypeCompletion(pos, r)
-      )
-
-      val r1 = response1.get match {
-        case Left(members) ⇒ compiler.ask( () ⇒ {
-          members.map(member ⇒ 
+      withResponse[List[compiler.Member]](r ⇒ f(pos, r)).get match {
+        case Left(members) ⇒ compiler.ask(() ⇒ {
+          members.map(member ⇒
             CompletionResponse(
               name = member.sym.decodedName,
               signature = member.sym.signatureString
             )
           )
         })
-        case Right(e) ⇒ 
+        case Right(e) ⇒
           e.printStackTrace
           Nil
       }
-
-      val response2 = withResponse[List[compiler.Member]](r ⇒ 
-        compiler.askScopeCompletion(pos, r)
-      )
-
-      val r2 = response2.get match {
-        case Left(members) ⇒ compiler.ask( () ⇒ {
-          members.map(member ⇒ 
-            CompletionResponse(
-              name = member.sym.decodedName,
-              signature = member.sym.signatureString
-            )
-          )
-        })
-        case Right(e) ⇒ 
-          e.printStackTrace
-          Nil
-      }
-
-      (r1 ::: r2).distinct
     }
+    def typeCompletion(pos: compiler.Position) = {
+      completion(compiler.askTypeCompletion _, pos)
+    }
+
+    def scopeCompletion(pos: compiler.Position) = {
+      completion(compiler.askScopeCompletion _, pos)
+    }
+
+    // inspired by scala-ide
+    // https://github.com/scala-ide/scala-ide/blob/4.0.0-m3-luna/org.scala-ide.sdt.core/src/org/scalaide/core/completion/ScalaCompletions.scala#L170
+    askTypeAt(code, p, p) { (tree, pos) ⇒ tree match {
+      case compiler.New(name) ⇒ typeCompletion(name.pos)
+      case compiler.Select(qualifier, _) if qualifier.pos.isDefined && qualifier.pos.isRange ⇒
+        typeCompletion(qualifier.pos)
+      case compiler.Import(expr, _) ⇒ typeCompletion(expr.pos)
+      case compiler.Apply(fun, _) ⇒
+        fun match {
+          case compiler.Select(qualifier: compiler.New, _) ⇒ typeCompletion(qualifier.pos)
+          case compiler.Select(qualifier, _) if qualifier.pos.isDefined && qualifier.pos.isRange ⇒
+            typeCompletion(qualifier.pos)
+          case _ ⇒ scopeCompletion(fun.pos)
+        }
+      case _ ⇒ scopeCompletion(pos)
+    }}{
+      pos => Some(scopeCompletion(pos))
+    }.getOrElse(Nil)
   }
 
   def typeAt(code: String, start: Int, end: Int): Option[TypeAtResponse] = {
+    askTypeAt(code, start, end){(tree, _) ⇒ {
+      // inspired by ensime
+      val res =
+        tree match {
+          case compiler.Select(qual, name) ⇒ qual
+          case t: compiler.ImplDef if t.impl != null ⇒ t.impl
+          case t: compiler.ValOrDefDef if t.tpt != null ⇒ t.tpt
+          case t: compiler.ValOrDefDef if t.rhs != null ⇒ t.rhs
+          case t ⇒ t
+        }
+      TypeAtResponse(res.tpe.toString)
+    }}{Function.const(None)}
+  }
+
+  private def askTypeAt[A]
+    (code: String, start: Int, end: Int)
+    (f: (compiler.Tree, compiler.Position) ⇒ A)
+    (fb: compiler.Position ⇒ Option[A]): Option[A] = {
+
     if(code.isEmpty) None
     else {
       val astart = start + wrapOffset
       val aend = end + wrapOffset
-
       val file = reload(code)
-      val response = withResponse[compiler.Tree](r ⇒ 
-        compiler.askTypeAt(compiler.rangePos(file, astart, astart, aend), r)
+      val rpos = compiler.rangePos(file, astart, astart, aend)
+
+      val response = withResponse[compiler.Tree](r ⇒
+        compiler.askTypeAt(rpos, r)
       )
 
       response.get match {
-        case Left(tree) ⇒ compiler.ask( () ⇒ {
-          // thanks ensime
-          val res = 
-            tree match {
-              case compiler.Select(qual, name) =>
-                qual
-              case t: compiler.ImplDef if t.impl != null =>
-                t.impl
-              case t: compiler.ValOrDefDef if t.tpt != null =>
-                t.tpt
-              case t: compiler.ValOrDefDef if t.rhs != null =>
-                t.rhs
-              case t => t
-            }
-          Some(TypeAtResponse(res.tpe.toString))
-        })
-        case Right(e) ⇒ 
-          e.printStackTrace
-          None
+        case Left(tree) ⇒ Some(f(tree, rpos))
+        case Right(e) ⇒ e.printStackTrace; fb(rpos)
       }
     }
   }
@@ -176,7 +177,7 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
 
   private val reporter = new StoreReporter()
   private val settings = new Settings()
-  
+
   settings.processArguments(scalacOptions.to[List], true)
   settings.bootclasspath.value = artifacts
   settings.classpath.value = artifacts
@@ -186,7 +187,7 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
   private val eval = new Eval(settings.copy)
 
   private def convert(infos: Map[String, List[(Int, String)]]): Map[Severity, List[CompilationInfo]] = {
-    infos.map{ case (k,vs) ⇒ 
+    infos.map{ case (k,vs) ⇒
       val sev = k match {
         case "ERROR" ⇒ Error
         case "WARNING" ⇒ Warning
@@ -203,10 +204,10 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
     val thread = new Thread( task )
     try {
       thread.start()
-      Some(task.get(timeout.toMillis, TimeUnit.MILLISECONDS))     
+      Some(task.get(timeout.toMillis, TimeUnit.MILLISECONDS))
     } catch {
       case e: TimeoutException ⇒ None
-    } finally { 
+    } finally {
       if( thread.isAlive ){
         thread.interrupt()
         thread.stop()
