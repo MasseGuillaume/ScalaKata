@@ -20,14 +20,19 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 		}
 	});
 
-	if(angular.isDefined(window.localStorage['codemirror'])) {
-		$scope.cmOptions = JSON.parse(window.localStorage['codemirror']);
-	} else {
+	// if(angular.isDefined(window.localStorage['codemirror'])) {
+	// 	$scope.cmOptions = JSON.parse(window.localStorage['codemirror']);
+	// } else {
+
 		var keys = {}
 		keys[ctrl + "Space"] = "autocomplete";
 		keys[ctrl + "Enter"] = "run";
 		keys[ctrl + ","] = "config";
 		keys[ctrl + "."] = "typeAt";
+		keys['.'] = function (cm){
+			cm.replaceSelection(".");
+			cm.execCommand("autocomplete");
+		};
 
 		$scope.cmOptions = {
 			"_to config codemirror see_": "http://codemirror.net/doc/manual.html#config",
@@ -44,7 +49,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 			keyMap: "sublime",
 			highlightSelectionMatches: { showToken: false }
 		}
-	}
+	// }
 
 	function clear(){
 		insightRenderer.clear();
