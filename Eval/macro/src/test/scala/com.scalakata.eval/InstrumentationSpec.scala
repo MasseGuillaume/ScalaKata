@@ -5,18 +5,23 @@ import scala.collection.mutable.{Map ⇒ MMap}
 import org.specs2._
 
 class InstrumentationSpecs extends Specification { def is = s2"""
-	range is relative to macro $relative
+	no side effects $noSideEffects
 """
 
-	def relative = {
+	def noSideEffects = {
 		@ScalaKata
-		object Instrumented{object B{0
-			1
-		}}
+		object A{
+			var a = 1
+			val b = {a = a + 1; a}
+			b
+			b
+		}
 
-		Instrumented.eval$() ==== MMap(
-			(0,1) -> 0,
-			(5,6) -> 1
+		A.eval$().map{ case (k, v) => (k, (k, v) )}.values.to[List].sortBy(_._1).map(_._2) ==== List(
+			("1", Other),
+			("2", Other),
+			("2", Other),
+			("2", Other)
 		)
 	}
 }

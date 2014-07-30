@@ -15,7 +15,7 @@ object Eval {
 
 class Eval(settings: Settings) {
   private val reporter = new StoreReporter()
-  
+
   private val artifactLoader = {
     val loaderFiles =
       settings.classpath.value.split(File.pathSeparator).map(a ⇒ {
@@ -29,12 +29,12 @@ class Eval(settings: Settings) {
 
   settings.outputDirs.setSingleOutput(target)
   settings.Ymacroexpand.value = settings.MacroExpand.Normal
-  
+
   private val compiler = new Global(settings, reporter)
   private val objectName = "A"
-  
+
   def apply(code: String): (Option[Eval.Instrumentation], Map[String, List[(Int, String)]]) = {
-    compile(wrapCode(code))
+    compile(code)
 
     val infos = check()
     val infoss = infos.map{case (k, v) ⇒ (k.toString, v)}
@@ -55,7 +55,7 @@ class Eval(settings: Settings) {
     reporter.infos.map {
       info ⇒ (
         info.severity,
-        info.pos.point - offset,
+        info.pos.point,
         info.msg
       )
     }.to[List]
@@ -68,16 +68,6 @@ class Eval(settings: Settings) {
      .mapValues{_.map{case (a,b,c) ⇒ (b,c)}}
   }
 
-  private val preWrap =
-    s"@com.scalakata.eval.ScalaKata object $objectName{object B{"
-
-  private val offset = preWrap.length
-  val lineOffset = preWrap.lines.length - 1
-
-  private def wrapCode(code: String) = 
-    s"""|${preWrap}${code}
-        |}}""".stripMargin
-  
   private def reset(): Unit = {
     target.clear
     reporter.reset

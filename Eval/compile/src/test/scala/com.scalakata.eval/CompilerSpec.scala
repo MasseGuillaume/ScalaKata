@@ -8,13 +8,18 @@ import org.specs2._
 
 class CommpilerSpecs extends Specification { def is = s2"""
   works $works
-  range $range
   runtimeErrors $runtimeErrors
   compile classpath $compileClasspath
   typeAt $typeAt
   autocomplete symbols $autocompleteSymbols
   autocomplete types $autocompleteTypes
 """
+
+  def wrap(code: String) =
+    s"""|import com.scalakata.eval.ScalaKata
+        |@ScalaKata object A{
+        | $code
+        |}""".stripMargin
 
   val artifacts =
     (BuildInfo.fullClasspath ++ BuildInfo.runtime_exportedProducts).
@@ -30,48 +35,35 @@ class CommpilerSpecs extends Specification { def is = s2"""
     	"""|val a = List(1,2)
          |val b = 2""".stripMargin
 
-    val result = c.insight(code)
+    val result = c.insight(wrap(code))
 
     result ==== EvalResponse.empty.copy(insight =
-      List(Instrumentation("List(1, 2)", false, 4, 17), Instrumentation("2", false, 22, 27))
+      List(Instrumentation("List(1, 2)", Other, 62, 75), Instrumentation("2", Other, 80, 85))
     )
   }
 
-  def range = {
-    val c = compiler
-    val code =
-     """|0
-        |1""".stripMargin
-
-    c.insight(code) ==== EvalResponse.empty.copy(insight =
-      List(
-        Instrumentation("1", false, 2, 3),
-        Instrumentation("0", false, 0, 1)
-      )
-    )
-  }
 
   def runtimeErrors = {
     val c = compiler
     val code =
      """|0
         |1/0""".stripMargin
-    c.insight(code) ==== EvalResponse.empty.copy(
+    c.insight(wrap(code)) ==== EvalResponse.empty.copy(
       runtimeError = Some(RuntimeError("java.lang.ArithmeticException: / by zero", 2))
     )
   }
 
   def compileClasspath = {
     val c = compiler
-    c.insight("com.example.test.Testing.onetwothree") ==== EvalResponse.empty.copy(
-      insight = List(Instrumentation("123", false, 25, 36))
+    c.insight(wrap("com.example.test.Testing.onetwothree")) ==== EvalResponse.empty.copy(
+      insight = List(Instrumentation("123", Other, 83, 94))
     )
   }
 
   def typeAt = {
     val c = compiler
-    c.typeAt("""val a = List(1,2,3,4).groupBy(identity)""", 3, 4) ====
-      Some(TypeAtResponse("scala.collection.immutable.Map[Int,List[Int]]"))
+    c.typeAt(wrap("List(1)"), 65, 65) ====
+      Some(TypeAtResponse("List[Int]"))
   }
 
   def autocompleteSymbols = {
@@ -84,17 +76,17 @@ class CommpilerSpecs extends Specification { def is = s2"""
     )
   }
 
-  /*def works = ok
-  def range = ok
-  def runtimeErrors = ok
-  def compileClasspath = ok
-  def typeAt = ok
-  def autocompleteSymbols = ok*/
-
   def autocompleteTypes = {
     val c = compiler
-    c.autocomplete("List(1).", 8) must contain(
+    c.autocomplete(wrap("List(1)."), 66) must contain(
       CompletionResponse("map","[B](f: A => B): scala.collection.TraversableOnce[B]")
     )
   }
+
+  /*def works = pending
+  def runtimeErrors = pending
+  def compileClasspath = pending
+  def typeAt = pending
+  def autocompleteSymbols = pending
+  def autocompleteTypes = pending*/
 }

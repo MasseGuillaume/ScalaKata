@@ -28,18 +28,26 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
 
               val i =
                 instr.map{ case ((start, end), value) ⇒
-                  val (v, xml) = value match {
+                  val (v, renderType) = value match {
                     case a: String ⇒ {
                       val quote =
                         if (a.lines.size > 1) "\"\"\""
                         else "\""
-                      (quote + a + quote, false)
+                      (quote + a + quote, RString)
                     }
                     case xml: scala.xml.Elem ⇒
-                      (xml.toString, true)
-                    case other ⇒ (other.toString, false)
+                      (xml.toString, Html)
+
+                    // TODO: Markdown
+                    // case m: Markdown  ⇒
+
+                    // TODO: Latex
+                    // case l: Latex ⇒
+
+                    case other ⇒
+                      (other.toString, Other)
                   }
-                  Instrumentation(v, xml, start, end)
+                  Instrumentation(v, renderType, start, end)
                 }.to[List]
 
               EvalResponse.empty.copy(
@@ -54,29 +62,19 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
         )
       } catch {
         case NonFatal(e) ⇒ {
-
-          def virtual(line: Int) = -line
+          def virtual(line: Int) = Math.abs(line)
           val pos = virtual(e.getCause.getStackTrace.drop(1).head.getLineNumber)
 
           EvalResponse.empty.copy(runtimeError =
-            Some(RuntimeError(e.getCause.toString, pos - eval.lineOffset))
+            Some(RuntimeError(e.getCause.toString, pos))
           )
         }
       }
     }
   }
 
-  private val beginWrap = "class ScalaKata {\n"
-  private val endWrap = "\n}"
-
-  private val wrapOffset = beginWrap.size
-
-  private def wrap(code: String): BatchSourceFile = {
-    new BatchSourceFile("default", beginWrap + code + endWrap)
-  }
-
   private def reload(code: String): BatchSourceFile = {
-    val file = wrap(code)
+    val file = new BatchSourceFile("default", code)
     withResponse[Unit](r ⇒ compiler.askReload(List(file), r)).get
     file
   }
@@ -156,10 +154,8 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
 
     if(code.isEmpty) None
     else {
-      val astart = start + wrapOffset
-      val aend = end + wrapOffset
       val file = reload(code)
-      val rpos = compiler.rangePos(file, astart, astart, aend)
+      val rpos = compiler.rangePos(file, start, start, end)
 
       val response = withResponse[compiler.Tree](r ⇒
         compiler.askTypeAt(rpos, r)
