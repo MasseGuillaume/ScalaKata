@@ -2,7 +2,7 @@ var gulp = require('gulp'),
     gulpUtil = require('gulp-util'),
     clean = require('gulp-clean'),
     concat = require('gulp-concat'),
-    express = require('express'),   
+    express = require('express'),
     install = require('./plugins/install.js'),
     run = require('./plugins/run.js'),
     less = require('gulp-less'),
@@ -71,7 +71,7 @@ function serveF(assets){
         apiUrl = "http://localhost:8080";
 
     server.use(livereload({port: livereloadport}));
-    ['eval', 'completion', 'typeAt', "initialCommands"].forEach(function(u){
+    ['eval', 'completion', 'typeAt', "initialCode"].forEach(function(u){
         var url = "/" + u
         server.use(url, function(req, res) {
             req.pipe(request(apiUrl + url)).pipe(res);

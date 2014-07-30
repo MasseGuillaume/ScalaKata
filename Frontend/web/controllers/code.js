@@ -5,20 +5,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 		state = {},
 		ctrl = CodeMirror.keyMap["default"] == CodeMirror.keyMap.pcDefault ? "Ctrl-" : "Cmd-";
 
-	$scope.code = "";
 	state.configEditing = false;
-
-	scalaEval.initialCommands().then(function(r){
-		if(r.data === "") {
-			if(angular.isDefined(window.localStorage['code'])) {
-				$scope.code = window.localStorage['code'];
-			} else {
-				$scope.code = "";
-			}
-		} else {
-			$scope.code = r.data;
-		}
-	});
 
 	// if(angular.isDefined(window.localStorage['codemirror'])) {
 	// 	$scope.cmOptions = JSON.parse(window.localStorage['codemirror']);
@@ -39,7 +26,8 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 			extraKeys: keys,
 			fixedGutter: true,
 			coverGutterNextToScrollbar: true,
-			lineNumbers: false,
+			firstLineNumber: 0,
+			lineNumbers: true,
 			theme: 'solarized dark',
 			themes: [ "solarized dark", "solarized light", "monokai", "ambiance", "eclipse", "mdn-like"],
 			smartIndent: false,
@@ -71,12 +59,80 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 				cm.focus();
 				cm.on('changes', function(){
 					clear();
-				})
+				});
 			}
-			$timeout(function(){
+
+			scalaEval.initialCode().then(function(r){
+				// if(angular.isDefined(window.localStorage['code'])) {
+				// 	$scope.code = window.localStorage['code'];
+				// }
+				// or r.data
+
+				var prelude, code, impr, instr1, instr2, readOnlyLines, nl = "\n";
+
+				impr = [
+					"import com.scalakata.eval.ScalaKata;",
+					"",
+				].join(nl);
+				readOnlyLines = _.map(impr.split(nl), function(v, i){ return i; });
+
+				prelude = [
+					"implicit class Meter(val v: Int) extends AnyVal {",
+					"	def +(m: Meter) = new Meter(v + m.v)",
+					"}"
+				].join(nl);
+
+				instr1 = [
+					"",
+					"@ScalaKata object A{object B{",
+					""
+				].join(nl);
+				readOnlyLines = readOnlyLines.concat(_.map(instr1.split(nl), function(v, i){
+					return i + _.last(readOnlyLines) + prelude.split(nl).length + 1;
+				}));
+
+				code = [
+					"List(1, 2)",
+					"new Meter(1) + new Meter(2)"
+				].join(nl);
+
+				instr2 = [
+					"",
+					"}}"
+				].join(nl);
+				readOnlyLines = readOnlyLines.concat(_.map(instr2.split(nl), function(v, i){
+					return i + _.last(readOnlyLines) + code.split(nl).length + 1;
+				}));
+
+				state.code = [
+					impr,
+					prelude,
+					instr1,
+					code,
+					instr2
+				].join(nl);
+
 				$scope.cmOptions.mode = 'text/x-' + LANGUAGE;
-				$scope.code = state.code;
 				window.localStorage['codemirror'] = JSON.stringify($scope.cmOptions);
+
+				$scope.code = state.code;
+
+				$timeout(function(){
+					_.forEach(readOnlyLines, function(i){
+							cm.markText(
+								{ line: i, ch: 0},
+								{ line: i, ch: Infinity},
+								{
+									readOnly: true,
+									className: "macroAnnotation"
+								}
+							);
+					});
+					cm.setCursor({
+						line: 3,
+						ch: 0
+					});
+				});
 			});
 		}
 	}
@@ -111,7 +167,8 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 			} catch(e){}
 		} else {
 			clear();
-			window.localStorage['code'] = $scope.code;
+			// TODO split prelud & code
+			// window.localStorage['code'] = $scope.code;
 		}
 	});
 

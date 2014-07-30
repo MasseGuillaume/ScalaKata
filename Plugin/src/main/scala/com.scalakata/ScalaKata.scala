@@ -19,6 +19,7 @@ object Scalakata extends Plugin {
 	lazy val openBrowser = TaskKey[Unit]("open-browser", "task to open browser to kata url")
 	lazy val readyPort = SettingKey[Int]("ready-port", "port to send ready command")
 	lazy val kataUrl = SettingKey[URL]("kata-url", "url to scala kata")
+	lazy val initialCode = SettingKey[(String, String)]("initial-code", "initial code in the kata")
 	lazy val startArgs = TaskKey[Seq[String]]("start-args",
     	"The arguments to be passed to the applications main method when being started")
 
@@ -66,9 +67,9 @@ object Scalakata extends Plugin {
 					()
 				},
 				libraryDependencies ++= Seq(
-					"com.scalakata" % s"backend_${scalaBinaryVersion.value}" % "0.3.0",
-					"com.scalakata" % s"eval_${scalaBinaryVersion.value}" % "0.3.0",
-					"com.scalakata" % "frontend" % "0.3.0"
+					"com.scalakata" % s"backend_${scalaBinaryVersion.value}" % "0.4.0-SNAPSHOT",
+					"com.scalakata" % s"eval_${scalaBinaryVersion.value}" % "0.4.0-SNAPSHOT",
+					"com.scalakata" % "frontend" % "0.4.0-SNAPSHOT"
 				)
 			)
 		) ++
@@ -81,11 +82,11 @@ object Scalakata extends Plugin {
 				scalaVersion := "2.11.2",
 				scalacOptions += "-Yrangepos",
 				libraryDependencies ++= Seq(
-					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % "0.3.0",
+					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % "0.4.0-SNAPSHOT",
 					"org.scala-lang" % "scala-compiler" % scalaVersion.value,
 					compilerPlugin("org.scalamacros" % s"paradise_${scalaVersion.value}" % "2.1.0-M1")
 				),
-				initialCommands := ""
+				initialCode := ("", "")
 			)
 		) ++
 		Seq(
@@ -98,7 +99,8 @@ object Scalakata extends Plugin {
 					mkString(File.pathSeparator),
 				(kataUrl in Backend).value.getHost,
 				(kataUrl in Backend).value.getPort.toString,
-				(initialCommands in Kata).value
+				(initialCode in Kata).value._1,
+				(initialCode in Kata).value._2
 			) ++ (scalacOptions in Kata).value,
 			resolvers ++= Seq(
 				"spray repo" at "http://repo.spray.io",

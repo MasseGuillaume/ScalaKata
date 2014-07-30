@@ -9,6 +9,8 @@
   "dependencies": {
     "lodash": "~2.4.1",
     "angular": "~1.2.18",
+    "MathJax": "~2.4.0",
+    "marked": "~0.3.2",
     "fontawesome": "~4.1.0",
     "codemirror": "#edb5a983e59c2b89304eb6f4bff6c2e180e82b5e",
     "angular-ui-codemirror": "~0.1.2"

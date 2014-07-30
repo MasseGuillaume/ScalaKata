@@ -13,8 +13,13 @@ app.factory('insightRenderer', function() {
 			elem.innerHTML = insight.result;
 		} else {
 			// fix overlaping
+
+			// scala
+			// elem = document.createElement("pre");
+			// CodeMirror.runMode(insight.result, cmOptions, elem);
+
 			elem = document.createElement("pre");
-			CodeMirror.runMode(insight.result, cmOptions, elem);	
+			elem.innerHTML = marked.parse(insight.result, {ghf: true});
 		}
 
 		elem.className = ["CodeMirror-activeline-background", "insight"].join(" ");
@@ -25,7 +30,7 @@ app.factory('insightRenderer', function() {
 		}
 	}
 	function clearFun(){
-		widgets.forEach(function(w){ 
+		widgets.forEach(function(w){
 			w.clear();
 		});
 		widgets = [];

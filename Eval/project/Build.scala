@@ -10,7 +10,7 @@ object Settings {
 		Seq(
 			organization := "com.scalakata",
 			scalaVersion := "2.11.2",
-			version := "0.3.0",
+			version := "0.4.0-SNAPSHOT",
 			licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html")),
 			scalacOptions += "-Yrangepos",
 			libraryDependencies ++= Seq(
@@ -38,7 +38,8 @@ object EvalBuild extends Build {
 		id = "classpathTest",
 		base = file("classPathtest"),
 		settings = default ++ Seq(
-			/* dont */ publish := { }
+			/* dont */ publish := { },
+			/* dont */ publishLocal := { }
 		)
 	)
 
