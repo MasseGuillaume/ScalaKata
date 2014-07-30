@@ -14,13 +14,13 @@ app.factory('errorsRenderer', function() {
 			from = {line: value.line - 1, ch: 0};
 			to = {line: value.line - 1, ch: Infinity};
 		}
-		
+
 		return cm.markText(from, to, {className: severity} );
 	}
 
 	function errorMessage(cm, severity, value){
 		var msg = document.createElement("div"),
-			line; 
+			line;
 		if(angular.isDefined(value.position)) {
 			line = cm.getDoc().posFromIndex(value.position).line;
 		} else {
@@ -61,8 +61,8 @@ app.factory('errorsRenderer', function() {
 			clearFun();
 			["error", "warning", "info"].forEach(function(severity){
 				if (infos[severity]){
-					infos[severity].forEach(function(value) {	
-						errorMessages.push(errorMessage(cm, severity, value));							
+					infos[severity].forEach(function(value) {
+						errorMessages.push(errorMessage(cm, severity, value));
 						errorUnderlines.push(errorUnderline(cm, severity, value, code));
 					});
 				}
@@ -71,7 +71,7 @@ app.factory('errorsRenderer', function() {
 				var value = runtimeError;
 				var severity = "runtime-error";
 
-				errorMessages.push(errorMessage(cm, severity, value));							
+				errorMessages.push(errorMessage(cm, severity, value));
 				errorUnderlines.push(errorUnderline(cm, severity, value, code));
 			}
 		}

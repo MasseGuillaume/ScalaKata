@@ -77,7 +77,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 				readOnlyLines = _.map(impr.split(nl), function(v, i){ return i; });
 
 				prelude = [
-					"implicit class Meter(val v: Int) extends AnyVal {",
+					"class Meter(val v: Int) extends AnyVal {",
 					"	def +(m: Meter) = new Meter(v + m.v)",
 					"}"
 				].join(nl);
