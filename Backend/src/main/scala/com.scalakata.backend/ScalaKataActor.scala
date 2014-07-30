@@ -32,7 +32,7 @@ trait ScalaKata extends HttpService {
 	val route = {
 		path("initialCode") {
 			get {
-				complete(Seq(codePrelude, code))
+				complete(Code(codePrelude, code))
 			}
 		} ~
 		path("eval") {

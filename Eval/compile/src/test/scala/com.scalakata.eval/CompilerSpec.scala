@@ -16,7 +16,7 @@ class CommpilerSpecs extends Specification { def is = s2"""
 """
 
   def wrap(code: String) =
-    s"""|import com.scalakata.eval.ScalaKata
+    s"""|import com.scalakata.eval._
         |@ScalaKata object A{
         | $code
         |}""".stripMargin

@@ -10,7 +10,7 @@ import java.net.{URL, URLClassLoader}
 import java.io.File
 
 object Eval {
-  type Instrumentation = scala.collection.mutable.Map[(Int, Int), Any]
+  type Instrumentation = scala.collection.mutable.Map[(Int, Int), (String, RenderType)]
 }
 
 class Eval(settings: Settings) {

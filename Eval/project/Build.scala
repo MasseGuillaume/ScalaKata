@@ -57,5 +57,5 @@ object EvalBuild extends Build {
 			buildInfoPackage := "com.scalakata.eval.sbt",
 			parallelExecution in Test := false
 		)
-	)
+	) dependsOn(macro)
 }

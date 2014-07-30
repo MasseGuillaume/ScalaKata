@@ -26,10 +26,10 @@ object ScalaKataMacro {
         q"(${p.point}, ${p.end})"
       }
       def inst(expr: Tree, rhs: Tree): List[Tree] = {
-        List(expr, q"println($rhs)", q"${instr}(${expr.pos}) = ScalaKata.render($rhs)", q"println($instr)")
+        List(expr, q"${instr}(${expr.pos}) = ScalaKata.render($rhs)")
       }
       def inst2(expr: Tree, rhs: TermName): List[Tree] = {
-        List(expr, q"println($rhs)", q"${instr}(${expr.pos}) = ScalaKata.render($rhs)", q"println($instr)")
+        List(expr, q"${instr}(${expr.pos}) = ScalaKata.render($rhs)")
       }
 
       val bodyI = body.flatMap {
@@ -38,12 +38,12 @@ object ScalaKataMacro {
         case expr @ q"var $pat = $exprV" ⇒ inst2(expr, pat)
         case select @ q"$expr.$name" ⇒ inst(select, select)
         case apply @ q"$expr(..$params)" ⇒ inst(apply, apply)
-        /*case tree @ q"(..$exprs)" ⇒ inst(tree, tree)
+        case tree @ q"(..$exprs)" ⇒ inst(tree, tree)
         case block @ q"{ ..$stats }" ⇒ inst(block, block)
         case trycatch @ q"try $expr catch { case ..$cases }" ⇒ inst(trycatch, trycatch)
         case function @ q"(..$params) ⇒ $expr" ⇒ inst(function, function)
         case fort @ q"for (..$enums) $expr" ⇒ inst(fort, fort)
-        case fory @ q"for (..$enums) yield $expr" ⇒ inst(fory, fory)*/
+        case fory @ q"for (..$enums) yield $expr" ⇒ inst(fory, fory)
         case otherwise ⇒ List(otherwise)
       }
       q"""
@@ -62,7 +62,7 @@ object ScalaKataMacro {
       annottees.map(_.tree).toList match {
         case q"object $name { ..$body }" :: Nil ⇒
           val res = instrument(body, name)
-          println(showCode(res))
+          //println(showCode(res))
           res
       }
     }

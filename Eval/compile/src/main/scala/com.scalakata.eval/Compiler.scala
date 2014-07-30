@@ -25,29 +25,9 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
         withTimeout{
           eval(code) match {
             case (Some(instr), cinfos) ⇒
-
               val i =
-                instr.map{ case ((start, end), value) ⇒
-                  val (v, renderType) = value match {
-                    case a: String ⇒ {
-                      val quote =
-                        if (a.lines.size > 1) "\"\"\""
-                        else "\""
-                      (quote + a + quote, RString)
-                    }
-                    case xml: scala.xml.Elem ⇒
-                      (xml.toString, Html)
-
-                    // TODO: Markdown
-                    // case m: Markdown  ⇒
-
-                    // TODO: Latex
-                    // case l: Latex ⇒
-
-                    case other ⇒
-                      (other.toString, Other)
-                  }
-                  Instrumentation(v, renderType, start, end)
+                instr.map{ case ((start, end), (repr, tpe)) ⇒
+                  Instrumentation(repr, tpe, start, end)
                 }.to[List]
 
               EvalResponse.empty.copy(

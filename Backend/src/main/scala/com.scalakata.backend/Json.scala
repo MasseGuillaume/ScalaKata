@@ -14,13 +14,14 @@ import spray.http.ContentTypeRange._
 import spray.httpx.marshalling.Marshaller
 import spray.httpx.unmarshalling.Unmarshaller
 
+case class Code(prelude: String, code: String)
 
 object Request {
 	val json = ContentTypeRange(MediaTypes.`application/json`, HttpCharsets.`UTF-8`)
 
 	implicit private val evalrequest = Json.reads[EvalRequest]
 	implicit val EvalRequestUnmarshaller =
-		Unmarshaller.delegate[String, EvalRequest](json) { 
+		Unmarshaller.delegate[String, EvalRequest](json) {
 			data ⇒ fromJson[EvalRequest](Json.parse(data)).get
 		}
 
@@ -38,11 +39,26 @@ object Request {
 }
 
 object Response {
+	implicit private val code = Json.writes[Code]
+
+	implicit private val rendertype = new Writes[RenderType] {
+		def writes(s: RenderType) = {
+			val res =
+				s match {
+					case Html => "html"
+					case Latex => "latex"
+					case RString => "rstring"
+					case Other => "other"
+				}
+			toJson(res)
+		}
+	}
+
 	implicit private val instrumentation = Json.writes[Instrumentation]
-	
+
 	implicit private val compilationinfo = Json.writes[CompilationInfo]
 	implicit private val runtimeerror = Json.writes[RuntimeError]
-	implicit private val compilationinfomap = new Writes[Map[Severity,List[CompilationInfo]]] { 
+	implicit private val compilationinfomap = new Writes[Map[Severity,List[CompilationInfo]]] {
 		def writes(s: Map[Severity,List[CompilationInfo]]) = {
 			val a = s.map{ case (s, cis) ⇒
 				val sev = s match {
@@ -57,20 +73,25 @@ object Response {
 	}
 
 	implicit private val evalresponse = Json.writes[EvalResponse]
-	implicit val EvalResponseMarshaller = 
+	implicit val EvalResponseMarshaller =
 		Marshaller.of[EvalResponse](`application/json`) { (eval, contentType, ctx) ⇒
 			ctx.marshalTo(HttpEntity(contentType, toJson(eval).toString))
 		}
 
 	implicit private val completionresponse = Json.writes[CompletionResponse]
-	implicit val CompletionResponseMarshaller = 
+	implicit val CompletionResponseMarshaller =
 		Marshaller.of[List[CompletionResponse]](`application/json`) { (eval, contentType, ctx) ⇒
 			ctx.marshalTo(HttpEntity(contentType, toJson(eval).toString))
 		}
 
 	implicit private val typeatresponse = Json.writes[TypeAtResponse]
-	implicit val typeatresponseMarshaller = 
+	implicit val typeatresponseMarshaller =
 		Marshaller.of[Option[TypeAtResponse]](`application/json`) { (eval, contentType, ctx) ⇒
+			ctx.marshalTo(HttpEntity(contentType, toJson(eval).toString))
+		}
+
+	implicit val CodeMarshaller =
+		Marshaller.of[Code](`application/json`) { (eval, contentType, ctx) ⇒
 			ctx.marshalTo(HttpEntity(contentType, toJson(eval).toString))
 		}
 }
