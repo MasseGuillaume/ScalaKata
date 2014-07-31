@@ -15,11 +15,11 @@ app.factory('insightRenderer', function() {
 			// fix overlaping
 
 			// scala
-			// elem = document.createElement("pre");
-			// CodeMirror.runMode(insight.result, cmOptions, elem);
-
 			elem = document.createElement("pre");
-			elem.innerHTML = marked.parse(insight.result, {ghf: true});
+			CodeMirror.runMode(insight.result, cmOptions, elem);
+
+			// elem = document.createElement("pre");
+			// elem.innerHTML = marked.parse(insight.result, {ghf: true});
 		}
 
 		elem.className = ["CodeMirror-activeline-background", "insight"].join(" ");

@@ -1,7 +1,7 @@
 app.run(["scalaEval", function(scalaEval){
 	function hint(cm, sf, cf, single, clazz){
 		sf(
-			cm.getDoc().getValue(), 
+			cm.getDoc().getValue(),
 			cm.getDoc().indexFromPos(cm.getCursor())
 		).then(function(r){
 			var data = r.data;
@@ -53,7 +53,7 @@ app.run(["scalaEval", function(scalaEval){
 		}, false, "typeAt");
 	}
 	CodeMirror.commands.autocomplete = function(cm) {
-		hint(cm, scalaEval.autocomplete, function(data, term){ 
+		hint(cm, scalaEval.autocomplete, function(data, term){
 			return data.filter(function(c){
 					return c.name.toLowerCase().indexOf(term.toLowerCase()) != -1;
 			}).map(function(c){
@@ -67,5 +67,9 @@ app.run(["scalaEval", function(scalaEval){
 				}
 			});
 		}, true, "autocomplete");
+	};
+	CodeMirror.commands.autocompleteDot = function (cm){
+		cm.replaceSelection(".");
+		cm.execCommand("autocomplete");
 	};
 }]);

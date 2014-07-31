@@ -13,13 +13,10 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 
 		var keys = {}
 		keys[ctrl + "Space"] = "autocomplete";
+		keys['.'] = "autocompleteDot";
 		keys[ctrl + "Enter"] = "run";
 		keys[ctrl + ","] = "config";
 		keys[ctrl + "."] = "typeAt";
-		keys['.'] = function (cm){
-			cm.replaceSelection(".");
-			cm.execCommand("autocomplete");
-		};
 
 		$scope.cmOptions = {
 			"_to config codemirror see_": "http://codemirror.net/doc/manual.html#config",
@@ -63,24 +60,25 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 			}
 
 			scalaEval.initialCode().then(function(r){
-				// if(angular.isDefined(window.localStorage['code'])) {
-				// 	$scope.code = window.localStorage['code'];
-				// }
-				// or r.data
+				var prelude, code, impr, instr1, instr2, readOnlyLines, instrumentationDelimiter, lines, cursor, nl = "\n";
 
-				var prelude, code, impr, instr1, instr2, readOnlyLines, nl = "\n";
+				if(angular.isDefined(window.localStorage['code'])) {
+					code = window.localStorage['code'];
+					prelude = window.localStorage['prelude'];
+				} else {
+					prelude = r.data.prelude;
+					code = r.data.code;
+				}
 
 				impr = [
 					"import com.scalakata.eval._;",
 					"",
 				].join(nl);
-				readOnlyLines = _.map(impr.split(nl), function(v, i){ return i; });
+				readOnlyLines = _.map(impr.split(nl), function(v, i){
+					return i;
+				});
 
-				prelude = [
-					"class Meter(val v: Int) extends AnyVal {",
-					"	def +(m: Meter) = new Meter(v + m.v)",
-					"}"
-				].join(nl);
+				instrumentationDelimiter = _.last(readOnlyLines) + 1 + prelude.split(nl).length;
 
 				instr1 = [
 					"",
@@ -88,13 +86,10 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 					""
 				].join(nl);
 				readOnlyLines = readOnlyLines.concat(_.map(instr1.split(nl), function(v, i){
-					return i + _.last(readOnlyLines) + prelude.split(nl).length + 1;
+					return i + instrumentationDelimiter;
 				}));
 
-				code = [
-					"List(1, 2)",
-					"new Meter(1) + new Meter(2)"
-				].join(nl);
+				cursor = _.last(readOnlyLines) + 1;
 
 				instr2 = [
 					"",
@@ -112,16 +107,20 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 					instr2
 				].join(nl);
 
+				lines = state.code.split(nl);
+
 				$scope.cmOptions.mode = 'text/x-' + LANGUAGE;
 				window.localStorage['codemirror'] = JSON.stringify($scope.cmOptions);
 
 				$scope.code = state.code;
 
+				readOnlyLines = _.filter(readOnlyLines, function(v){ return lines[v] !== ""; });
+
 				$timeout(function(){
-					_.forEach(readOnlyLines, function(i){
-							cm.markText(
+					state.markers = _.map(readOnlyLines, function(i){
+						return cm.markText(
 								{ line: i, ch: 0},
-								{ line: i, ch: Infinity},
+								{ line: i, ch: lines[i].length},
 								{
 									readOnly: true,
 									className: "macroAnnotation"
@@ -129,7 +128,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 							);
 					});
 					cm.setCursor({
-						line: 3,
+						line: cursor,
 						ch: 0
 					});
 				});
@@ -167,8 +166,34 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 			} catch(e){}
 		} else {
 			clear();
-			// TODO split prelud & code
-			// window.localStorage['code'] = $scope.code;
+			if(!angular.isDefined(state.markers)) return;
+
+			var imports,
+					instrBegin,
+					instrEnd,
+					codes,
+					preludes,
+					nl = "\n",
+					lines = $scope.code.split(nl),
+					pos = _.map(state.markers, function(m){ return m.find().from.line; });
+
+			imports = pos[0];
+			instrBegin = pos[1];
+			instrEnd = pos[2];
+
+			preludes = _.filter(lines, function(l, i){
+				// [0, imports[ && ]imports, instrBegin[ && ]instrEnd, end]
+				return i < imports ||
+					 		 imports < i && i < instrBegin ||
+					 		 instrEnd < i;
+			}).join(nl);
+
+			codes = _.filter(lines, function(l, i){
+				return instrBegin < i && i < instrEnd;
+			}).join(nl);
+
+			window.localStorage['prelude'] = preludes;
+			window.localStorage['code'] = codes;
 		}
 	});
 
