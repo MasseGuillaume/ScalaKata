@@ -8,18 +8,28 @@ app.factory('insightRenderer', function() {
 
 		start.ch = Infinity;
 
-		if(insight.xml) {
-			elem = document.createElement("div");
-			elem.innerHTML = insight.result;
-		} else {
-			// fix overlaping
-
-			// scala
-			elem = document.createElement("pre");
-			CodeMirror.runMode(insight.result, cmOptions, elem);
-
-			// elem = document.createElement("pre");
-			// elem.innerHTML = marked.parse(insight.result, {ghf: true});
+		switch (insight.renderType) {
+			case "html":
+				elem = document.createElement("div");
+				elem.innerHTML = insight.result;
+				break;
+			case "latex":
+				// TODO
+				elem = document.createElement("div");
+				elem.innerText = insight.result;
+				break;
+			case "markdown":
+				elem = document.createElement("pre");
+				elem.innerHTML = marked.parse(insight.result, {ghf: true});
+				break;
+			case "string":
+				elem = document.createElement("div");
+				elem.innerText = insight.result;
+				break;
+			case "other":
+				elem = document.createElement("pre");
+				CodeMirror.runMode(insight.result, cmOptions, elem);
+				break;
 		}
 
 		elem.className = ["CodeMirror-activeline-background", "insight"].join(" ");

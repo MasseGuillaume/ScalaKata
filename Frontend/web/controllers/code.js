@@ -65,7 +65,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 				if(angular.isDefined(window.localStorage['code'])) {
 					code = window.localStorage['code'] || "";
 					prelude = window.localStorage['prelude'] || "";
-				} else {					
+				} else {
 					prelude = r.data.prelude || "";
 					code = r.data.code || "";
 				}
@@ -175,7 +175,11 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 					preludes,
 					nl = "\n",
 					lines = $scope.code.split(nl),
-					pos = _.map(state.markers, function(m){ return m.find().from.line; });
+					pos = _.map(state.markers, function(m){
+						var p = m.find();
+						if(angular.isDefined(p)) return p.from.line;
+						else return null;
+					});
 
 			imports = pos[0];
 			instrBegin = pos[1];
