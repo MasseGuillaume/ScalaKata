@@ -72,7 +72,6 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 
 				impr = [
 					"import com.scalakata.eval._;",
-					"",
 				].join(nl);
 				readOnlyLines = _.map(impr.split(nl), function(v, i){
 					return i;
@@ -81,9 +80,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 				instrumentationDelimiter = _.last(readOnlyLines) + 1 + prelude.split(nl).length;
 
 				instr1 = [
-					"",
 					"@ScalaKata object A{",
-					""
 				].join(nl);
 				readOnlyLines = readOnlyLines.concat(_.map(instr1.split(nl), function(v, i){
 					return i + instrumentationDelimiter;
@@ -92,7 +89,6 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 				cursor = _.last(readOnlyLines) + 1;
 
 				instr2 = [
-					"",
 					"}"
 				].join(nl);
 				readOnlyLines = readOnlyLines.concat(_.map(instr2.split(nl), function(v, i){

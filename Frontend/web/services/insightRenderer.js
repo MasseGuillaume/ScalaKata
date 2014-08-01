@@ -1,3 +1,24 @@
+MathJax.Hub.Config({
+    skipStartupTypeset: true,
+    messageStyle: "none",
+    "HTML-CSS": {
+        showMathMenu: false
+    }
+});
+MathJax.Hub.Configured();
+
+app.directive("mathjaxBind", function() {
+    return {
+        restrict: "A",
+        controller: ["$scope", "$element", "$attrs", function($scope, $element, $attrs) {
+            $scope.$watch($attrs.mathjaxBind, function(value) {
+                $element.text(value == undefined ? "" : value);
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, $element[0]]);
+            });
+        }]
+    };
+});
+
 app.factory('insightRenderer', function() {
 	var widgets = [];
 
@@ -14,13 +35,18 @@ app.factory('insightRenderer', function() {
 				elem.innerHTML = insight.result;
 				break;
 			case "latex":
-				// TODO
-				elem = document.createElement("div");
-				elem.innerText = insight.result;
+				elem = document.createElement("span");
+				elem.innerText = "\\(" + insight.result + "\\)";
+				MathJax.Hub.Queue(["Typeset", MathJax.Hub, elem], function(){
+					angular.element(elem).removeClass("processing");
+				});
+				angular.element(elem).addClass("processing");
+
 				break;
 			case "markdown":
 				elem = document.createElement("pre");
 				elem.innerHTML = marked.parse(insight.result, {ghf: true});
+				document.body.append(elem);
 				break;
 			case "string":
 				elem = document.createElement("div");
@@ -32,7 +58,9 @@ app.factory('insightRenderer', function() {
 				break;
 		}
 
-		elem.className = ["CodeMirror-activeline-background", "insight"].join(" ");
+		angular.element(elem).addClass("CodeMirror-activeline-background")
+					.addClass("insight");
+
 		cm.addWidget(start, elem, false, "over");
 
 		return {
