@@ -14,7 +14,7 @@ package object eval {
   }
   implicit class LatexHelper(val sc: StringContext) extends AnyVal {
     def latex(args: Any*): Latex = {
-      Latex(sc.s(args: _*))
+      Latex(sc.raw(args: _*))
     }
     def tex(args: Any*) = latex(args: _*)
   }

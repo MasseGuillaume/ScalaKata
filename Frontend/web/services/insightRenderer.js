@@ -7,18 +7,6 @@ MathJax.Hub.Config({
 });
 MathJax.Hub.Configured();
 
-app.directive("mathjaxBind", function() {
-    return {
-        restrict: "A",
-        controller: ["$scope", "$element", "$attrs", function($scope, $element, $attrs) {
-            $scope.$watch($attrs.mathjaxBind, function(value) {
-                $element.text(value == undefined ? "" : value);
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, $element[0]]);
-            });
-        }]
-    };
-});
-
 app.factory('insightRenderer', function() {
 	var widgets = [];
 
@@ -35,18 +23,19 @@ app.factory('insightRenderer', function() {
 				elem.innerHTML = insight.result;
 				break;
 			case "latex":
-				elem = document.createElement("span");
-				elem.innerText = "\\(" + insight.result + "\\)";
-				MathJax.Hub.Queue(["Typeset", MathJax.Hub, elem], function(){
-					angular.element(elem).removeClass("processing");
-				});
-				angular.element(elem).addClass("processing");
+
+        var $script = angular.element("<script type='math/tex'>")
+            .html(insight.result);
+        var $element = angular.element("<span>");
+
+        $element.append($script);
+        elem = $element[0];
+        MathJax.Hub.Queue(["Reprocess", MathJax.Hub, elem]);
 
 				break;
 			case "markdown":
 				elem = document.createElement("pre");
 				elem.innerHTML = marked.parse(insight.result, {ghf: true});
-				document.body.append(elem);
 				break;
 			case "string":
 				elem = document.createElement("div");
