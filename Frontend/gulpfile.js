@@ -99,7 +99,7 @@ gulp.task('watch', function() {
     gulp.watch('package.json', ['npm']);
 });
 
-gulp.task('build', ['usemin', 'font', 'fav']);
+gulp.task('build', ['usemin', 'font', 'mathjax', 'fav']);
 gulp.task('buildServe', ['build', 'serveDist', 'browser']);
 
 gulp.task('serveDist', function(){
@@ -109,6 +109,11 @@ gulp.task('serveDist', function(){
 gulp.task('font', function(){
     gulp.src('bower_components/fontawesome/fonts/fontawesome-webfont.woff')
     .pipe(gulp.dest('dist/fonts/'));
+})
+
+gulp.task('mathjax', function(){
+    gulp.src('bower_components/MathJax/**')
+    .pipe(gulp.dest('dist/MathJax/'));
 })
 
 gulp.task('fav', function(){

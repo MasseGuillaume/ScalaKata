@@ -11,9 +11,11 @@ app.factory('insightRenderer', function() {
 	var widgets = [];
 
 	function apply(cm, cmOptions, insight, code){
-		var elem,
-			start = cm.getDoc().posFromIndex(insight.start),
-			end = cm.getDoc().posFromIndex(insight.end);		// TODO: use range
+		var sep,
+        nl = "\n",
+        elem,
+			  start = cm.getDoc().posFromIndex(insight.start),
+			  end = cm.getDoc().posFromIndex(insight.end);		// TODO: use range
 
 		start.ch = Infinity;
 
@@ -39,7 +41,12 @@ app.factory('insightRenderer', function() {
 				break;
 			case "string":
 				elem = document.createElement("div");
-				elem.innerText = insight.result;
+        if(insight.result.split(nl).length > 1) {
+          sep = '"""';
+        } else {
+          sep = '"';
+        }
+				elem.innerText = sep + insight.result + sep;
 				break;
 			case "other":
 				elem = document.createElement("pre");
