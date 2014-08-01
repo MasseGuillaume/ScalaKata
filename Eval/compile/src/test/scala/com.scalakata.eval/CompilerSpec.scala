@@ -38,7 +38,7 @@ class CommpilerSpecs extends Specification { def is = s2"""
     val result = c.insight(wrap(code))
 
     result ==== EvalResponse.empty.copy(insight =
-      List(Instrumentation("List(1, 2)", Other, 62, 75), Instrumentation("2", Other, 80, 85))
+      List(Instrumentation("List(1, 2)", RT_Other, 62, 75), Instrumentation("2", RT_Other, 80, 85))
     )
   }
 
@@ -56,7 +56,7 @@ class CommpilerSpecs extends Specification { def is = s2"""
   def compileClasspath = {
     val c = compiler
     c.insight(wrap("com.example.test.Testing.onetwothree")) ==== EvalResponse.empty.copy(
-      insight = List(Instrumentation("123", Other, 83, 94))
+      insight = List(Instrumentation("123", RT_Other, 83, 94))
     )
   }
 

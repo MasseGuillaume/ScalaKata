@@ -8,12 +8,6 @@ import scala.annotation.StaticAnnotation
 // quasiquote list
 // http://docs.scala-lang.org/overviews/quasiquotes/syntax-summary.html
 
-sealed trait RenderType
-final case object Html extends RenderType
-final case object Latex extends RenderType
-final case object RString extends RenderType
-final case object Other extends RenderType
-
 object ScalaKataMacro {
 
   def impl(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
@@ -26,10 +20,10 @@ object ScalaKataMacro {
         q"(${p.point}, ${p.end})"
       }
       def inst(expr: Tree, rhs: Tree): List[Tree] = {
-        List(expr, q"${instr}(${expr.pos}) = ScalaKata.render($rhs)")
+        List(expr, q"${instr}(${expr.pos}) = render($rhs)")
       }
       def inst2(expr: Tree, rhs: TermName): List[Tree] = {
-        List(expr, q"${instr}(${expr.pos}) = ScalaKata.render($rhs)")
+        List(expr, q"${instr}(${expr.pos}) = render($rhs)")
       }
 
       val bodyI = body.flatMap {
@@ -71,22 +65,4 @@ object ScalaKataMacro {
 
 class ScalaKata extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro ScalaKataMacro.impl
-}
-
-object ScalaKata {
-  def render(a: Any): (String, RenderType) = {
-    val tpe = a match {
-      case a: String ⇒  RString
-      case xml: scala.xml.Elem ⇒ Html
-
-      // TODO: Markdown
-      // case m: Markdown  ⇒
-
-      // TODO: Latex
-      // case l: Latex ⇒
-
-      case other ⇒ Other
-    }
-    (a.toString, tpe)
-  }
 }

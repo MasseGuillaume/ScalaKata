@@ -45,10 +45,11 @@ object Response {
 		def writes(s: RenderType) = {
 			val res =
 				s match {
-					case Html => "html"
-					case Latex => "latex"
-					case RString => "rstring"
-					case Other => "other"
+					case RT_Html => "html"
+					case RT_Latex => "latex"
+					case RT_Markdown => "markdown"
+					case RT_String => "string"
+					case RT_Other => "other"
 				}
 			toJson(res)
 		}

@@ -22,10 +22,10 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 		}
 
 		sortByPosition(A.eval$()) ==== List(
-			("1", Other),
-			("2", Other),
-			("2", Other),
-			("2", Other)
+			("1", RT_Other),
+			("2", RT_Other),
+			("2", RT_Other),
+			("2", RT_Other)
 		)
 	}
 
@@ -39,17 +39,27 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 			<b>xml</b>
 			for(i <- 1 to 3) yield i
 			List(1, 2, 3)
+			md"markdown"
+			markdown"## test"
+			tex"tex"
+			latex"latex"
+			html"html"
 		}
 
 		sortByPosition(A.eval$()) ==== List(
-			("1", Other),
-			("2", Other),
-			("1", Other),
-			("2", Other),
-			("string", RString),
-			("<b>xml</b>", Html),
-			("Vector(1, 2, 3)", Other),
-			("List(1, 2, 3)", Other)
+			("1", RT_Other),
+			("2", RT_Other),
+			("1", RT_Other),
+			("2", RT_Other),
+			("string", RT_String),
+			("<b>xml</b>", RT_Html),
+			("Vector(1, 2, 3)", RT_Other),
+			("List(1, 2, 3)", RT_Other),
+			("markdown", RT_Markdown),
+			("## test", RT_Markdown),
+			("tex", RT_Latex),
+			("latex", RT_Latex),
+			("html", RT_Html)
 		)
 	}
 }

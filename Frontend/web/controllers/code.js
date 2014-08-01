@@ -63,11 +63,11 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 				var prelude, code, impr, instr1, instr2, readOnlyLines, instrumentationDelimiter, lines, cursor, nl = "\n";
 
 				if(angular.isDefined(window.localStorage['code'])) {
-					code = window.localStorage['code'];
-					prelude = window.localStorage['prelude'];
-				} else {
-					prelude = r.data.prelude;
-					code = r.data.code;
+					code = window.localStorage['code'] || "";
+					prelude = window.localStorage['prelude'] || "";
+				} else {					
+					prelude = r.data.prelude || "";
+					code = r.data.code || "";
 				}
 
 				impr = [
