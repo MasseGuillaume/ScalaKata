@@ -5,12 +5,29 @@
 		background-color: transparent;
 	}
 
+	::-webkit-scrollbar {
+		width: 10px;
+		height: 10px;
+	}
+	::-webkit-scrollbar-thumb {
+		border-radius: 5px;
+	}
+
 	&.cm-s-dark {
 		&.menu {
 			color: @base01;
 			i:hover {
 				color: @base1;
 			}
+		}
+
+		::-webkit-scrollbar-corner {
+			background: @base03;
+		}
+
+		::-webkit-scrollbar-thumb {
+			background: @base02;
+			box-shadow: 0 0 1px black inset;
 		}
 	}
 
@@ -20,6 +37,15 @@
 			i:hover {
 				color: @base01;
 			}
+		}
+
+		::-webkit-scrollbar-corner {
+			background: @base3;
+		}
+
+		::-webkit-scrollbar-thumb {
+			background: @base2;
+			box-shadow: 0 0 1px grey inset;
 		}
 	}
 }
