@@ -6,7 +6,7 @@
 add the plugin to project/plugins.sbt
 
 ```scala
-addSbtPlugin("com.scalakata" % "plugin" % "0.3.0")
+addSbtPlugin("com.scalakata" % "plugin" % "0.4.0")
 ```
 
 and to your build definition build.sbt
