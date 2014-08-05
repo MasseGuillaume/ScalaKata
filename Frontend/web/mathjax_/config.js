@@ -123,7 +123,7 @@ MathJax.Hub.Config({
   //  percentage of the mathematics processed.
   //
   messageStyle: "none",
-  
+
   //
   //  These two parameters control the alignment and shifting of displayed equations.
   //  The first can be "left", "center", or "right", and determines the alignment of
@@ -140,7 +140,7 @@ MathJax.Hub.Config({
   //  may want to have it wait until the page's onload hander is called.  If so,
   //  set this to "onload".
   //
-  delayStartupUntil: "none",
+  delayStartupUntil: "configured",
 
   //
   //  Normally MathJax will typeset the mathematics on the page as soon as

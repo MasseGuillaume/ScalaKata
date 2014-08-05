@@ -16,6 +16,7 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     minifyHtml = require('gulp-minify-html'),
     minifyCss = require('gulp-minify-css'),
+    gutil = require('gulp-util'),
     rev = require('gulp-rev');
 
 var livereloadport = 35729,
@@ -112,9 +113,27 @@ gulp.task('font', function(){
 })
 
 gulp.task('mathjax', function(){
-    gulp.src('bower_components/MathJax/**')
-    .pipe(gulp.dest('dist/MathJax/'));
-})
+  [
+    "jax/output/HTML-CSS/jax.js",
+    "jax/output/HTML-CSS/fonts/TeX/fontdata.js",
+    "jax/output/HTML-CSS/imageFonts.js",
+    "jax/output/HTML-CSS/autoload/mtable.js",
+    "fonts/HTML-CSS/TeX/woff/MathJax_Main-Regular.woff",
+    "fonts/HTML-CSS/TeX/woff/MathJax_Math-Italic.woff",
+    "fonts/HTML-CSS/TeX/woff/MathJax_Size1-Regular.woff",
+    "fonts/HTML-CSS/TeX/woff/MathJax_Size2-Regular.woff",
+    "fonts/HTML-CSS/TeX/otf/MathJax_Main-Regular.otf",
+    "fonts/HTML-CSS/TeX/otf/MathJax_Size2-Regular.otf"
+  ].forEach(function(src){
+    var index = src.lastIndexOf("/"),
+        dest = "";
+
+    if(index !== -1) dest = src.slice(0, index + 1);
+
+    gutil.log("src " + src + " == dst " + dest);
+    gulp.src('bower_components/MathJax/' + src).pipe(gulp.dest('dist/MathJax/' + dest));
+  });
+});
 
 gulp.task('fav', function(){
     gulp.src('web/favicon.ico')

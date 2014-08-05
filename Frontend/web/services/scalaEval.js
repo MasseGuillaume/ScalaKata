@@ -1,5 +1,5 @@
 app.factory("scalaEval",
-		["$q", "$rootScope", "$location", "$http",
+		    ["$q", "$rootScope", "$location", "$http",
 function( $q ,  $rootScope ,  $location ,  $http) {
 	return {
 		"initialCode": function(){
