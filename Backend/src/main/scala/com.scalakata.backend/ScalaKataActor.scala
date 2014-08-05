@@ -27,7 +27,7 @@ trait ScalaKata extends HttpService {
 	import Request._
 	import Response._
 
-	val compiler = new Compiler(artifacts, scalacOptions)
+	lazy val compiler = new Compiler(artifacts, scalacOptions)
 
 	val route = {
 		path("initialCode") {
@@ -60,8 +60,8 @@ trait ScalaKata extends HttpService {
 			}
 		} ~
 		pathSingleSlash {
-          getFromResource("index.html")
-        } ~
+      getFromResource("index.html")
+    } ~
 		path(Rest) { path ⇒
 			getFromResource(path)
 		}

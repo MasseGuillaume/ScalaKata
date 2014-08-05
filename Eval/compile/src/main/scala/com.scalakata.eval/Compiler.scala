@@ -158,8 +158,8 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
   settings.classpath.value = artifacts
   settings.Yrangepos.value = true
 
-  private val compiler = new Global(settings, reporter)
-  private val eval = new Eval(settings.copy)
+  private lazy val compiler = new Global(settings, reporter)
+  private lazy val eval = new Eval(settings.copy)
 
   private def convert(infos: Map[String, List[(Int, String)]]): Map[Severity, List[CompilationInfo]] = {
     infos.map{ case (k,vs) ⇒
