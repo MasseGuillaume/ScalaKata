@@ -46,7 +46,9 @@ app.run(["scalaEval", function(scalaEval){
 				{
 					text: " // " + data.tpe,
 					render: function(el, _, _1){
-						el.innerHTML = data.tpe;
+						var elem = document.createElement("pre");
+						elem.innerText = data.tpe;
+						el.appendChild(elem);
 					}
 				}
 			];
