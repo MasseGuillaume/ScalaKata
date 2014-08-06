@@ -1,16 +1,21 @@
+.CodeMirror {
+	::-webkit-scrollbar {
+		width: auto;
+		height: auto;
+	}
+	::-webkit-scrollbar-thumb {
+		border-radius: 5px;
+	}
+
+	::-webkit-scrollbar-thumb {
+		box-shadow: 0 0 1px grey inset;
+	}
+}
 .cm-s-solarized {
 	.solarized-pallette;
 
 	&.menu {
 		background-color: transparent;
-	}
-
-	::-webkit-scrollbar {
-		width: 10px;
-		height: 10px;
-	}
-	::-webkit-scrollbar-thumb {
-		border-radius: 5px;
 	}
 
 	&.cm-s-dark {
@@ -25,9 +30,13 @@
 			background: @base03;
 		}
 
-		::-webkit-scrollbar-thumb, .insight {
+		::-webkit-scrollbar-thumb {
 			background: @base02;
 			box-shadow: 0 0 1px black inset;
+		}
+
+		.insight {
+			background: @base02;
 		}
 	}
 
@@ -43,9 +52,12 @@
 			background: @base3;
 		}
 
-		::-webkit-scrollbar-thumb, .insight {
-			background: @base2;
+		::-webkit-scrollbar-thumb {
 			box-shadow: 0 0 1px grey inset;
+		}
+
+		.insight {
+			background: @base2;
 		}
 	}
 }

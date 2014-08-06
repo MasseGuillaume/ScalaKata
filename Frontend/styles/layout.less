@@ -1,7 +1,42 @@
+@font-face {
+  font-family: "Input Mono Regular";
+  src: url("/Input_Fonts/InputMono/InputMono/InputMono-Regular.ttf");
+}
+
 body {
 	height: 100%;
 	margin: 0;
+  overflow: hidden;
 }
+
+.fullscreen(@rules) {
+    :fullscreen { @rules(); }
+		:-ms-fullscreen { @rules(); }
+		:-moz-full-screen { @rules(); }
+    :-webkit-full-screen { @rules(); }
+}
+
+.zen(@full, @p) {
+  padding: @p;
+  height: calc(~"100% - "(2 *@p));
+  & when(@full) {
+    width: calc(~"100% - "(2 *@p));
+  }
+}
+
+// large screen
+@media (min-width: 1200px) {
+  .code {
+    .zen(false, 50px);
+  }
+}
+
+.fullscreen({
+  .menu {
+    display: none;
+  }
+  .zen(true, 100px);
+});
 
 @media print {
 	.menu {
@@ -44,9 +79,16 @@ body {
 	}
 
 	.insight {
+		&.code {
+			font-style: italic;
+			opacity: 0.8;
+		}
+
 		&.inline {
-			line-height: 21px;
-			margin-left: 15px;
+			// line-height: 21px;
+			border-box: none;
+			margin-left: 16px;
+			padding: 10px;
 		}
 
 		&.fold {

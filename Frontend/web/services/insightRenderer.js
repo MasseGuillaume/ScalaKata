@@ -64,7 +64,7 @@ app.factory('insightRenderer', function() {
 
 				break;
 			case "markdown":
-				elem = document.createElement("pre");
+				elem = document.createElement("div");
 				elem.innerHTML = marked.parse(insight.result, {ghf: true});
         fold();
 				break;
@@ -80,6 +80,7 @@ app.factory('insightRenderer', function() {
 				break;
 			case "other":
 				elem = document.createElement("span");
+        elem.className = "code";
 				CodeMirror.runMode(insight.result, cmOptions, elem);
         inline();
 				break;

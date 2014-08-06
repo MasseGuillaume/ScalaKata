@@ -17,6 +17,8 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 		keys[ctrl + "Enter"] = "run";
 		keys[ctrl + ","] = "config";
 		keys[ctrl + "."] = "typeAt";
+		keys["f11"] = "fullscreen";
+		keys["F11"] = "fullscreen";
 
 		$scope.cmOptions = {
 			"_to config codemirror see_": "http://codemirror.net/doc/manual.html#config",
@@ -32,7 +34,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 			smartIndent: false,
 			multiLineStrings: true,
 			autoCloseBrackets: true,
-			styleActiveLine: true,
+			styleActiveLine: false,
 			keyMap: "sublime",
 			highlightSelectionMatches: { showToken: false }
 		}
@@ -156,6 +158,18 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 	CodeMirror.commands.run = run;
 	CodeMirror.commands.save = run;
 	CodeMirror.commands.config = $scope.toogleEdit;
+
+	CodeMirror.commands.fullscreen = function(){
+		if(screenfull.enabled) {
+	    screenfull.toggle(document.getElementById("code"));
+		}
+	}
+
+	$scope.theme = function(){
+		return cm.options.theme.split(" ").map(function(v){
+			return "cm-s-" + v;
+		}).join(" ");
+	}
 
 	$scope.$watch('code', function(){
 		if(state.configEditing) {
