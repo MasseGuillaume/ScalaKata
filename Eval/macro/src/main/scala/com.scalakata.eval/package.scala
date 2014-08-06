@@ -38,15 +38,18 @@ package object eval {
     }
   }
 
-  def render(a: Any): (String, RenderType) = {
-    val tpe = a match {
-      case _: String ⇒  RT_String
-      case _: scala.xml.Elem ⇒ RT_Html
-      case _: Latex => RT_Latex
-      case _: Markdown => RT_Markdown
-      case _: Html => RT_Html
-      case other ⇒ RT_Other
+  def render(a: AnyRef): (String, RenderType) = {
+    if(a eq null) ("null", RT_Other)
+    else {
+      val tpe = a match {
+        case _: String ⇒  RT_String
+        case _: scala.xml.Elem ⇒ RT_Html
+        case _: Latex => RT_Latex
+        case _: Markdown => RT_Markdown
+        case _: Html => RT_Html
+        case other ⇒ RT_Other
+      }
+      (a.toString, tpe)
     }
-    (a.toString, tpe)
   }
 }
