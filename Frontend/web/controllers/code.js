@@ -161,7 +161,8 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 
 	CodeMirror.commands.fullscreen = function(){
 		if(screenfull.enabled) {
-	    screenfull.toggle(document.getElementById("code"));
+	    screenfull.toggle();
+			// screenfull.toggle(document.getElementById("code"));
 		}
 	}
 

@@ -11,8 +11,7 @@ app.factory('insightRenderer', function() {
 	var widgets = [];
 
 	function apply(cm, cmOptions, insight, code){
-		var sep,
-        nl = "\n",
+		var nl = "\n",
         elem,
 			  start = cm.getDoc().posFromIndex(insight.start),
 			  end = cm.getDoc().posFromIndex(insight.end),
@@ -41,7 +40,7 @@ app.factory('insightRenderer', function() {
 
     function inline(){
       addClass("inline");
-      var widget = cm.addLineWidget(start.line, elem);
+      var widget = cm.addLineWidget(end.line, elem);
       clearF = function(){ widget.clear() };
     }
 
@@ -69,13 +68,8 @@ app.factory('insightRenderer', function() {
         fold();
 				break;
 			case "string":
-				elem = document.createElement("span");
-        if(insight.result.split(nl).length > 1) {
-          sep = '"""';
-        } else {
-          sep = '"';
-        }
-				elem.innerText = sep + insight.result + sep;
+				elem = document.createElement("pre");
+				elem.innerText = insight.result;
         inline();
 				break;
 			case "other":

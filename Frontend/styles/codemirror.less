@@ -22,15 +22,15 @@
 .CodeMirror {
 	tab-size: 3;
 	font-size: 18px;
-	font-family: "Input Mono Regular";
+	font-family: "Source Code Pro Regular";
 }
 
 .CodeMirror-hints {
-	&.autocomplete {
+	resize: horizontal;
+	.autocomplete {
 		width: 600px;
-		resize: horizontal;
 	}
-	z-index: 2000;
+	z-index: 10;
 }
 
 .CodeMirror-hint {

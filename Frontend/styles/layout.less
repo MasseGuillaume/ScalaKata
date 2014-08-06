@@ -1,6 +1,6 @@
 @font-face {
-  font-family: "Input Mono Regular";
-  src: url("/Input_Fonts/InputMono/InputMono/InputMono-Regular.ttf");
+  font-family: "Source Code Pro Regular";
+  src: url("/SourceCodePro_WebFontsOnly-1.017/WOFF/OTF/SourceCodePro-Regular.otf.woff");
 }
 
 body {
@@ -35,7 +35,9 @@ body {
   .menu {
     display: none;
   }
-  .zen(true, 100px);
+  .code {
+    .zen(true, 100px);
+  }
 });
 
 @media print {
@@ -75,17 +77,22 @@ body {
 	}
 
 	.macroAnnotation {
-		opacity: 0.5;
+		opacity: 0.3;
 	}
 
+  pre.insight.inline {
+    display: inline-block;
+  }
 	.insight {
+    .MathJax {
+      font-size: 30px;
+    }
+
 		&.code {
 			font-style: italic;
 			opacity: 0.8;
 		}
-
 		&.inline {
-			// line-height: 21px;
 			border-box: none;
 			margin-left: 16px;
 			padding: 10px;

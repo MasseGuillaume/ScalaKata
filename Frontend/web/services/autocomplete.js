@@ -1,5 +1,5 @@
 app.run(["scalaEval", function(scalaEval){
-	function hint(cm, sf, cf, single, clazz){
+	function hint(cm, sf, cf, single){
 		sf(
 			cm.getDoc().getValue(),
 			cm.getDoc().indexFromPos(cm.getCursor())
@@ -29,13 +29,15 @@ app.run(["scalaEval", function(scalaEval){
 				var term = currentLine.substr(curFrom.ch, curTo.ch - curFrom.ch);
 
 				options.completeSingle = single;
+
 				if(single){
-					return {from: curFrom, to: curTo, list: cf(data, term)};
+       		return {from: curFrom, to: curTo, list: cf(data, term)};
 				} else {
-					curFrom.ch = Math.Infinity;
-					curTo.ch = Math.Infinity;
-					return {from: curFrom, to: curTo, list: cf(data), className: clazz};
+       		curFrom.ch = Math.Infinity;
+       		curTo.ch = Math.Infinity;
+       		return {from: curFrom, to: curTo, list: cf(data)};
 				}
+
 			});
 		});
 	}
@@ -44,6 +46,7 @@ app.run(["scalaEval", function(scalaEval){
 		hint(cm, scalaEval.typeAt, function(data){
 			return [
 				{
+					className: "typeAt",
 					text: " // " + data.tpe,
 					render: function(el, _, _1){
 						var elem = document.createElement("pre");
@@ -52,7 +55,7 @@ app.run(["scalaEval", function(scalaEval){
 					}
 				}
 			];
-		}, false, "typeAt");
+		}, false);
 	}
 	CodeMirror.commands.autocomplete = function(cm) {
 		hint(cm, scalaEval.autocomplete, function(data, term){
@@ -60,6 +63,7 @@ app.run(["scalaEval", function(scalaEval){
 					return c.name.toLowerCase().indexOf(term.toLowerCase()) != -1;
 			}).map(function(c){
 				return {
+					className: "autocomplete",
 					text: c.name,
 					completion: c,
 					alignWithWord: true,
@@ -68,7 +72,7 @@ app.run(["scalaEval", function(scalaEval){
 					}
 				}
 			});
-		}, true, "autocomplete");
+		}, true);
 	};
 	CodeMirror.commands.autocompleteDot = function (cm){
 		cm.replaceSelection(".");
