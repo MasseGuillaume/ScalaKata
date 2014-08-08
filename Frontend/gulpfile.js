@@ -109,11 +109,16 @@ gulp.task('serveDist', function(){
 
 gulp.task('font', function(){
     gulp.src('bower_components/fontawesome/fonts/fontawesome-webfont.woff')
-    .pipe(gulp.dest('dist/fonts/'));
+      .pipe(gulp.dest('dist/fonts/'));
+
+    gulp.src('web/SourceCodePro/WOFF/OTF/SourceCodePro-Regular.otf.woff')
+      .pipe(gulp.dest('dist/SourceCodePro/WOFF/OTF/'));
 })
 
 gulp.task('mathjax', function(){
   [
+    "MathJax.js",
+    "config/TeX-AMS_HTML.js",
     "jax/output/HTML-CSS/jax.js",
     "jax/output/HTML-CSS/fonts/TeX/fontdata.js",
     "jax/output/HTML-CSS/imageFonts.js",
@@ -130,7 +135,7 @@ gulp.task('mathjax', function(){
 
     if(index !== -1) dest = src.slice(0, index + 1);
 
-    gutil.log("src " + src + " == dst " + dest);
+    // gutil.log("src " + src + " == dst " + dest);
     gulp.src('bower_components/MathJax/' + src).pipe(gulp.dest('dist/MathJax/' + dest));
   });
 });
@@ -140,7 +145,7 @@ gulp.task('fav', function(){
     .pipe(gulp.dest('dist/'));
 })
 
-gulp.task('usemin', function() {
+gulp.task('usemin', ["styles"], function() {
   gulp.src('web/**/*.html')
     .pipe(usemin({
       css: [minifyCss(), 'concat'],
