@@ -28,6 +28,7 @@ object Scalakata extends Plugin {
 		base = file("."),
 		settings = kataSettings
 	)
+	lazy val scalaKataVersion = "0.5.0-SNAPSHOT"
 
 	lazy val kataSettings =
 		Project.defaultSettings ++
@@ -67,9 +68,9 @@ object Scalakata extends Plugin {
 					()
 				},
 				libraryDependencies ++= Seq(
-					"com.scalakata" % s"backend_${scalaBinaryVersion.value}" % "0.5.0-SNAPSHOT",
-					"com.scalakata" % s"eval_${scalaBinaryVersion.value}" % "0.5.0-SNAPSHOT",
-					"com.scalakata" % "frontend" % "0.5.0-SNAPSHOT"
+					"com.scalakata" % s"backend_${scalaBinaryVersion.value}" % scalaKataVersion,
+					"com.scalakata" % s"eval_${scalaBinaryVersion.value}" % scalaKataVersion,
+					"com.scalakata" % "frontend" % scalaKataVersion
 				)
 			)
 		) ++
@@ -82,7 +83,7 @@ object Scalakata extends Plugin {
 				scalaVersion := "2.11.2",
 				scalacOptions += "-Yrangepos",
 				libraryDependencies ++= Seq(
-					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % "0.5.0-SNAPSHOT",
+					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % scalaKataVersion
 					"org.scala-lang" % "scala-compiler" % scalaVersion.value,
 					compilerPlugin("org.scalamacros" % s"paradise_${scalaVersion.value}" % "2.1.0-M1")
 				),
@@ -90,6 +91,8 @@ object Scalakata extends Plugin {
 			)
 		) ++
 		Seq(
+			// the backend can serve .scala files
+			unmanagedResourceDirectories in Backend <+= sourceDirectory in Kata,
 			scalaVersion in Backend <<= scalaVersion in Kata,
 			startArgs in (Backend, Revolver.reStart) := Seq(
 				(readyPort in Backend).value.toString,
