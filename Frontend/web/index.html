@@ -1,8 +1,8 @@
 <html>
 <head>
     <title>Scala Kata</title>
-    <link rel="icon" type="image/png" href="/favicon.ico">
-    <!-- build:css(bower_components) /styles/libs.css -->
+    <link rel="icon" type="image/png" href="/assets/favicon.ico">
+    <!-- build:css(bower_components) /assets/styles/libs.css -->
     <link rel="stylesheet" type="text/css" href="/codemirror/theme/monokai.css">
     <link rel="stylesheet" type="text/css" href="/codemirror/theme/ambiance.css">
     <link rel="stylesheet" type="text/css" href="/codemirror/theme/eclipse.css">
@@ -14,14 +14,14 @@
     <link rel="stylesheet" type="text/css" href="/fontawesome/css/font-awesome.css">
     <!-- endbuild -->
 
-    <!-- build:css(tmp) /styles/app.css -->
+    <!-- build:css(tmp) /assets/styles/app.css -->
     <link rel="stylesheet" type="text/css" href="/styles/main.css">
     <!-- endbuild -->
 </head>
 <body ng-app="ScalaKata">
-    <ng-include src="'/views/code.html'"></ng-include>
+    <ng-include src="'/assets/views/code.html'"></ng-include>
 
-     <!-- build:js(bower_components) /scripts/libs.js -->
+     <!-- build:js(bower_components) /assets/scripts/libs.js -->
     <script src="/angular/angular.js"></script>
     <script src="/lodash/dist/lodash.js"></script>
     <script src="/marked/lib/marked.js"></script>
@@ -54,11 +54,10 @@
     <script src="/angular-ui-codemirror/ui-codemirror.js"></script>
     <!-- endbuild -->
 
-    <script src="/MathJax/MathJax.js"></script>
-    <script src="/MathJax/config/TeX-AMS_HTML.js"></script>
+    <script src="/assets/MathJax/MathJax.js"></script>
+    <script src="/assets/MathJax/config/TeX-AMS_HTML.js"></script>
 
-    <!-- build:js(web) /scripts/app.js -->
-    <!-- script src="/mathjax_/config.js"></script-->
+    <!-- build:js(web) /assets/scripts/app.js -->
     <script src="/app.js"></script>
     <script src="/services/scalaEval.js"></script>
     <script src="/services/insightRenderer.js"></script>

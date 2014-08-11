@@ -1,4 +1,5 @@
-web/SourceCodePro_WebFontsOnly-1.017
+web/SourceCodePro
+web/out
 node_modules/
 bower_components/
 packages/

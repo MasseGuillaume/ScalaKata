@@ -54,10 +54,7 @@ object ScalaKataMacro {
 
     c.Expr[Any]{
       annottees.map(_.tree).toList match {
-        case q"object $name { ..$body }" :: Nil ⇒
-          val res = instrument(body, name)
-          //println(showCode(res))
-          res
+        case q"object $name { ..$body }" :: Nil ⇒ instrument(body, name)
       }
     }
   }

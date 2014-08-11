@@ -42,6 +42,7 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
         )
       } catch {
         case NonFatal(e) ⇒ {
+          e.printStackTrace()
           val pos = Math.abs(e.getCause.getStackTrace.map(_.getLineNumber).find(_ < 0).getOrElse(0))
 
           EvalResponse.empty.copy(runtimeError =

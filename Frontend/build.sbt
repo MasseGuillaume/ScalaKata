@@ -9,12 +9,13 @@ autoScalaLibrary := false
 scalaVersion := "2.11.2"
 
 resourceDirectory in Compile := {
-	baseDirectory.value / "dist"
+	baseDirectory.value / "out"
 }
 
 resourceGenerators in Compile += Def.task {
   "gulp build" ! streams.value.log
-  (baseDirectory.value / "dist" ***).get
+  ((resourceDirectory in Compile).value ***).get
+	/*Seq.empty[java.io.File]*/
 }.taskValue
 
 publishArtifact in (Compile, packageDoc) := false

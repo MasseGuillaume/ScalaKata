@@ -60,10 +60,13 @@ trait ScalaKata extends HttpService {
 			}
 		} ~
 		pathSingleSlash {
-      getFromResource("index.html")
+			getFromResource("assets/index.html")
     } ~
+		path("assets" / Rest) { path ⇒
+			getFromResource(s"assets/$path")
+		} ~
 		path(Rest) { path ⇒
-			getFromResource(path)
+			getFromResource("assets/index.html")
 		}
 	}
 }

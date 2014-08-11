@@ -73,7 +73,7 @@ app.factory('insightRenderer', function() {
         inline();
 				break;
 			case "other":
-				elem = document.createElement("span");
+				elem = document.createElement("pre");
         elem.className = "code";
 				CodeMirror.runMode(insight.result, cmOptions, elem);
         inline();
