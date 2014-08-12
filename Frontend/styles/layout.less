@@ -27,7 +27,7 @@ body {
 // large screen
 @media (min-width: 1200px) {
   .code {
-    .zen(false, 50px);
+    .zen(false, 20px);
   }
 }
 
@@ -51,12 +51,13 @@ body {
 	top: 0;
 	right: 0;
 	margin: 16px;
+  border-radius: 5px;
 	z-index: 20;
 
 	i {
 		display: block;
 		font-size: 32px;
-		margin-top: 10px;
+		margin: 10px;
 		cursor: pointer;
 	}
 }
@@ -93,6 +94,7 @@ body {
 			opacity: 0.8;
 		}
 		&.inline {
+      height: auto;
 			border-box: none;
 			margin-left: 16px;
 			padding: 10px;

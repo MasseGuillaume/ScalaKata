@@ -14,7 +14,7 @@ less version: gui
   @base1:     #93a1a1;
   @base2:     #eee8d5;
   @base3:     #fdf6e3;
-  
+
   @yellow:    #b58900;
   @orange:    #cb4b16;
   @red:       #dc322f;
@@ -80,21 +80,25 @@ less version: gui
     border-bottom-width: 2px;
   }
 
+  .CodeMirror-gutters {
+    background-color: @base02;
+    border-right-color: transparent;
+  }
+
   &.cm-s-dark {
     color: @base0;
     background-color:  @base03;
-    .cm-matchhighlight { 
+    .cm-matchhighlight {
       border-bottom-color: @base02;
     }
     .CodeMirror-gutters {
       background-color: @base02;
-      border-right-color: black;
     }
     .CodeMirror-gutter-filler {
       background-color: @base02;
     }
-    .CodeMirror-selected { 
-      background: rgba(255, 255, 255, 0.10); 
+    .CodeMirror-selected {
+      background: rgba(255, 255, 255, 0.10);
     }
     .CodeMirror-activeline-background {
       background-color: @base02;
@@ -123,7 +127,7 @@ less version: gui
 
     .CodeMirror-activeline-background {
       background-color: @base2;
-    }    
+    }
   }
 
   .CodeMirror-gutters {
@@ -137,7 +141,7 @@ less version: gui
   .CodeMirror-gutter .CodeMirror-gutter-text {
     color: @base01;
   }
-  
+
   .CodeMirror-lines .CodeMirror-cursor {
     border-left: 1px solid @base01;
   }

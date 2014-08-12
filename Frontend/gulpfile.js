@@ -86,7 +86,7 @@ function serveF(assets){
 }
 
 gulp.task('serve', function(){
-    serveF(['web', 'bower_components', 'tmp', 'out']);
+    serveF(['web', 'bower_components', 'tmp']);
 });
 
 gulp.task('watch', function() {

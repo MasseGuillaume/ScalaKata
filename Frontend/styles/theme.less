@@ -15,11 +15,12 @@
 	.solarized-pallette;
 
 	&.menu {
-		background-color: transparent;
+		// background-color: transparent;
 	}
 
 	&.cm-s-dark {
-		&.menu {
+		.menu {
+			background-color: @base02;
 			color: @base01;
 			i:hover {
 				color: @base1;
@@ -41,7 +42,8 @@
 	}
 
 	&.cm-s-light {
-		&.menu {
+		.menu {
+			background-color: @base2;
 			color: @base1;
 			i:hover {
 				color: @base01;
@@ -60,6 +62,25 @@
 			background: @base2;
 		}
 	}
+}
+.cm-s-mdn-like {
+	::-webkit-scrollbar-thumb {
+		background: #f8f8f8;
+		box-shadow: 0 0 1px grey inset;
+	}
+
+	.menu {
+		border: 1px solid #ddd;
+		background-color: #f8f8f8;
+		color: rgba(0,83,159,0.65);
+		i:hover {
+			color: black;
+		}
+	}
+}
+
+.ui-splitbar {
+	background: rgba(125,125,125,0.2);
 }
 
 .menu {

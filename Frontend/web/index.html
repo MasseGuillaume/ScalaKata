@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="/codemirror/addon/hint/show-hint.css">
     <link rel="stylesheet" type="text/css" href="/codemirror/addon/fold/foldgutter.css">
     <link rel="stylesheet" type="text/css" href="/fontawesome/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="/angular-ui-layout/ui-layout.css">
     <!-- endbuild -->
 
     <!-- build:css(tmp) /assets/styles/app.css -->
@@ -19,10 +20,22 @@
     <!-- endbuild -->
 </head>
 <body ng-app="ScalaKata">
-    <ng-include src="'/assets/views/code.html'"></ng-include>
+    <section ui-layout ng-controller="code" class="code CodeMirror" id="code" ng-class="theme()">
+      <div size="0%" class="prelude">
+        <textarea ui-codemirror="cmOptions" ng-model="prelude"></textarea>
+      </div>
+      <div class="code-space">
+        <div class="menu">
+          <i title="run code" class="fa fa-fw fa-play"  ng-click="run()"></i>
+          <i title="toogle options" class="fa fa-fw fa-cogs" ng-click="toogleEdit()"></i>
+        </div>
+        <textarea ui-codemirror="cmOptions" ng-model="code"></textarea>
+      </div>
+    </section>
 
      <!-- build:js(bower_components) /assets/scripts/libs.js -->
     <script src="/angular/angular.js"></script>
+    <script src="/angular-ui-layout/ui-layout.js"></script>
     <script src="/lodash/dist/lodash.js"></script>
     <script src="/marked/lib/marked.js"></script>
     <script src="/screenfull/dist/screenfull.js"></script>
