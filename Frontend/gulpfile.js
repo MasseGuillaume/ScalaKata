@@ -68,19 +68,17 @@ gulp.task('default', function() {
 });
 
 function serveF(assets){
-    var server = express(),
-        apiUrl = "http://localhost:8080";
+    var server = express();
 
     server.use(livereload({port: livereloadport}));
-    ['eval', 'completion', 'typeAt', "initialCode"].forEach(function(u){
-        var url = "/" + u
-        server.use(url, function(req, res) {
-            req.pipe(request(apiUrl + url)).pipe(res);
-        });
-    });
 
     assets.forEach(function(a){
         server.use(express.static(a));
+    });
+
+    // catch all to api
+    server.use(function(req, res) {
+        req.pipe(request("http://localhost:8080" + req.originalUrl)).pipe(res);
     });
 
     server.listen(serverport);
@@ -88,7 +86,7 @@ function serveF(assets){
 }
 
 gulp.task('serve', function(){
-    serveF(['web', 'bower_components', 'tmp']);
+    serveF(['web', 'bower_components', 'tmp', 'out']);
 });
 
 gulp.task('watch', function() {
