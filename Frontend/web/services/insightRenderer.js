@@ -10,12 +10,16 @@ MathJax.Hub.Configured();
 app.factory('insightRenderer', function() {
 	var widgets = [];
 
-	function apply(cm, cmOptions, insight, code){
-		var nl = "\n",
-        elem,
-			  start = cm.getDoc().posFromIndex(insight.start),
-			  end = cm.getDoc().posFromIndex(insight.end),
-        clearF;
+	function apply(cmCode, wrap, cmOptions, insight, code){
+		var nl = "\n", elem, start, end, clearF;
+
+    start = wrap.fixRange(insight.start, null, cmCode, function(range, cm){
+      return cm.getDoc().posFromIndex(range);
+    });
+
+    end = wrap.fixRange(insight.end, null, cmCode, function(range, cm){
+      return cm.getDoc().posFromIndex(range);
+    });
 
     function addClass(two){
       angular.element(elem)
@@ -25,7 +29,7 @@ app.factory('insightRenderer', function() {
 
     function fold(){
       addClass("fold");
-      var widget = cm.foldCode(start, {
+      var widget = cmCode.foldCode(start, {
         widget: elem,
         rangeFinder: function(){
           return {
@@ -40,7 +44,7 @@ app.factory('insightRenderer', function() {
 
     function inline(){
       addClass("inline");
-      var widget = cm.addLineWidget(end.line, elem);
+      var widget = cmCode.addLineWidget(end.line, elem);
       clearF = function(){ widget.clear() };
     }
 
@@ -89,9 +93,9 @@ app.factory('insightRenderer', function() {
 	}
 	return {
 		clear: clearFun,
-		render: function(cm, cmOptions, insights, code){
+		render: function(cmCode, wrap, cmOptions, insights, code){
 			widgets = insights.map(function(insight){
-				return apply(cm, cmOptions, insight, code);
+				return apply(cmCode, wrap, cmOptions, insight, code);
 			});
 		}
 	}

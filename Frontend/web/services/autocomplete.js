@@ -18,7 +18,6 @@ app.run(["scalaEval", function(scalaEval){
 					return  /^[a-zA-Z0-9\_]$/.test(c);
 				}
 
-
 				for (i = cur.ch-1; i >= 0 && delimiter(currentLine[i]); i--){
 					curFrom.ch = i;
 				}

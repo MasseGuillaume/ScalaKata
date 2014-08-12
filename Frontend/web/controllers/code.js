@@ -1,9 +1,10 @@
 app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRenderer", "errorsRenderer",
 				 function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer ,  errorsRenderer){
 
-	var cm,
-		state = {},
-		ctrl = CodeMirror.keyMap["default"] == CodeMirror.keyMap.pcDefault ? "Ctrl-" : "Cmd-";
+	var cmCode,
+			cmPrelude,
+			state = {},
+			ctrl = CodeMirror.keyMap["default"] == CodeMirror.keyMap.pcDefault ? "Ctrl-" : "Cmd-";
 
 	state.configEditing = false;
 	if(angular.isDefined(window.localStorage['code'])){
@@ -23,6 +24,15 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 		keys[ctrl + ","] = "config";
 		keys[ctrl + "."] = "typeAt";
 		keys["F11"] = "fullscreen";
+		keys[ctrl + "Up"] = "focusPrelude";
+		keys[ctrl + "Down"] = "focusCode";
+
+		CodeMirror.commands.focusPrelude = function(){
+			cmPrelude.focus();
+		};
+		CodeMirror.commands.focusCode = function(){
+			cmCode.focus();
+		}
 
 		$scope.cmOptions = {
 			"_to config codemirror see_": "http://codemirror.net/doc/manual.html#config",
@@ -39,6 +49,10 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 			keyMap: "sublime",
 			highlightSelectionMatches: { showToken: false }
 		}
+		$scope.cmOptionsPrelude = angular.copy($scope.cmOptions);
+		$scope.cmOptionsPrelude.onLoad = function(cm_){
+			cmPrelude = cm_;
+		};
 	// }
 
 	function clear(){
@@ -56,17 +70,19 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 			});
 		} else {
 			$scope.cmOptions.onLoad = function(cm_) {
-				cm = cm_;
-				cm.focus();
-				cm.on('changes', function(){
+				cmCode = cm_;
+				cmCode.focus();
+				cmCode.on('changes', function(){
 					clear();
 				});
-			}
+			};
 
 			$scope.cmOptions.mode = 'text/x-' + LANGUAGE;
 			window.localStorage['codemirror'] = JSON.stringify($scope.cmOptions);
 
-			$scope.code = state.code;
+			$timeout(function(){
+				$scope.code = state.code;
+			});
 		}
 	}
 	setMode(false);
@@ -76,16 +92,41 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 		setMode(state.configEditing);
 	};
 
+	function wrap(){
+		var import_ = "import com.scalakata.eval._",
+				macroBegin = "@ScalaKata object A {",
+				macroClose = "}",
+				nl = "\n",
+				prelude = $scope.prelude.split(nl),
+				beforeCode = prelude.concat([import_, macroBegin]),
+				beforeCodeLength = beforeCode.join(nl).length,
+				code = $scope.code.split(nl);
+
+		return {
+			fixRange: function(range, cmPrelude, cmCode, apply) {
+				if(range < $scope.prelude.length) return apply(range, cmPrelude);
+				else return apply(range - (beforeCodeLength+1), cmCode);
+			},
+			fixLine: function(line, cmPrelude, cmCode, apply) {
+				if(line < prelude.length) return apply(line, cmPrelude);
+				else return apply(line - beforeCode.length, cmCode);
+			},
+			full: beforeCode.concat([
+				$scope.code,
+				macroClose
+			]).join(nl)
+		}
+	}
+
 	function run(){
 		if(state.configEditing) return;
 
-		clear();
-
-		scalaEval.insight($scope.code).then(function(r){
+		var w = wrap();
+		scalaEval.insight(w.full).then(function(r){
 			var data = r.data;
 			var code = $scope.code.split("\n");
-			insightRenderer.render(cm, $scope.cmOptions.mode, data.insight, code);
-			errorsRenderer.render(cm, data.infos, data.runtimeError, code);
+			insightRenderer.render(cmCode, w, $scope.cmOptions.mode, data.insight, code);
+			errorsRenderer.render(cmCode, cmPrelude, w, data.infos, data.runtimeError, code);
 		});
 	}
 
@@ -100,7 +141,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 	}
 
 	$scope.theme = function(){
-		return cm.options.theme.split(" ").map(function(v){
+		return cmCode.options.theme.split(" ").map(function(v){
 			return "cm-s-" + v;
 		}).join(" ");
 	}

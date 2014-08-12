@@ -3,43 +3,56 @@ app.factory('errorsRenderer', function() {
 	var errorMessages = [];
 	var errorUnderlines = [];
 
-	function errorUnderline(cm, severity, value, code) {
-		var from, to, cur, currentLine;
-		if(angular.isDefined(value.position)) {
-			cur = cm.getDoc().posFromIndex(value.position);
-			currentLine = code[cur.line];
-			from = {line: cur.line, ch: cur.ch};
-			to = {line: cur.line, ch: currentLine.length};
-		} else {
-			from = {line: value.line - 1, ch: 0};
-			to = {line: value.line - 1, ch: Infinity};
+	function errorUnderline(cmCode, cmPrelude, wrap, severity, value, code) {
+		function render(cm, from, to){
+			return cm.markText(from, to, {className: severity} );
 		}
-
-		return cm.markText(from, to, {className: severity} );
+		if(angular.isDefined(value.position)) {
+			return wrap.fixRange(value.position, cmPrelude, cmCode, function(range, cm){
+				var from, to, cur, currentLine;
+				cur = cm.getDoc().posFromIndex(value.position);
+				currentLine = code[cur.line];
+				from = {line: cur.line, ch: cur.ch};
+				to = {line: cur.line, ch: currentLine.length};
+				return render(cm, from, to);
+			});
+		} else {
+			return wrap.fixLine(value.line, cmPrelude, cmCode, function(l, cm){
+				from = {line: l - 1, ch: 0};
+				to = {line: l - 1, ch: Infinity};
+				return render(cm, from, to);
+			});
+		}
 	}
 
-	function errorMessage(cm, severity, value){
-		var msg = document.createElement("div"),
-			line;
+	function errorMessage(cmCode, cmPrelude, wrap, severity, value){
+		function render(line, cm){
+			var msg = document.createElement("div"),
+					icon = msg.appendChild(document.createElement("i"));
+
+			icon.className = "fa ";
+			if(severity == "error") {
+				icon.className += "fa-times-circle";
+			} else if(severity == "warning") {
+				icon.className += "fa-exclamation-triangle";
+			} else if(severity == "info") {
+				icon.className += "fa-info-circle";
+			}
+			msg.appendChild(document.createTextNode(value.message));
+			msg.className = "error-message";
+
+			return cm.addLineWidget(line, msg);
+		}
+
 		if(angular.isDefined(value.position)) {
-			line = cm.getDoc().posFromIndex(value.position).line;
+			return wrap.fixRange(value.position, cmPrelude, cmCode, function(range, cm){
+				return render(cm.getDoc().posFromIndex(range).line, cm);
+			});
 		} else {
-			line = value.line - 1;
+			return wrap.fixLine(value.line, cmPrelude, cmCode, function(line, cm){
+				return render(line - 1, cm);
+			});
 		}
-
-		var icon = msg.appendChild(document.createElement("i"));
-		icon.className = "fa ";
-		if(severity == "error") {
-			icon.className += "fa-times-circle";
-		} else if(severity == "warning") {
-			icon.className += "fa-exclamation-triangle";
-		} else if(severity == "info") {
-			icon.className += "fa-info-circle";
-		}
-		msg.appendChild(document.createTextNode(value.message));
-		msg.className = "error-message";
-
-		return cm.addLineWidget(line, msg);
 	}
 
 	function clearFun(){
@@ -57,13 +70,13 @@ app.factory('errorsRenderer', function() {
 
 	return {
 		clear: clearFun,
-		render: function(cm, infos, runtimeError, code){
+		render: function(cmCode, cmPrelude, wrap, infos, runtimeError, code){
 			clearFun();
 			["error", "warning", "info"].forEach(function(severity){
 				if (infos[severity]){
 					infos[severity].forEach(function(value) {
-						errorMessages.push(errorMessage(cm, severity, value));
-						errorUnderlines.push(errorUnderline(cm, severity, value, code));
+						errorMessages.push(errorMessage(cmCode, cmPrelude, wrap, severity, value));
+						errorUnderlines.push(errorUnderline(cmCode, cmPrelude, wrap, severity, value, code));
 					});
 				}
 			});
@@ -71,8 +84,8 @@ app.factory('errorsRenderer', function() {
 				var value = runtimeError;
 				var severity = "runtime-error";
 
-				errorMessages.push(errorMessage(cm, severity, value));
-				errorUnderlines.push(errorUnderline(cm, severity, value, code));
+				errorMessages.push(errorMessage(cmCode, cmPrelude, wrap, severity, value));
+				errorUnderlines.push(errorUnderline(cmCode, cmPrelude, wrap, severity, value, code));
 			}
 		}
 	}
