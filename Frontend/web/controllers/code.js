@@ -5,18 +5,13 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 		state = {},
 		ctrl = CodeMirror.keyMap["default"] == CodeMirror.keyMap.pcDefault ? "Ctrl-" : "Cmd-";
 
-	state.prelude = false;
-	$scope.prelude = "1+1";
-
-	$scope.preludeActive = function(){ return state.prelude; };
-	$scope.activatePrelude = function(){ state.prelude = true; };
-	$scope.tooglePrelude = function(){ state.prelude = !state.prelude; };
-
 	state.configEditing = false;
 	if(angular.isDefined(window.localStorage['code'])){
 		state.code = window.localStorage['code'];
 	}
-
+	if(angular.isDefined(window.localStorage['prelude'])){
+		$scope.prelude = window.localStorage['prelude'];
+	}
 	// if(angular.isDefined(window.localStorage['codemirror'])) {
 	// 	$scope.cmOptions = JSON.parse(window.localStorage['codemirror']);
 	// } else {
@@ -110,6 +105,10 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 		}).join(" ");
 	}
 
+	$scope.$watch('prelude', function(){
+		clear();
+		window.localStorage['prelude'] = $scope.prelude;
+	});
 	$scope.$watch('code', function(){
 		if(state.configEditing) {
 			try { $scope.cmOptions = JSON.parse($scope.code); } catch(e){}
