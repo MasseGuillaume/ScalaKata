@@ -78,7 +78,12 @@ function serveF(assets){
 
     // catch all to api
     server.use(function(req, res) {
+      gutil.log(req.originalUrl);
+      if(req.originalUrl.indexOf("intro") !== -1) {
+        req.pipe(request("http://localhost:5000")).pipe(res);
+      } else {
         req.pipe(request("http://localhost:8080" + req.originalUrl)).pipe(res);
+      }
     });
 
     server.listen(serverport);

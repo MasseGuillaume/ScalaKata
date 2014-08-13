@@ -1,8 +1,17 @@
 app.run(["scalaEval", function(scalaEval){
 	function hint(cm, sf, cf, single){
+		var offset;
+		var wrap = CodeMirror.hack.wrap(
+			CodeMirror.hack.prelude.getDoc().getValue(),
+			CodeMirror.hack.code.getDoc().getValue()
+		);
+
+		if(cm == CodeMirror.hack.prelude) offset = 0;
+		else offset = wrap.codeOffset();
+
 		sf(
-			cm.getDoc().getValue(),
-			cm.getDoc().indexFromPos(cm.getCursor())
+			wrap.full,
+			cm.getDoc().indexFromPos(cm.getCursor()) + offset
 		).then(function(r){
 			var data = r.data;
 

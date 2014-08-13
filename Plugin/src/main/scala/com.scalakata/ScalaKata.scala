@@ -83,7 +83,7 @@ object Scalakata extends Plugin {
 				scalaVersion := "2.11.2",
 				scalacOptions += "-Yrangepos",
 				libraryDependencies ++= Seq(
-					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % scalaKataVersion
+					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % scalaKataVersion,
 					"org.scala-lang" % "scala-compiler" % scalaVersion.value,
 					compilerPlugin("org.scalamacros" % s"paradise_${scalaVersion.value}" % "2.1.0-M1")
 				),

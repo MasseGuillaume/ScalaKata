@@ -1,3 +1,4 @@
+CodeMirror.hack = {};
 app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRenderer", "errorsRenderer",
 				 function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer ,  errorsRenderer){
 
@@ -7,6 +8,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 			ctrl = CodeMirror.keyMap["default"] == CodeMirror.keyMap.pcDefault ? "Ctrl-" : "Cmd-";
 
 	state.configEditing = false;
+
 	if(angular.isDefined(window.localStorage['code'])){
 		state.code = window.localStorage['code'];
 	}
@@ -52,6 +54,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 		$scope.cmOptionsPrelude = angular.copy($scope.cmOptions);
 		$scope.cmOptionsPrelude.onLoad = function(cm_){
 			cmPrelude = cm_;
+			CodeMirror.hack.prelude = cm_;
 		};
 	// }
 
@@ -71,6 +74,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 		} else {
 			$scope.cmOptions.onLoad = function(cm_) {
 				cmCode = cm_;
+				CodeMirror.hack.code = cm_;
 				cmCode.focus();
 				cmCode.on('changes', function(){
 					clear();
@@ -92,36 +96,43 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 		setMode(state.configEditing);
 	};
 
-	function wrap(){
+	function wrap(prelude_, code_){
 		var import_ = "import com.scalakata.eval._",
 				macroBegin = "@ScalaKata object A {",
 				macroClose = "}",
 				nl = "\n",
-				prelude = $scope.prelude.split(nl),
+				prelude = prelude_.split(nl),
 				beforeCode = prelude.concat([import_, macroBegin]),
-				beforeCodeLength = beforeCode.join(nl).length,
-				code = $scope.code.split(nl);
+				beforeCodeLength = beforeCode.join(nl).length + 1,
+				code = code_.split(nl);
 
 		return {
+			split: function(full){
+
+			},
+			codeOffset: function(){
+				return beforeCodeLength;
+			},
 			fixRange: function(range, cmPrelude, cmCode, apply) {
-				if(range < $scope.prelude.length) return apply(range, cmPrelude);
-				else return apply(range - (beforeCodeLength+1), cmCode);
+				if(range < prelude_.length) return apply(range, cmPrelude);
+				else return apply(range - beforeCodeLength, cmCode);
 			},
 			fixLine: function(line, cmPrelude, cmCode, apply) {
 				if(line < prelude.length) return apply(line, cmPrelude);
 				else return apply(line - beforeCode.length, cmCode);
 			},
 			full: beforeCode.concat([
-				$scope.code,
+				code_,
 				macroClose
 			]).join(nl)
 		}
 	}
+	CodeMirror.hack.wrap = wrap;
 
 	function run(){
 		if(state.configEditing) return;
 
-		var w = wrap();
+		var w = wrap($scope.prelude, $scope.code);
 		scalaEval.insight(w.full).then(function(r){
 			var data = r.data;
 			var code = $scope.code.split("\n");

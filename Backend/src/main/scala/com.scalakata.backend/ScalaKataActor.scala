@@ -65,6 +65,9 @@ trait ScalaKata extends HttpService {
 		path("assets" / Rest) { path ⇒
 			getFromResource(s"assets/$path")
 		} ~
+		path("kata" / Rest) { path ⇒
+			getFromResource(path)
+		} ~
 		path(Rest) { path ⇒
 			getFromResource("assets/index.html")
 		}
