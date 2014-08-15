@@ -1,5 +1,7 @@
 package com.scalakata
 
+import java.awt.Desktop
+
 import sbt._
 import Def.Initialize
 import Keys._
@@ -13,12 +15,12 @@ import spray.revolver.RevolverPlugin.Revolver
 
 object Scalakata extends Plugin {
 
-	lazy val Kata = config("kata")
+	lazy val Kata = config("kata") extend(Runtime)
 	lazy val Backend = config("backend")
 
 	lazy val openBrowser = TaskKey[Unit]("open-browser", "task to open browser to kata url")
 	lazy val readyPort = SettingKey[Int]("ready-port", "port to send ready command")
-	lazy val kataUrl = SettingKey[URL]("kata-url", "url to scala kata")
+	lazy val kataUri = SettingKey[URI]("kata-uri", "uri to scala kata")
 	lazy val initialCode = SettingKey[(String, String)]("initial-code", "initial code in the kata")
 	lazy val startArgs = TaskKey[Seq[String]]("start-args",
     	"The arguments to be passed to the applications main method when being started")
@@ -39,6 +41,7 @@ object Scalakata extends Plugin {
 			Classpaths.ivyBaseSettings ++
 			Classpaths.jvmBaseSettings ++
 			Defaults.compileBase ++
+			Defaults.configTasks ++
 			Defaults.configSettings ++
 			Revolver.settings ++
 			Seq(
@@ -57,13 +60,17 @@ object Scalakata extends Plugin {
 					).map(Actions.restartApp)
 					 .dependsOn(products in Compile)
 				},
-				kataUrl := new URL("http://localhost:8080"),
+				kataUri := new URI("http://localhost:8080"),
 				readyPort := 8081,
 				openBrowser := {
 					val socket = new java.net.ServerSocket(readyPort.value)
 					socket.accept()
 					socket.close()
-					s"google-chrome ${kataUrl.value.toString}"!
+
+					sys.props("os.name").toLowerCase match {
+	          case x if x contains "mac" => s"open ${kataUri.value.toString}".!
+	          case _ => Desktop.getDesktop.browse(kataUri.value)
+	        }
 
 					()
 				},
@@ -93,6 +100,7 @@ object Scalakata extends Plugin {
 		Seq(
 			// the backend can serve .scala files
 			unmanagedResourceDirectories in Backend <+= sourceDirectory in Kata,
+			watchSources += (sourceDirectory in Kata).value,
 			scalaVersion in Backend <<= scalaVersion in Kata,
 			startArgs in (Backend, Revolver.reStart) := Seq(
 				(readyPort in Backend).value.toString,
@@ -100,8 +108,8 @@ object Scalakata extends Plugin {
 					map(_.data).
 					map(_.getAbsoluteFile).
 					mkString(File.pathSeparator),
-				(kataUrl in Backend).value.getHost,
-				(kataUrl in Backend).value.getPort.toString,
+				(kataUri in Backend).value.getHost,
+				(kataUri in Backend).value.getPort.toString,
 				(initialCode in Kata).value._1,
 				(initialCode in Kata).value._2
 			) ++ (scalacOptions in Kata).value,
