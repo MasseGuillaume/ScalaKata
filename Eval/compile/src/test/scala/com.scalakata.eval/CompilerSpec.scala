@@ -8,12 +8,12 @@ import org.specs2._
 
 class CommpilerSpecs extends Specification { def is = s2"""
   works $works
-  runtimeErrors $runtimeErrors
+"""
+  /*runtimeErrors $runtimeErrors
   compile classpath $compileClasspath
   typeAt $typeAt
   autocomplete symbols $autocompleteSymbols
-  autocomplete types $autocompleteTypes
-"""
+  autocomplete types $autocompleteTypes*/
 
   def wrap(code: String) =
     s"""|import com.scalakata.eval._
@@ -35,7 +35,11 @@ class CommpilerSpecs extends Specification { def is = s2"""
     	"""|val a = List(1,2)
          |val b = 2""".stripMargin
 
-    val result = c.insight(wrap(code))
+    val result = c.insight(
+      s"""
+      class TEEEEEEEEEEEEEEST()
+      ${wrap(code)}
+      """)
 
     result ==== EvalResponse.empty.copy(insight =
       List(Instrumentation("List(1, 2)", RT_Other, 62, 75), Instrumentation("2", RT_Other, 80, 85))
@@ -82,11 +86,4 @@ class CommpilerSpecs extends Specification { def is = s2"""
       CompletionResponse("map","[B](f: A => B): scala.collection.TraversableOnce[B]")
     )
   }
-
-  /*def works = pending
-  def runtimeErrors = pending
-  def compileClasspath = pending
-  def typeAt = pending
-  def autocompleteSymbols = pending
-  def autocompleteTypes = pending*/
 }

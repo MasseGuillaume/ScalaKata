@@ -1,6 +1,6 @@
 CodeMirror.hack = {};
-app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRenderer", "errorsRenderer",
-				 function code( $scope ,  $timeout ,  LANGUAGE ,  scalaEval ,  insightRenderer ,  errorsRenderer){
+app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval", "katas", "insightRenderer", "errorsRenderer",
+				 function code( $scope ,  $timeout ,  LANGUAGE ,  VERSION ,  scalaEval ,  katas,   insightRenderer ,  errorsRenderer){
 
 	var cmCode,
 			cmPrelude,
@@ -9,14 +9,92 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 
 	state.configEditing = false;
 
-	if(angular.isDefined(window.localStorage['code'])){
-		state.code = window.localStorage['code'];
+	function wrap(prelude_, code_){
+		var import_ = "import com.scalakata.eval._",
+				macroBegin = "@ScalaKata object $Playground {",
+				macroClose = "}",
+				nl = "\n",
+				prelude = prelude_.split(nl),
+				beforeCode = prelude.concat([import_, macroBegin]),
+				beforeCodeLength = beforeCode.join(nl).length + 1,
+				code = code_.split(nl);
+
+		return {
+			split: function(full){
+				var exclude = [import_, macroBegin].join(nl),
+						start = full.indexOf(exclude),
+						full_ = full.split(nl),
+						endPrelude = 0,
+						startCode = 0,
+						end = 0;
+
+				// find where is the instrumented object
+				_.find(full_, function(v, i){
+					if(v == import_ && _.contains(full_[i+1], "@ScalaKata")) {
+						endPrelude = i;
+						startCode = i + 2;
+						return true;
+					}
+				});
+				// find last closing bracket
+				_.findLast(full_,function(s, i){
+					if(_.contains(s, "}")){
+						end = i;
+						return true;
+					}
+				});
+				function removeIndent(xs){
+					function identLength(x){
+						return x.length - x.trimLeft().length;
+					}
+					var indent = identLength(_.min(xs, identLength));
+					return _.map(xs, function(x){
+						return x.slice(indent, x.length);
+					});
+				}
+
+				return [
+					full_.slice(0, endPrelude).join(nl),
+					removeIndent(full_.slice(startCode, end)).join(nl)
+				];
+			},
+			codeOffset: function(){
+				return beforeCodeLength;
+			},
+			fixRange: function(range, cmPrelude, cmCode, apply) {
+				if(range < prelude_.length) return apply(range, cmPrelude);
+				else return apply(range - beforeCodeLength, cmCode);
+			},
+			fixLine: function(line, cmPrelude, cmCode, apply) {
+				if(line < prelude.length) return apply(line, cmPrelude);
+				else return apply(line - beforeCode.length, cmCode);
+			},
+			full: beforeCode.concat([
+				code_,
+				macroClose
+			]).join(nl)
+		}
 	}
-	if(angular.isDefined(window.localStorage['prelude'])){
-		$scope.prelude = window.localStorage['prelude'];
+
+
+	if(window.location.pathname !== "/") {
+		katas(window.location.pathname).then(function(r){
+			var res = wrap("","").split(r.data);
+			$scope.prelude = res[0];
+			state.code = res[1];
+			setMode(false);
+		});
+	} else {
+		if(angular.isDefined(window.localStorage['code'])){
+			state.code = window.localStorage['code'];
+		}
+		if(angular.isDefined(window.localStorage['prelude'])){
+			$scope.prelude = window.localStorage['prelude'];
+		}
 	}
-	// if(angular.isDefined(window.localStorage['codemirror'])) {
-	// 	$scope.cmOptions = JSON.parse(window.localStorage['codemirror']);
+
+	// if(angular.isDefined(window.localStorage[VERSION]['codemirror'])) {
+	// 	$scope.cmOptions = JSON.parse(window.localStorage[VERSION]['codemirror']);
 	// } else {
 
 		var keys = {}
@@ -29,26 +107,20 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 		keys[ctrl + "Up"] = "focusPrelude";
 		keys[ctrl + "Down"] = "focusCode";
 
-		CodeMirror.commands.focusPrelude = function(){
-			cmPrelude.focus();
-		};
-		CodeMirror.commands.focusCode = function(){
-			cmCode.focus();
-		}
-
 		$scope.cmOptions = {
 			"_to config codemirror see_": "http://codemirror.net/doc/manual.html#config",
 			extraKeys: keys,
 			coverGutterNextToScrollbar: true,
 			firstLineNumber: 0,
-			lineNumbers: false,
-			theme: 'mdn-like',
+			lineNumbers: true,
+			theme: 'solarized dark',
 			"_themes": [ "solarized dark", "solarized light", "monokai", "ambiance", "eclipse", "mdn-like"],
 			smartIndent: false,
 			multiLineStrings: true,
 			autoCloseBrackets: true,
 			styleActiveLine: false,
 			keyMap: "sublime",
+			mode: 'text/x-' + LANGUAGE,
 			highlightSelectionMatches: { showToken: false }
 		}
 		$scope.cmOptionsPrelude = angular.copy($scope.cmOptions);
@@ -96,40 +168,11 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 		setMode(state.configEditing);
 	};
 
-	function wrap(prelude_, code_){
-		var import_ = "import com.scalakata.eval._",
-				macroBegin = "@ScalaKata object A {",
-				macroClose = "}",
-				nl = "\n",
-				prelude = prelude_.split(nl),
-				beforeCode = prelude.concat([import_, macroBegin]),
-				beforeCodeLength = beforeCode.join(nl).length + 1,
-				code = code_.split(nl);
 
-		return {
-			split: function(full){
-
-			},
-			codeOffset: function(){
-				return beforeCodeLength;
-			},
-			fixRange: function(range, cmPrelude, cmCode, apply) {
-				if(range < prelude_.length) return apply(range, cmPrelude);
-				else return apply(range - beforeCodeLength, cmCode);
-			},
-			fixLine: function(line, cmPrelude, cmCode, apply) {
-				if(line < prelude.length) return apply(line, cmPrelude);
-				else return apply(line - beforeCode.length, cmCode);
-			},
-			full: beforeCode.concat([
-				code_,
-				macroClose
-			]).join(nl)
-		}
-	}
 	CodeMirror.hack.wrap = wrap;
 
 	function run(){
+		clear();
 		if(state.configEditing) return;
 
 		var w = wrap($scope.prelude, $scope.code);
@@ -149,6 +192,12 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "scalaEval", "insightRe
 		if(screenfull.enabled) {
 	    screenfull.toggle();
 		}
+	}
+	CodeMirror.commands.focusPrelude = function(){
+		cmPrelude.focus();
+	};
+	CodeMirror.commands.focusCode = function(){
+		cmCode.focus();
 	}
 
 	$scope.theme = function(){

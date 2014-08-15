@@ -21,7 +21,7 @@
 </head>
 <body ng-app="ScalaKata">
     <section ui-layout ng-controller="code" class="code CodeMirror" id="code" ng-class="theme()">
-      <div size="10%">
+      <div size="0%">
         <textarea ui-codemirror="cmOptionsPrelude" ng-model="prelude"></textarea>
       </div>
       <div class="code-space">
@@ -77,6 +77,7 @@
     <script src="/services/errorsRenderer.js"></script>
     <script src="/services/autocomplete.js"></script>
     <script src="/services/scalakataMode.js"></script>
+    <script src="/services/katas.js"></script>
     <script src="/controllers/code.js"></script>
     <!-- endbuild -->
 </body>

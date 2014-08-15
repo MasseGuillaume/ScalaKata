@@ -1,6 +1,4 @@
-app.factory("scalaEval",
-		    ["$q", "$rootScope", "$location", "$http",
-function( $q ,  $rootScope ,  $location ,  $http) {
+app.factory("scalaEval",["$http", function($http) {
 	return {
 		"initialCode": function(){
 			return $http.get("/initialCode");

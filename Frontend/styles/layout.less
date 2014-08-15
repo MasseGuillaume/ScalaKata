@@ -3,6 +3,11 @@
   src: url("/SourceCodePro/WOFF/OTF/SourceCodePro-Regular.otf.woff");
 }
 
+// trick to hide textareas durring loading
+.code textarea {
+  opacity: 0;
+}
+
 body {
 	height: 100%;
 	margin: 0;
@@ -85,6 +90,7 @@ body {
     display: inline-block;
   }
 	.insight {
+    margin-top: 5px;
     .MathJax {
       font-size: 30px;
     }

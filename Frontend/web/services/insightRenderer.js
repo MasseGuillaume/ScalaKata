@@ -97,6 +97,9 @@ app.factory('insightRenderer', function() {
 			widgets = insights.map(function(insight){
 				return apply(cmCode, wrap, cmOptions, insight, code);
 			});
+      // focus on cursor
+      // cmCode.scrollIntoView(cmCode.getCursor());
+      cmCode.setCursor(cmCode.getCursor(), null, { focus: true});
 		}
 	}
 });
