@@ -42,6 +42,7 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
         )
       } catch {
         case NonFatal(e) ⇒ {
+          e.printStackTrace
           val pos =
             if(e.getCause != null) {
               e.getCause.getStackTrace().find(_.getFileName == "(inline)").map(_.getLineNumber).getOrElse(1)

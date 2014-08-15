@@ -1,9 +1,10 @@
 package com.scalakata.eval
 
 import scala.tools.nsc.{Global, Settings}
-import scala.tools.nsc.interpreter.AbstractFileClassLoader
-import scala.tools.nsc.io.{AbstractFile, VirtualDirectory}
-import scala.tools.nsc.util.{BatchSourceFile, Position}
+import scala.reflect.internal.util.{BatchSourceFile, AbstractFileClassLoader}
+
+import scala.tools.nsc.io.VirtualDirectory
+
 import scala.tools.nsc.reporters.StoreReporter
 
 import java.net.{URL, URLClassLoader}
@@ -31,7 +32,6 @@ class Eval(settings: Settings) {
   settings.Ymacroexpand.value = settings.MacroExpand.Normal
 
   private val compiler = new Global(settings, reporter)
-  private val objectName = "A"
 
   def apply(code: String): (Option[Eval.Instrumentation], Map[String, List[(Int, String)]]) = {
     compile(code)
@@ -40,12 +40,34 @@ class Eval(settings: Settings) {
     val infoss = infos.map{case (k, v) ⇒ (k.toString, v)}
 
     if(!infos.contains(reporter.ERROR)) {
-      import scala.reflect.runtime.{universe ⇒ ru}
-      val m = ru.runtimeMirror(classLoader)
-      val lm = m.staticModule(objectName)
-      val obj = m.reflectModule(lm)
-      val instr = obj.instance.asInstanceOf[{def eval$(): Eval.Instrumentation}].eval$()
-      (Some(instr), infoss)
+      // Look for static class with eval$ method that return
+      // an instrumentation
+      def findEval: Option[Eval.Instrumentation] = {
+        def removeExt(of: String) = {
+        	of.slice(0, of.lastIndexOf(".class"))
+        }
+
+        val classes = target.iterator.
+          map(v => removeExt(v.name)).
+          filterNot(_.contains("$")).
+          map(classLoader.findClass).toList
+
+        val instrClass =
+        	classes.find(_.getMethods.exists(m =>
+            m.getName == "eval$" &&
+        		m.getReturnType == classOf[scala.collection.mutable.Map[_, _]])
+        	)
+
+        import scala.reflect.runtime.{universe => ru}
+        val m = ru.runtimeMirror(classLoader)
+
+        instrClass.map{c =>
+          m.reflectModule(m.staticModule(c.getName)).
+            instance.asInstanceOf[{def eval$(): Eval.Instrumentation}].eval$()
+        }
+      }
+
+      (findEval, infoss)
     } else {
       (None, infoss)
     }

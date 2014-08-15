@@ -42,7 +42,7 @@ object ScalaKataMacro {
       }
       q"""
       object $name {
-        val $instr = scala.collection.mutable.Map.empty[(Int, Int), (String, RenderType)]
+        private val $instr = scala.collection.mutable.Map.empty[(Int, Int), (String, RenderType)]
 
         def ${TermName("eval$")}() = {
           ..$bodyI
