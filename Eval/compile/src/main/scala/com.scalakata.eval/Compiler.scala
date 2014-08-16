@@ -167,14 +167,17 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
   private lazy val compiler = new Global(settings, reporter)
   private lazy val eval = new Eval(settings.copy)
 
-  private def convert(infos: Map[String, List[(Int, String)]]): Map[Severity, List[CompilationInfo]] = {
+  private def convert(infos: Map[String, List[(Int, Int, String)]]): Map[Severity, List[CompilationInfo]] = {
     infos.map{ case (k,vs) ⇒
       val sev = k match {
         case "ERROR" ⇒ Error
         case "WARNING" ⇒ Warning
         case "INFO" ⇒ Info
       }
-      (sev, vs map {case (p, m) ⇒ CompilationInfo(m, p)})
+      val info = vs map {case (start, end, message) ⇒
+        CompilationInfo(message, start, end)
+      }
+      (sev, info)
     }
   }
 

@@ -14,7 +14,8 @@ case class Instrumentation(
 
 case class CompilationInfo(
 	message: String,
-	position: Int
+	start: Int,
+	end: Int
 )
 
 case class RuntimeError(

@@ -55,18 +55,18 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 
 				return [
 					full_.slice(0, endPrelude).join(nl),
-					removeIndent(full_.slice(startCode, end)).join(nl)
+					removeIndent(full_.slice(startCode, end	)).join(nl)
 				];
 			},
 			codeOffset: function(){
 				return beforeCodeLength;
 			},
 			fixRange: function(range, cmPrelude, cmCode, apply) {
-				if(range < prelude_.length) return apply(range, cmPrelude);
+				if(range <= prelude_.length) return apply(range, cmPrelude);
 				else return apply(range - beforeCodeLength, cmCode);
 			},
 			fixLine: function(line, cmPrelude, cmCode, apply) {
-				if(line < prelude.length) return apply(line, cmPrelude);
+				if(line <= prelude.length) return apply(line, cmPrelude);
 				else return apply(line - beforeCode.length, cmCode);
 			},
 			full: beforeCode.concat([

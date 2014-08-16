@@ -7,9 +7,12 @@ import java.io.File
 import org.specs2._
 
 class CommpilerSpecs extends Specification { def is = s2"""
-  works $works
+  compilation infos $infos
 """
-  /*runtimeErrors $runtimeErrors
+  /*
+  runtimeErrors $runtimeErrors
+  works $works
+  support packages $packages
   compile classpath $compileClasspath
   typeAt $typeAt
   autocomplete symbols $autocompleteSymbols
@@ -29,7 +32,26 @@ class CommpilerSpecs extends Specification { def is = s2"""
   val scalacOptions = sbt.BuildInfo.scalacOptions.to[Seq]
   def compiler = new Compiler(artifacts, scalacOptions)
 
+  def infos = {
+    val c = compiler
+    val result = c.insight(
+      """|object Extras {
+         |  type V = Toto
+         |  class Meter(val v: Int) extends Anyval {
+         |    def +(o: Meter) = new Meter(v + o.v)
+         |  }
+         |}""".stripMargin)
+    println(result)
+    result.infos must not be empty
+  }
+
   def works = {
+    val c = compiler
+    val result = c.insight(wrap("1+1"))
+    result.insight must not be empty
+  }
+
+  def packages = {
     val c = compiler
     val code =
     	"""|val a = List(1,2)
@@ -41,9 +63,10 @@ class CommpilerSpecs extends Specification { def is = s2"""
           |${wrap(code)}""".stripMargin
     )
 
-    result ==== EvalResponse.empty.copy(insight =
+    result.insight must not be empty
+    /*result ==== EvalResponse.empty.copy(insight =
       List(Instrumentation("List(1, 2)", RT_Other, 62, 75), Instrumentation("2", RT_Other, 80, 85))
-    )
+    )*/
   }
 
 

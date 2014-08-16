@@ -3,18 +3,20 @@ app.factory('errorsRenderer', function() {
 	var errorMessages = [];
 	var errorUnderlines = [];
 
-	function errorUnderline(cmCode, cmPrelude, wrap, severity, value, code) {
+	function errorUnderline(cmCode, cmPrelude, wrap, severity, value) {
+		var start;
 		function render(cm, from, to){
 			return cm.markText(from, to, {className: severity} );
 		}
-		if(angular.isDefined(value.position)) {
-			return wrap.fixRange(value.position, cmPrelude, cmCode, function(range, cm){
-				var from, to, cur, currentLine;
-				cur = cm.getDoc().posFromIndex(value.position);
-				currentLine = code[cur.line];
-				from = {line: cur.line, ch: cur.ch};
-				to = {line: cur.line, ch: currentLine.length};
-				return render(cm, from, to);
+		if(angular.isDefined(value.start) && angular.isDefined(value.end)) {
+
+			start = wrap.fixRange(value.start, cmPrelude, cmCode, function(range, cm){
+				return cm.getDoc().posFromIndex(range);
+			});
+
+			return wrap.fixRange(value.end, cmPrelude, cmCode, function(range, cm){
+				var to = cm.getDoc().posFromIndex(range);
+				return render(cm, start, to);
 			});
 		} else {
 			return wrap.fixLine(value.line, cmPrelude, cmCode, function(l, cm){
@@ -44,8 +46,8 @@ app.factory('errorsRenderer', function() {
 			return cm.addLineWidget(line, msg);
 		}
 
-		if(angular.isDefined(value.position)) {
-			return wrap.fixRange(value.position, cmPrelude, cmCode, function(range, cm){
+		if(angular.isDefined(value.start)) {
+			return wrap.fixRange(value.start, cmPrelude, cmCode, function(range, cm){
 				return render(cm.getDoc().posFromIndex(range).line, cm);
 			});
 		} else {
@@ -70,13 +72,13 @@ app.factory('errorsRenderer', function() {
 
 	return {
 		clear: clearFun,
-		render: function(cmCode, cmPrelude, wrap, infos, runtimeError, code){
+		render: function(cmCode, cmPrelude, wrap, infos, runtimeError){
 			clearFun();
 			["error", "warning", "info"].forEach(function(severity){
 				if (infos[severity]){
 					infos[severity].forEach(function(value) {
 						errorMessages.push(errorMessage(cmCode, cmPrelude, wrap, severity, value));
-						errorUnderlines.push(errorUnderline(cmCode, cmPrelude, wrap, severity, value, code));
+						errorUnderlines.push(errorUnderline(cmCode, cmPrelude, wrap, severity, value));
 					});
 				}
 			});
@@ -85,7 +87,7 @@ app.factory('errorsRenderer', function() {
 				var severity = "runtime-error";
 
 				errorMessages.push(errorMessage(cmCode, cmPrelude, wrap, severity, value));
-				errorUnderlines.push(errorUnderline(cmCode, cmPrelude, wrap, severity, value, code));
+				errorUnderlines.push(errorUnderline(cmCode, cmPrelude, wrap, severity, value));
 			}
 		}
 	}

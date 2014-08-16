@@ -33,7 +33,7 @@ class Eval(settings: Settings) {
 
   private val compiler = new Global(settings, reporter)
 
-  def apply(code: String): (Option[Eval.Instrumentation], Map[String, List[(Int, String)]]) = {
+  def apply(code: String): (Option[Eval.Instrumentation], Map[String, List[(Int, Int, String)]]) = {
     compile(code)
 
     val infos = check()
@@ -53,7 +53,12 @@ class Eval(settings: Settings) {
 
         def recurseFolders(file: AbstractFile): Set[AbstractFile] = {
           file.iterator.to[Set].flatMap{ fs =>
-          	fs.to[Set] ++ fs.filter(_.isDirectory).flatMap(recurseFolders).to[Set]
+          	val current =
+              if(fs.isDirectory) fs.to[Set]
+              else Set(fs)
+
+            current ++
+            fs.filter(_.isDirectory).flatMap(recurseFolders).to[Set]
           }
         }
         val classes =
@@ -85,26 +90,27 @@ class Eval(settings: Settings) {
     }
   }
 
-  private def check(): Map[reporter.Severity, List[(Int, String)]] = {
+  private def check(): Map[reporter.Severity, List[(Int, Int, String)]] = {
     reporter.infos.map {
       info ⇒ (
         info.severity,
-        info.pos.point,
+        info.pos.start,
+        info.pos.end,
         info.msg
       )
     }.to[List]
-     .filterNot{ case (sev, _, msg) ⇒
+     .filterNot{ case (sev, _, _, msg) ⇒
       // annoying
       sev == reporter.WARNING &&
       msg == ("a pure expression does nothing in statement " +
               "position; you may be omitting necessary parentheses")
     }.groupBy(_._1)
-     .mapValues{_.map{case (a,b,c) ⇒ (b,c)}}
+     .mapValues{_.map{case (_,start, end, message) ⇒ (start, end, message)}}
   }
 
   private def reset(): Unit = {
-    target.clear
-    reporter.reset
+    target.clear()
+    reporter.reset()
     classLoader = new AbstractFileClassLoader(target, artifactLoader)
   }
 

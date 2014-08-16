@@ -10,7 +10,7 @@ MathJax.Hub.Configured();
 app.factory('insightRenderer', function() {
 	var widgets = [];
 
-	function apply(cmCode, wrap, cmOptions, insight, code){
+	function apply(cmCode, wrap, cmOptions, insight){
 		var nl = "\n", elem, start, end, clearF;
 
     start = wrap.fixRange(insight.start, null, cmCode, function(range, cm){
@@ -93,9 +93,9 @@ app.factory('insightRenderer', function() {
 	}
 	return {
 		clear: clearFun,
-		render: function(cmCode, wrap, cmOptions, insights, code){
+		render: function(cmCode, wrap, cmOptions, insights){
 			widgets = insights.map(function(insight){
-				return apply(cmCode, wrap, cmOptions, insight, code);
+				return apply(cmCode, wrap, cmOptions, insight);
 			});
       // focus on cursor
       // cmCode.scrollIntoView(cmCode.getCursor());
