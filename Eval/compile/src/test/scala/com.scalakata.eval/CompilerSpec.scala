@@ -17,7 +17,7 @@ class CommpilerSpecs extends Specification { def is = s2"""
 
   def wrap(code: String) =
     s"""|import com.scalakata.eval._
-        |@ScalaKata object A{
+        |@ScalaKata object Playground{
         | $code
         |}""".stripMargin
 
@@ -36,10 +36,10 @@ class CommpilerSpecs extends Specification { def is = s2"""
          |val b = 2""".stripMargin
 
     val result = c.insight(
-      s"""
-      class TEEEEEEEEEEEEEEST()
-      ${wrap(code)}
-      """)
+      s"""|package intro
+          |class TEEEEEEEEEEEEEEST()
+          |${wrap(code)}""".stripMargin
+    )
 
     result ==== EvalResponse.empty.copy(insight =
       List(Instrumentation("List(1, 2)", RT_Other, 62, 75), Instrumentation("2", RT_Other, 80, 85))

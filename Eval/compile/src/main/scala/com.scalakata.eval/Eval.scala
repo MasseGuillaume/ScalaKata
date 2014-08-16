@@ -3,7 +3,7 @@ package com.scalakata.eval
 import scala.tools.nsc.{Global, Settings}
 import scala.reflect.internal.util.{BatchSourceFile, AbstractFileClassLoader}
 
-import scala.tools.nsc.io.VirtualDirectory
+import scala.tools.nsc.io.{VirtualDirectory, AbstractFile}
 
 import scala.tools.nsc.reporters.StoreReporter
 
@@ -47,10 +47,22 @@ class Eval(settings: Settings) {
         	of.slice(0, of.lastIndexOf(".class"))
         }
 
-        val classes = target.iterator.
-          map(v => removeExt(v.name)).
-          filterNot(_.contains("$")).
-          map(classLoader.findClass).toList
+        def removeMem(of: String) = {
+          of.slice("(memory)/".length, of.length)
+        }
+
+        def recurseFolders(file: AbstractFile): Set[AbstractFile] = {
+          file.iterator.to[Set].flatMap{ fs =>
+          	fs.to[Set] ++ fs.filter(_.isDirectory).flatMap(recurseFolders).to[Set]
+          }
+        }
+        val classes =
+          recurseFolders(target).
+          map(_.path).
+          map(((removeExt _) compose (removeMem _))).
+          map(_.replace('/', '.')).
+          filterNot(_.last == '$').
+          map(classLoader.findClass)
 
         val instrClass =
         	classes.find(_.getMethods.exists(m =>
