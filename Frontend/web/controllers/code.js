@@ -76,23 +76,6 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 		}
 	}
 
-
-	if(window.location.pathname !== "/") {
-		katas(window.location.pathname).then(function(r){
-			var res = wrap("","").split(r.data);
-			$scope.prelude = res[0];
-			state.code = res[1];
-			setMode(false);
-		});
-	} else {
-		if(angular.isDefined(window.localStorage['code'])){
-			state.code = window.localStorage['code'];
-		}
-		if(angular.isDefined(window.localStorage['prelude'])){
-			$scope.prelude = window.localStorage['prelude'];
-		}
-	}
-
 	// if(angular.isDefined(window.localStorage[VERSION]['codemirror'])) {
 	// 	$scope.cmOptions = JSON.parse(window.localStorage[VERSION]['codemirror']);
 	// } else {
@@ -123,11 +106,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			mode: 'text/x-' + LANGUAGE,
 			highlightSelectionMatches: { showToken: false }
 		}
-		$scope.cmOptionsPrelude = angular.copy($scope.cmOptions);
-		$scope.cmOptionsPrelude.onLoad = function(cm_){
-			cmPrelude = cm_;
-			CodeMirror.hack.prelude = cm_;
-		};
+
 	// }
 
 	function clear(){
@@ -145,6 +124,9 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			});
 		} else {
 			$scope.cmOptions.onLoad = function(cm_) {
+				// cm_.on('viewportChange', function(){
+				// 	cm_.refresh();
+				// })
 				cmCode = cm_;
 				CodeMirror.hack.code = cm_;
 				cmCode.focus();
@@ -154,14 +136,24 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			};
 
 			$scope.cmOptions.mode = 'text/x-' + LANGUAGE;
+			$scope.cmOptionsPrelude = angular.copy($scope.cmOptions);
+			$scope.cmOptionsPrelude.onLoad = function(cm_){
+				// cm_.on('viewportChange', function(){
+				// 	cm_.refresh();
+				// })
+				cmPrelude = cm_;
+				CodeMirror.hack.prelude = cm_;
+			};
+
+
 			window.localStorage['codemirror'] = JSON.stringify($scope.cmOptions);
 
 			$timeout(function(){
 				$scope.code = state.code;
+				run();
 			});
 		}
 	}
-	setMode(false);
 
 	$scope.toogleEdit = function(){
 		state.configEditing = !state.configEditing;
@@ -172,7 +164,6 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 	CodeMirror.hack.wrap = wrap;
 
 	function run(){
-		clear();
 		if(state.configEditing) return;
 
 		var w = wrap($scope.prelude, $scope.code);
@@ -212,7 +203,10 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 	});
 	$scope.$watch('code', function(){
 		if(state.configEditing) {
-			try { $scope.cmOptions = JSON.parse($scope.code); } catch(e){}
+			try {
+				$scope.cmOptions = JSON.parse($scope.code);
+				$scope.cmOptionsPrelude = angular.copy($scope.cmOptions);
+			} catch(e){}
 		} else {
 			clear();
 			window.localStorage['code'] = $scope.code;
@@ -220,4 +214,21 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 	});
 
 	$scope.run = run;
+
+	if(window.location.pathname !== "/") {
+		katas(window.location.pathname).then(function(r){
+			var res = wrap("","").split(r.data);
+			$scope.prelude = res[0];
+			state.code = res[1];
+			setMode(false);
+		});
+	} else {
+		if(angular.isDefined(window.localStorage['code'])){
+			state.code = window.localStorage['code'];
+		}
+		if(angular.isDefined(window.localStorage['prelude'])){
+			$scope.prelude = window.localStorage['prelude'];
+		}
+		setMode(false);
+	}
 }]);

@@ -94,6 +94,7 @@ app.factory('insightRenderer', function() {
 	return {
 		clear: clearFun,
 		render: function(cmCode, wrap, cmOptions, insights){
+      clearFun();
 			widgets = insights.map(function(insight){
 				return apply(cmCode, wrap, cmOptions, insight);
 			});
