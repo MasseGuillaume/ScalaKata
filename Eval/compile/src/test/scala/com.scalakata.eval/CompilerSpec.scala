@@ -7,9 +7,10 @@ import java.io.File
 import org.specs2._
 
 class CommpilerSpecs extends Specification { def is = s2"""
-  compilation infos $infos
+  nopackage $nopackage
 """
   /*
+  compilation infos $infos
   runtimeErrors $runtimeErrors
   works $works
   support packages $packages
@@ -31,6 +32,13 @@ class CommpilerSpecs extends Specification { def is = s2"""
 
   val scalacOptions = sbt.BuildInfo.scalacOptions.to[Seq]
   def compiler = new Compiler(artifacts, scalacOptions)
+
+  def nopackage = {
+    val c = compiler
+    val result = c.insight(wrap("1+1"))
+    println(result)
+    result.insight must not be empty
+  }
 
   def infos = {
     val c = compiler

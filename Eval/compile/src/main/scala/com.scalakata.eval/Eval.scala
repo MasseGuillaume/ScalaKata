@@ -53,12 +53,10 @@ class Eval(settings: Settings) {
 
         def recurseFolders(file: AbstractFile): Set[AbstractFile] = {
           file.iterator.to[Set].flatMap{ fs =>
-          	val current =
-              if(fs.isDirectory) fs.to[Set]
-              else Set(fs)
-
-            current ++
-            fs.filter(_.isDirectory).flatMap(recurseFolders).to[Set]
+            if(fs.isDirectory) 
+              fs.to[Set] ++
+              fs.filter(_.isDirectory).flatMap(recurseFolders).to[Set]
+            else Set(fs)
           }
         }
         val classes =
