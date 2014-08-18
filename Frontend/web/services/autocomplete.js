@@ -1,4 +1,7 @@
 app.run(["scalaEval", function(scalaEval){
+	// remove select line
+	delete CodeMirror.keyMap.sublime["Ctrl-L"];
+
 	function hint(cm, sf, cf, single){
 		var offset;
 		var wrap = CodeMirror.hack.wrap(
