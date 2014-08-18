@@ -29,17 +29,12 @@ app.factory('insightRenderer', function() {
 
     function fold(){
       addClass("fold");
-      var widget = cmCode.foldCode(start, {
-        widget: elem,
-        rangeFinder: function(){
-          return {
-            // from: start,
-            from: {ch: 0, line: start.line},
-            to: end
-          };
-        }
+      var range = cmCode.markText({ch: 0, line: start.line}, end, {
+        replacedWith: elem
       });
-      clearF = function(){};
+      clearF = function(){
+        range.clear();
+      };
     }
 
     function inline(){

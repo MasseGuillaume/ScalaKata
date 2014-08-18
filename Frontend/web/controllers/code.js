@@ -138,13 +138,13 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			$scope.cmOptions.mode = 'text/x-' + LANGUAGE;
 			$scope.cmOptionsPrelude = angular.copy($scope.cmOptions);
 			$scope.cmOptionsPrelude.onLoad = function(cm_){
+				// infinite loop !
 				// cm_.on('viewportChange', function(){
 				// 	cm_.refresh();
 				// })
 				cmPrelude = cm_;
 				CodeMirror.hack.prelude = cm_;
 			};
-
 
 			window.localStorage['codemirror'] = JSON.stringify($scope.cmOptions);
 
@@ -165,6 +165,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 
 	function run(){
 		if(state.configEditing) return;
+		if(!angular.isDefined($scope.prelude) && !angular.isDefined($scope.code)) return;
 
 		var w = wrap($scope.prelude, $scope.code);
 		scalaEval.insight(w.full).then(function(r){
@@ -216,6 +217,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 	$scope.run = run;
 
 	if(window.location.pathname !== "/") {
+		setMode(false);
 		katas(window.location.pathname).then(function(r){
 			var res = wrap("","").split(r.data);
 			$scope.prelude = res[0];
