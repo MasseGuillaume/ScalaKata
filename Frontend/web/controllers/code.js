@@ -115,6 +115,16 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 	}
 
 	function setMode(edit){
+		function refresh(cm_, next){
+			var bar, parent = cm_.display.wrapper.parentElement;
+			if(next) bar = parent.nextElementSibling;
+			else bar = parent.previousElementSibling;
+
+			angular.element(bar).on('mousemove', function(){
+				console.log(" ");
+				cm_.refresh();
+			})
+		}
 		if(edit) {
 			state.code = $scope.code;
 			clear();
@@ -124,9 +134,8 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			});
 		} else {
 			$scope.cmOptions.onLoad = function(cm_) {
-				// cm_.on('viewportChange', function(){
-				// 	cm_.refresh();
-				// })
+				refresh(cm_, false);
+
 				cmCode = cm_;
 				CodeMirror.hack.code = cm_;
 				cmCode.focus();
@@ -138,10 +147,8 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			$scope.cmOptions.mode = 'text/x-' + LANGUAGE;
 			$scope.cmOptionsPrelude = angular.copy($scope.cmOptions);
 			$scope.cmOptionsPrelude.onLoad = function(cm_){
-				// infinite loop !
-				// cm_.on('viewportChange', function(){
-				// 	cm_.refresh();
-				// })
+				refresh(cm_, true);
+
 				cmPrelude = cm_;
 				CodeMirror.hack.prelude = cm_;
 			};
