@@ -8,7 +8,8 @@
   "description": "ScalaKata",
   "dependencies": {
     "lodash": "~2.4.1",
-    "angular": "~1.2.18",
+    "angular": "~1.2.22",
+    "angular-route": "~1.2.22",
     "MathJax": "~2.4.0",
     "marked": "~0.3.2",
     "fontawesome": "~4.1.0",

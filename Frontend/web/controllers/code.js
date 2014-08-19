@@ -47,7 +47,9 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 					function identLength(x){
 						return x.length - x.trimLeft().length;
 					}
-					var indent = identLength(_.min(xs, identLength));
+					var indent = identLength(_.min(_.filter(xs, function(v){
+						return v !== "";
+					}), identLength));
 					return _.map(xs, function(x){
 						return x.slice(indent, x.length);
 					});
