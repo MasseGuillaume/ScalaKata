@@ -10,6 +10,7 @@ var gulp = require('gulp'),
     lrserver = require('tiny-lr')(),
     spawn = require("gulp-spawn"),
     refresh = require('gulp-livereload'),
+    gulpFilter = require('gulp-filter'),
     rename = require('gulp-rename'),
     request = require('request'),
     usemin = require('gulp-usemin'),
@@ -83,7 +84,7 @@ function serveF(assets){
          req.originalUrl.indexOf("scala") == -1) {
         req.pipe(request("http://localhost:5000")).pipe(res);
       } else {
-        req.pipe(request("http://localhost:8080" + req.originalUrl)).pipe(res);
+        req.pipe(request("http://localhost:7331" + req.originalUrl)).pipe(res);
       }
     });
 
@@ -104,7 +105,7 @@ gulp.task('watch', function() {
     gulp.watch('package.json', ['npm']);
 });
 
-gulp.task('build', ['usemin', 'font', 'mathjax', 'fav']);
+gulp.task('build', ['styles', 'usemin', 'font', 'mathjax', 'fav']);
 gulp.task('buildServe', ['build', 'serveDist', 'browser']);
 
 gulp.task('serveDist', function(){
@@ -113,10 +114,10 @@ gulp.task('serveDist', function(){
 
 gulp.task('font', function(){
     gulp.src('bower_components/fontawesome/fonts/fontawesome-webfont.woff')
-      .pipe(gulp.dest('dist/fonts/'));
+      .pipe(gulp.dest('out/assets/fonts/'));
 
     gulp.src('web/SourceCodePro/WOFF/OTF/SourceCodePro-Regular.otf.woff')
-      .pipe(gulp.dest('dist/SourceCodePro/WOFF/OTF/'));
+      .pipe(gulp.dest('out/assets/SourceCodePro/WOFF/OTF/'));
 })
 
 gulp.task('mathjax', function(){
@@ -140,21 +141,26 @@ gulp.task('mathjax', function(){
     if(index !== -1) dest = src.slice(0, index + 1);
 
     // gutil.log("src " + src + " == dst " + dest);
-    gulp.src('bower_components/MathJax/' + src).pipe(gulp.dest('dist/MathJax/' + dest));
+    gulp.src('bower_components/MathJax/' + src).pipe(gulp.dest('out/assets/MathJax/' + dest));
   });
 });
 
 gulp.task('fav', function(){
     gulp.src('web/favicon.ico')
-    .pipe(gulp.dest('dist/'));
+    .pipe(gulp.dest('out/assets/'));
 })
 
-gulp.task('usemin', ["styles"], function() {
+gulp.task('usemin', function() {
+  var index = gulpFilter(['**/index.html']);
+
   gulp.src('web/**/*.html')
     .pipe(usemin({
       css: [minifyCss(), 'concat'],
       html: [minifyHtml({empty: true, quotes: true})],
       js: [uglify(), rev()]
     }))
-    .pipe(gulp.dest('dist/'));
+    .pipe(gulp.dest('out/'))
+    .pipe(index)
+    .pipe(gulp.dest('out/assets/'))
+
 });

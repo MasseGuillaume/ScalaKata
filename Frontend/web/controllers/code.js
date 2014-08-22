@@ -78,9 +78,9 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 		}
 	}
 
-	// if(angular.isDefined(window.localStorage[VERSION]['codemirror'])) {
-	// 	$scope.cmOptions = JSON.parse(window.localStorage[VERSION]['codemirror']);
-	// } else {
+	if(angular.isDefined(window.localStorage['codemirror_' + VERSION])) {
+		$scope.cmOptions = JSON.parse(window.localStorage['codemirror_' + VERSION]);
+	} else {
 
 		var keys = {}
 		keys[ctrl + "Space"] = "autocomplete";
@@ -109,7 +109,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			highlightSelectionMatches: { showToken: false }
 		}
 
-	// }
+	}
 
 	function clear(){
 		insightRenderer.clear();
@@ -144,6 +144,9 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 				cmCode.on('changes', function(){
 					clear();
 				});
+				cmCode.on('dblclick', function(){
+					clear();
+				});
 			};
 
 			$scope.cmOptions.mode = 'text/x-' + LANGUAGE;
@@ -155,7 +158,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 				CodeMirror.hack.prelude = cm_;
 			};
 
-			window.localStorage['codemirror'] = JSON.stringify($scope.cmOptions);
+			window.localStorage['codemirror_' + VERSION] = JSON.stringify($scope.cmOptions);
 
 			$timeout(function(){
 				$scope.code = state.code;

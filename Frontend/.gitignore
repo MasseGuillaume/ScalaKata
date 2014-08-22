@@ -1,5 +1,5 @@
 web/SourceCodePro
-web/out
+out/
 node_modules/
 bower_components/
 packages/

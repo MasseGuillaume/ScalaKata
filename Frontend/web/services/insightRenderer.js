@@ -63,7 +63,29 @@ app.factory('insightRenderer', function() {
 				break;
 			case "markdown":
 				elem = document.createElement("div");
-				elem.innerHTML = marked.parse(insight.result, {ghf: true});
+        var markdown = marked.parse(insight.result, {
+          ghf: true,
+          highlight: function (code, lang) {
+            var elem = document.createElement("div"),
+                option = angular.copy(cmOptions),
+                langs = {
+                  "scala": "text/x-scala",
+                  "json": "application/json"
+                };
+            option.mode = langs[lang] || "";
+
+            CodeMirror.runMode(code, option, elem);
+            return elem.innerHTML;
+          }
+        });
+
+        // hack minify html
+        // this way margins render correctly in pre
+        elem.innerHTML = _.filter(markdown, function(v, i){
+          return !(v == nl && markdown[i-1] == '>');
+        }).join("");
+
+        elem.className = "markdown";
         fold();
 				break;
 			case "string":
@@ -95,7 +117,7 @@ app.factory('insightRenderer', function() {
 			});
       // focus on cursor
       // cmCode.scrollIntoView(cmCode.getCursor());
-      cmCode.setCursor(cmCode.getCursor(), null, { focus: true});
+      // cmCode.setCursor(cmCode.getCursor(), null, { focus: true});
 		}
 	}
 });

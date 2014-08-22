@@ -15,11 +15,8 @@
     "fontawesome": "~4.1.0",
     "screenfull": "~1.2.1",
     "angular-ui-layout": "0.0.1",
-    "codemirror": "#edb5a983e59c2b89304eb6f4bff6c2e180e82b5e",
-    "angular-ui-codemirror": "~0.1.2"
-  },
-  "resolutions": {
-    "codemirror": "edb5a983e59c2b89304eb6f4bff6c2e180e82b5e"
+    "codemirror": "~4.5.0",
+    "angular-ui-codemirror": "~0.1.6"
   },
   "keywords": [],
   "license": "MIT",

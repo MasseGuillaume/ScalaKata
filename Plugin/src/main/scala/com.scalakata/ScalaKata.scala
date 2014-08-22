@@ -30,11 +30,17 @@ object Scalakata extends Plugin {
 		base = file("."),
 		settings = kataSettings
 	)
-	lazy val scalaKataVersion = "0.5.0-SNAPSHOT"
+	lazy val scalaKataVersion = "0.5.1"
+	val start = "kstart"
+
+	lazy val kataAutoStart =
+		onLoad in Global := {
+			((s: State) => { start :: s }) compose (onLoad in Global).value
+		}
 
 	lazy val kataSettings =
 		Project.defaultSettings ++
-		addCommandAlias("kstart", ";backend:reStart ;backend:openBrowser; ~ backend:copyResources") ++
+		addCommandAlias(start, ";backend:reStart ;backend:openBrowser; ~ backend:copyResources") ++
 		addCommandAlias("kstop", "backend:reStop") ++
 		addCommandAlias("krestart", ";backend:reStop ;backend:reStart") ++
 		inConfig(Backend)(
@@ -60,7 +66,7 @@ object Scalakata extends Plugin {
 					).map(Actions.restartApp)
 					 .dependsOn(products in Compile)
 				},
-				kataUri := new URI("http://localhost:8080"),
+				kataUri := new URI("http://localhost:7331"),
 				readyPort := 8081,
 				openBrowser := {
 					val socket = new java.net.ServerSocket(readyPort.value)

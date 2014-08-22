@@ -2,6 +2,6 @@ scalaVersion := "2.11.2"
 
 seq(kataSettings: _*)
 
-libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
+kataAutoStart
 
-initialCode in Kata := ("","")
+libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value

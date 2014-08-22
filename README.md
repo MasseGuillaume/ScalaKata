@@ -6,7 +6,7 @@
 add the plugin to project/plugins.sbt
 
 ```scala
-addSbtPlugin("com.scalakata" % "plugin" % "0.4.0")
+addSbtPlugin("com.scalakata" % "plugin" % "0.5.0")
 ```
 
 and to your build definition build.sbt
@@ -21,4 +21,4 @@ or in your Build.scala
 com.scalakata.Scalakata.kataSettings
 ```
 
-start with ```kstart```
+start with ```sbt kstart```
