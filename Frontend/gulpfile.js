@@ -115,9 +115,6 @@ gulp.task('serveDist', function(){
 gulp.task('font', function(){
     gulp.src('bower_components/fontawesome/fonts/fontawesome-webfont.woff')
       .pipe(gulp.dest('out/assets/fonts/'));
-
-    gulp.src('web/SourceCodePro/WOFF/OTF/SourceCodePro-Regular.otf.woff')
-      .pipe(gulp.dest('out/assets/SourceCodePro/WOFF/OTF/'));
 })
 
 gulp.task('mathjax', function(){
