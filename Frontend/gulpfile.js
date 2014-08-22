@@ -115,7 +115,12 @@ gulp.task('serveDist', function(){
 gulp.task('font', function(){
     gulp.src('bower_components/fontawesome/fonts/fontawesome-webfont.woff')
       .pipe(gulp.dest('out/assets/fonts/'));
-})
+});
+
+gulp.task('zeroclipboard', function(){
+  gulp.src('bower_components/zeroclipboard/dist/ZeroClipboard.swf')
+    .pipe(gulp.dest('out/assets/script'));
+});
 
 gulp.task('mathjax', function(){
   [

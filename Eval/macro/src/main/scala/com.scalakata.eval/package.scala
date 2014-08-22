@@ -7,6 +7,7 @@ package object eval {
   final case object RT_Latex extends RenderType
   final case object RT_Markdown extends RenderType
   final case object RT_String extends RenderType
+  final case object RT_Block extends RenderType
   final case object RT_Other extends RenderType
 
   case class Latex(a: String) {

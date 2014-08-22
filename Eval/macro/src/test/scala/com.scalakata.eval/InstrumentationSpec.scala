@@ -5,14 +5,15 @@ import scala.collection.mutable.{Map ⇒ MMap}
 import org.specs2._
 
 class InstrumentationSpecs extends Specification { def is = s2"""
-	gracefully handle sideEffects $sideEffects
-	cool $cool
+	block $block
 """
+	/*gracefully handle sideEffects $sideEffects
+	cool $cool*/
 
 	private def sortByPosition(m: MMap[(Int, Int), (String, RenderType)]) =
 		m.map{ case (k, v) => (k, (k, v) )}.values.to[List].sortBy(_._1).map(_._2)
 
-	def sideEffects = {
+	/*def sideEffects = {
 		@ScalaKata
 		object A {
 			var a = 1
@@ -60,6 +61,39 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 			("tex", RT_Latex),
 			("latex", RT_Latex),
 			("html", RT_Html)
+		)
+	}*/
+
+	def block = {
+		@ScalaKata
+		object A {
+			identity(0)
+
+			{
+				identity(1)
+				identity(2)
+				identity(3)
+			}
+
+			identity(4)
+
+			{
+				identity(5)
+			}
+
+			identity(6)
+		}
+
+		sortByPosition(A.eval$()) ==== List(
+			("0", RT_Other),
+			("3", RT_Block),
+			("1", RT_Other),
+			("2", RT_Other),
+			("3", RT_Other),
+			("4", RT_Other),
+			("5", RT_Block),
+			("5", RT_Other),
+			("6", RT_Other)
 		)
 	}
 }

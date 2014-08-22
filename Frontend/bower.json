@@ -16,7 +16,8 @@
     "screenfull": "~1.2.1",
     "angular-ui-layout": "0.0.1",
     "codemirror": "~4.5.0",
-    "angular-ui-codemirror": "~0.1.6"
+    "angular-ui-codemirror": "~0.1.6",
+    "zeroclipboard": "~2.1.6"
   },
   "keywords": [],
   "license": "MIT",

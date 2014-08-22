@@ -2,7 +2,7 @@ name := "backend"
 
 organization := "com.scalakata"
 
-version := "0.5.1"
+version := "0.6.0-SNAPSHOT"
 
 scalaVersion := "2.11.2"
 
@@ -15,8 +15,8 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-	"com.scalakata" %% "eval" % "0.5.1",
-	"com.scalakata" % "frontend" % "0.5.1",
+	"com.scalakata" %% "eval" % "0.6.0-SNAPSHOT",
+	"com.scalakata" % "frontend" % "0.6.0-SNAPSHOT",
 	"io.spray" %% "spray-can" % "1.3.1-20140423",
 	"io.spray" %% "spray-routing" % "1.3.1-20140423",
 	"io.spray" %% "spray-testkit" % "1.3.1-20140423" % "test",

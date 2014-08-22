@@ -24,8 +24,40 @@ body {
   }
 }
 
-// large screen
-@media (min-width: 1200px) {
+
+@screen-sm-min: 768px;
+@screen-md-min: 992px;
+@screen-lg-min: 1200px;
+@screen-xs-max: (@screen-sm-min - 1);
+@screen-sm-max: (@screen-md-min - 1);
+@screen-md-max: (@screen-lg-min - 1);
+
+// small
+@media (max-width: @screen-xs-max) {
+  .insight {
+    max-width: @screen-xs-max;
+  }
+}
+
+// medium
+@media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
+  .insight {
+    max-width: @screen-sm-max;
+  }
+}
+
+// large
+@media (min-width: @screen-md-min) and (max-width: @screen-md-max) {
+  .insight {
+    max-width: @screen-md-max;
+  }
+}
+
+// wide
+@media (min-width: @screen-lg-min) {
+  .insight {
+    max-width: @screen-lg-min - 200px;
+  }
   .code {
     .zen(false, 20px);
   }
@@ -85,11 +117,9 @@ body {
     display: inline-block;
   }
 	.insight {
+    position: relative;
     margin-top: 5px;
-    max-width: 95%;
     overflow: auto;
-
-
 
     .MathJax {
       font-size: 30px;
@@ -100,9 +130,18 @@ body {
       p {
         margin: 15px;
         white-space: pre-line;
-        max-width: 840px;
       }
       // line-height: 1.3em;
+    }
+
+    &.block .clip {
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin: 20px;
+      font-size: 32px;
+      cursor: pointer;
+      z-index: 2;
     }
 
 		&.code {
@@ -127,4 +166,5 @@ body {
 
 .ui-splitbar{
   height: 4px !important;
+  z-index: 11;
 }

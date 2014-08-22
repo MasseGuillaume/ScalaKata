@@ -7,7 +7,7 @@ MathJax.Hub.Config({
 });
 MathJax.Hub.Configured();
 
-app.factory('insightRenderer', function() {
+app.factory('insightRenderer', ["$timeout", function($timeout) {
 	var widgets = [];
 
 	function apply(cmCode, wrap, cmOptions, insight){
@@ -27,19 +27,19 @@ app.factory('insightRenderer', function() {
             .addClass(two);
     }
 
-    function fold(){
+    function fold(e){
       addClass("fold");
       var range = cmCode.markText({ch: 0, line: start.line}, end, {
-        replacedWith: elem
+        replacedWith: e
       });
       clearF = function(){
         range.clear();
       };
     }
 
-    function inline(){
+    function inline(e){
       addClass("inline");
-      var widget = cmCode.addLineWidget(end.line, elem);
+      var widget = cmCode.addLineWidget(end.line, e);
       clearF = function(){ widget.clear() };
     }
 
@@ -47,7 +47,7 @@ app.factory('insightRenderer', function() {
 			case "html":
 				elem = document.createElement("div");
 				elem.innerHTML = insight.result;
-        fold();
+        fold(elem);
 				break;
 			case "latex":
 
@@ -58,7 +58,7 @@ app.factory('insightRenderer', function() {
         $element.append($script);
         elem = $element[0];
         MathJax.Hub.Queue(["Reprocess", MathJax.Hub, elem]);
-        fold();
+        fold(elem);
 
 				break;
 			case "markdown":
@@ -86,18 +86,47 @@ app.factory('insightRenderer', function() {
         }).join("");
 
         elem.className = "markdown";
-        fold();
+        fold(elem);
 				break;
+
+      case "block":
+        var $element = angular.element("<div>"),
+            id = "block_" + start.line + "_" + end.line
+            clip = angular.element(
+              "<i class='fa fa-clipboard clip' data-clipboard-target='" + id + "'>"),
+            code = document.createElement("pre"),
+            result = document.createElement("pre");
+
+        CodeMirror.runMode(cmCode.getRange(start, end), cmOptions, code);
+        CodeMirror.runMode(insight.result, cmOptions, result);
+        $element.append(code).append(result).append(clip);
+        $element.addClass("block");
+        var client = new ZeroClipboard(clip);
+
+        client.on("ready", function (event){
+          client.on("aftercopy", function (event){
+            clip.addClass("active");
+            $timeout(function(){
+              clip.removeClass("active");
+            }, 400);
+          });
+        });
+
+        code.id = id;
+        elem = $element[0];
+        fold(elem);
+
+        break;
 			case "string":
 				elem = document.createElement("pre");
 				elem.innerText = insight.result;
-        inline();
+        inline(elem);
 				break;
 			case "other":
 				elem = document.createElement("pre");
         elem.className = "code";
 				CodeMirror.runMode(insight.result, cmOptions, elem);
-        inline();
+        inline(elem);
 				break;
 		}
     return clearF;
@@ -116,8 +145,8 @@ app.factory('insightRenderer', function() {
 				return apply(cmCode, wrap, cmOptions, insight);
 			});
       // focus on cursor
-      // cmCode.scrollIntoView(cmCode.getCursor());
+      cmCode.scrollIntoView(cmCode.getCursor());
       // cmCode.setCursor(cmCode.getCursor(), null, { focus: true});
 		}
 	}
-});
+}]);

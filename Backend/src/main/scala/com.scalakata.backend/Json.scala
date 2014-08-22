@@ -49,6 +49,7 @@ object Response {
 					case RT_Latex => "latex"
 					case RT_Markdown => "markdown"
 					case RT_String => "string"
+					case RT_Block => "block"
 					case RT_Other => "other"
 				}
 			toJson(res)

@@ -19,27 +19,40 @@ object ScalaKataMacro {
       implicit def lift = Liftable[c.universe.Position] { p ⇒
         q"(${p.point}, ${p.end})"
       }
-      def inst(expr: Tree, rhs: Tree): List[Tree] = {
-        List(expr, q"${instr}(${expr.pos}) = render($rhs)")
-      }
-      def inst2(expr: Tree, rhs: TermName): List[Tree] = {
-        List(expr, q"${instr}(${expr.pos}) = render($rhs)")
+
+      def inst(expr: Tree): Tree = {
+        q"""
+        {
+          val t = $expr
+          ${instr}(${expr.pos}) = render(t)
+          t
+        }
+        """
       }
 
-      val bodyI = body.flatMap {
-        case ident: Ident ⇒ inst(ident, ident)
-        case expr @ q"val $pat = $exprV" ⇒ inst2(expr, pat)
-        case expr @ q"var $pat = $exprV" ⇒ inst2(expr, pat)
-        case select @ q"$expr.$name" ⇒ inst(select, select)
-        case apply @ q"$expr(..$params)" ⇒ inst(apply, apply)
-        case tree @ q"(..$exprs)" ⇒ inst(tree, tree)
-        case block @ q"{ ..$stats }" ⇒ inst(block, block)
-        case trycatch @ q"try $expr catch { case ..$cases }" ⇒ inst(trycatch, trycatch)
-        case function @ q"(..$params) ⇒ $expr" ⇒ inst(function, function)
-        case fort @ q"for (..$enums) $expr" ⇒ inst(fort, fort)
-        case fory @ q"for (..$enums) yield $expr" ⇒ inst(fory, fory)
-        case otherwise ⇒ List(otherwise)
+      def instBlock(block: Tree, stats: List[Tree], depth: Int): Tree = {
+        println(showCode(block))
+        val inner = stats.map(s => topInst(s, depth + 1))
+        q"""
+        {
+          val t = { ..$inner }
+          ${instr}(${block.pos}) = (render(t)._1, RT_Block)
+          t
+        }
+        """
       }
+
+      def topInst(tree: Tree, depth: Int = 0): Tree = tree match {
+        case ident: Ident ⇒ inst(ident)
+        case lit: Literal ⇒ lit
+        case apply @ q"$expr(..$params)" ⇒ inst(apply)
+        case block @ q"{ ..$stats }" if (depth == 0) ⇒ instBlock(block, stats, depth)
+        case select @ q"$expr.$name" ⇒ inst(select)
+        case otherwise ⇒ otherwise
+      }
+
+      val bodyI = body.map(b => topInst(b))
+
       q"""
       object $name {
         private val $instr = scala.collection.mutable.Map.empty[(Int, Int), (String, RenderType)]
