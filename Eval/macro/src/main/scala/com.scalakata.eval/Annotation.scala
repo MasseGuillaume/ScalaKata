@@ -10,9 +10,15 @@ import scala.annotation.StaticAnnotation
 
 object ScalaKataMacro {
 
-  def impl(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
+  def desugar_impl[T](c: Context)(code: c.Expr[T]): c.Expr[String] = {
+    import c.universe._
+    c.Expr[String](q"${showCode(code.tree)}")
+  }
+
+  def instrumentation(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
 
+    // we modify a global mutable map from range position to representation
     def instrument(body: Seq[Tree], name: c.universe.TermName) = {
       val instr = TermName("instr$")
 
@@ -31,7 +37,6 @@ object ScalaKataMacro {
       }
 
       def instBlock(block: Tree, stats: List[Tree], depth: Int): Tree = {
-        println(showCode(block))
         val inner = stats.map(s => topInst(s, depth + 1))
         q"""
         {
@@ -43,12 +48,23 @@ object ScalaKataMacro {
       }
 
       def topInst(tree: Tree, depth: Int = 0): Tree = tree match {
-        case ident: Ident ⇒ inst(ident)
-        case lit: Literal ⇒ lit
-        case apply @ q"$expr(..$params)" ⇒ inst(apply)
-        case block @ q"{ ..$stats }" if (depth == 0) ⇒ instBlock(block, stats, depth)
-        case select @ q"$expr.$name" ⇒ inst(select)
+        case ident: Ident ⇒ inst(ident) // a
+        case apply @ q"$expr(..$params)" ⇒ inst(apply) // f(..)
+        case block @ q"{ ..$stats }" if (depth == 0) ⇒ instBlock(block, stats, depth) // { }
+        case select @ q"$expr.$name" ⇒ inst(select) // T.b
+        case _: ValDef ⇒ q""
+        case _: DefDef ⇒ q""
+        case _: TypeDef ⇒ q""
+        case _: Import ⇒ q""
         case otherwise ⇒ otherwise
+      }
+
+      // we extract val, def, etc so they can be used outside the instrumentation
+      val bodyUI = body.collect{
+        case vd: ValDef ⇒ vd
+        case dd: DefDef ⇒ dd
+        case td: TypeDef ⇒ td
+        case i: Import ⇒ i
       }
 
       val bodyI = body.map(b => topInst(b))
@@ -56,7 +72,7 @@ object ScalaKataMacro {
       q"""
       object $name {
         private val $instr = scala.collection.mutable.Map.empty[(Int, Int), (String, RenderType)]
-
+        ..$bodyUI
         def ${TermName("eval$")}() = {
           ..$bodyI
           $instr
@@ -74,5 +90,5 @@ object ScalaKataMacro {
 }
 
 class ScalaKata extends StaticAnnotation {
-  def macroTransform(annottees: Any*) = macro ScalaKataMacro.impl
+  def macroTransform(annottees: Any*) = macro ScalaKataMacro.instrumentation
 }

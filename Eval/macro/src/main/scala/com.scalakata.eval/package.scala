@@ -1,5 +1,7 @@
 package com.scalakata
 
+import scala.language.experimental.macros
+
 package object eval {
 
   sealed trait RenderType
@@ -59,4 +61,6 @@ package object eval {
       }
     }
   }
+
+  def desugar[T](code: T): String = macro ScalaKataMacro.desugar_impl[T]
 }

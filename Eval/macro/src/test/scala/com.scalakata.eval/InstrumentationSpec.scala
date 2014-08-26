@@ -5,13 +5,41 @@ import scala.collection.mutable.{Map ⇒ MMap}
 import org.specs2._
 
 class InstrumentationSpecs extends Specification { def is = s2"""
-	block $block
+	desugar $desugarTest
 """
 	/*gracefully handle sideEffects $sideEffects
-	cool $cool*/
+	cool $cool
+	dont instrument val, def & type = $preserve
+	block $block*/
 
 	private def sortByPosition(m: MMap[(Int, Int), (String, RenderType)]) =
 		m.map{ case (k, v) => (k, (k, v) )}.values.to[List].sortBy(_._1).map(_._2)
+
+	def desugarTest = {
+		@ScalaKata
+		object A {
+			desugar {
+				for {
+        	i <- 1 to 10
+            j <- 1 to 10
+        } yield (i * j)
+			}
+		}
+
+		A.eval$().values.to[List].map(_._1) must contain ((v: String) => v must contain("flatMap"))
+	}
+
+	/*def preserve = {
+		@ScalaKata
+		object A {
+			type T = Int
+			val a = 1
+			def b = 2
+		}
+		val res: A.T = 1
+		A.a ==== 1 &&
+		A.b ==== 2
+	}*/
 
 	/*def sideEffects = {
 		@ScalaKata
@@ -64,7 +92,7 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 		)
 	}*/
 
-	def block = {
+	/*def block = {
 		@ScalaKata
 		object A {
 			identity(0)
@@ -95,5 +123,5 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 			("5", RT_Other),
 			("6", RT_Other)
 		)
-	}
+	}*/
 }
