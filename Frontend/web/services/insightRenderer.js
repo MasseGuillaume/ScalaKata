@@ -63,7 +63,7 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
 				break;
 			case "markdown":
 				elem = document.createElement("div");
-        var markdown = marked.parse(insight.result, {
+        elem.innerHTML = marked.parse(insight.result, {
           ghf: true,
           highlight: function (code, lang) {
             var elem = document.createElement("div"),
@@ -78,12 +78,6 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
             return elem.innerHTML;
           }
         });
-
-        // hack minify html
-        // this way margins render correctly in pre
-        elem.innerHTML = _.filter(markdown, function(v, i){
-          return !(v == nl && markdown[i-1] == '>');
-        }).join("");
 
         elem.className = "markdown";
         fold(elem);
