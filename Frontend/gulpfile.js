@@ -105,12 +105,17 @@ gulp.task('watch', function() {
     gulp.watch('package.json', ['npm']);
 });
 
-gulp.task('build', ['styles', 'usemin', 'font', 'mathjax', 'fav']);
+gulp.task('build', ['styles', 'usemin', 'font', 'mathjax', 'fav', 'zeroclipboard']);
 gulp.task('buildServe', ['build', 'serveDist', 'browser']);
 
 gulp.task('serveDist', function(){
     serveF(['dist']);
 });
+
+// gulp.task('clean', function(){
+//   return gulp.src('out/', {read: false})
+//     .pipe(clean());
+// });
 
 gulp.task('font', function(){
     gulp.src('bower_components/fontawesome/fonts/fontawesome-webfont.woff')
@@ -119,7 +124,7 @@ gulp.task('font', function(){
 
 gulp.task('zeroclipboard', function(){
   gulp.src('bower_components/zeroclipboard/dist/ZeroClipboard.swf')
-    .pipe(gulp.dest('out/assets/script'));
+    .pipe(gulp.dest('out/assets/scripts'));
 });
 
 gulp.task('mathjax', function(){
