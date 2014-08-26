@@ -1,8 +1,5 @@
 app.factory("scalaEval",["$http", function($http) {
 	return {
-		"initialCode": function(){
-			return $http.get("/initialCode");
-		},
 		"insight": function(code){
 			return $http.post("/eval", {"code": code});
 		},

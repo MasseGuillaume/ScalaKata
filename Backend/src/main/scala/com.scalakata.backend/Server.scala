@@ -9,13 +9,13 @@ import spray.can.Http
 
 object Boot {
 	def main(args: Array[String]) = {
-		val readyPort :: artifacts :: host :: port :: codePrelude :: code :: scalacOptions = args.to[List]
+		val readyPort :: artifacts :: host :: port :: scalacOptions = args.to[List]
 
 		val compiler = new Compiler(artifacts, scalacOptions)
 
 		implicit val system = ActorSystem("scalakata-system")
 		val service = system.actorOf(Props(
-			classOf[ScalaKataActor], artifacts, codePrelude, code, scalacOptions
+			classOf[ScalaKataActor], artifacts, scalacOptions
 		), "scalakata-service")
 
 		import scala.concurrent.duration._
