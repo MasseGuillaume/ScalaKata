@@ -1,6 +1,6 @@
 package com.scalakata.eval
 
-import scala.collection.mutable.{Set ⇒ MSet}
+import scala.collection.immutable.Queue
 
 import org.specs2._
 
@@ -17,21 +17,38 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 	block $block
 	*/
 
-	private def sortByRange(vs: MSet[(Range, Render)]) = {
-		vs.to[List].sortBy(_._1).map(_._2)
-	}
+	private val before = Ordering[Range].lt _
 
 	def trace = {
 		@ScalaKata
 		object A {
-			def test[T](a: T): Unit = {
-				println(10)
-				(1 to 10).foreach(v => println(v))
-			}
+			def test[T](a: T) = {
+				println(-1)
+				(1 to 10).foreach(println)
+				identity(-3)
+			};
 
-			test(1)
+			{
+				(12 to 14).foreach(println)
+				identity(-5)
+			};
+
+			test(-2)
 		}
-		sortByRange(A.eval$()) must beLike {
+		
+		A.eval$() must beLike {
+			case List(
+				(_, List(Other("-1"))),
+				(_, List(Other("1"), Other("2"), Other("3"), Other("4"), Other("5"),
+								 Other("6"), Other("7"), Other("8"), Other("9"), Other("10")
+				)),
+				(_, List(Block(List(
+						(_, List(Other("12"), Other("13"), Other("14"))),
+						(_, List(Other("-5")))
+					))
+				)),
+				(_, List(Other("-3")))
+			) => ok
 			case _ => ko
 		}
 	}
@@ -51,7 +68,7 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 			1+1
 		}
 
-		val before = Ordering[Range].lt _
+
 		sortByRange(A.eval$()) must beLike {
 			case List(
 				Other("1"),
@@ -60,6 +77,7 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 				Markdown("markdown"),
 				Block(List(
 					(pb1, Html("html2")),
+
 					(pb2, Markdown("markdown2"))
 				)),
 				Other("2")

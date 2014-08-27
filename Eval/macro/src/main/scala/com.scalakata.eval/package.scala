@@ -1,9 +1,11 @@
 package com.scalakata
 
 import scala.language.experimental.macros
+import collection.immutable.Queue
 
 package object eval {
   type Range = (Int, Int)
+  type OrderedRender = List[(Range, List[Render])]
 
   sealed trait Render
 
@@ -11,7 +13,7 @@ package object eval {
   case class EString(v: String) extends Expression
   case class Other(repr: String) extends Expression
 
-  case class Block(childs: List[(Range, Render)] ) extends Render
+  case class Block(childs: OrderedRender ) extends Render
   case class Steps(simplifications: List[Expression]) extends Render
 
   case class Latex(a: String) extends Render {
@@ -30,6 +32,12 @@ package object eval {
     def stripMargin = Html(a.stripMargin)
   }
 
+  def isNotUnit(a: Any) = {
+    a match {
+      case _: Unit ⇒ false
+      case _ ⇒ true
+    }
+  }
   def render[A >: Null](a: A): Render = {
   	a match {
     	case null ⇒ Other("null")
