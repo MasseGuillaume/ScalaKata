@@ -1,21 +1,59 @@
 package com.scalakata.eval
 
-import scala.collection.mutable.{Map ⇒ MMap}
+import scala.collection.mutable.{Set ⇒ MSet}
 
 import org.specs2._
 
 class InstrumentationSpecs extends Specification { def is = s2"""
-	desugar $desugarTest
+	test $test
 """
+
+	def test = {
+		@ScalaKata
+		object A {
+			identity(1)
+			latex"latex"
+			html"html"
+			markdown"markdown";
+			{
+				html"html2"
+				markdown"markdown2"
+			}
+			1+1
+		}
+
+		val before = Ordering[Range].lt _
+		sortByRange(A.eval$()) must beLike {
+			case List(
+				Other("1"),
+				Latex("latex"),
+				Html("html"),
+				Markdown("markdown"),
+				Block(List(
+					(pb1, Html("html2")),
+					(pb2, Markdown("markdown2"))
+				)),
+				Other("2")
+			) if(before(pb1, pb2)) => ok
+			case _ => ko
+		}
+	}
+
+
+	private def sortByRange(vs: MSet[(Range, Render)]) = {
+		vs.to[List].sortBy(_._1).map(_._2)
+	}
+
 	/*gracefully handle sideEffects $sideEffects
 	cool $cool
+	desugar $desugarTest
 	dont instrument val, def & type = $preserve
 	block $block*/
 
-	private def sortByPosition(m: MMap[(Int, Int), (String, RenderType)]) =
-		m.map{ case (k, v) => (k, (k, v) )}.values.to[List].sortBy(_._1).map(_._2)
+	/*private def sortByPosition(m: MMap[(Int, Int), (String, RenderType)]) =
+		m.map{ case (k, v) => (k, (k, v) )}.values.to[List].sortBy(_._1).map(_._2)*/
 
-	def desugarTest = {
+	/*def desugarTest = {
 		@ScalaKata
 		object A {
 			desugar {
@@ -27,7 +65,7 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 		}
 
 		A.eval$().values.to[List].map(_._1) must contain ((v: String) => v must contain("flatMap"))
-	}
+	}*/
 
 	/*def preserve = {
 		@ScalaKata

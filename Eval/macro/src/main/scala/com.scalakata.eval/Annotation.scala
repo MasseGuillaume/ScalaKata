@@ -5,6 +5,8 @@ import scala.reflect.macros.whitebox.Context
 import scala.language.experimental.macros
 import scala.annotation.StaticAnnotation
 
+import scala.collection.mutable.{Set ⇒ MSet}
+
 // quasiquote list
 // http://docs.scala-lang.org/overviews/quasiquotes/syntax-summary.html
 
@@ -19,39 +21,44 @@ object ScalaKataMacro {
     import c.universe._
 
     // we modify a global mutable map from range position to representation
-    def instrument(body: Seq[Tree], name: c.universe.TermName) = {
+    def instrument(body: Seq[Tree], name: c.TermName) = {
       val instr = TermName("instr$")
 
       implicit def lift = Liftable[c.universe.Position] { p ⇒
         q"(${p.point}, ${p.end})"
       }
 
-      def inst(expr: Tree): Tree = {
+      def inst(expr: Tree, renderSet: c.TermName): Tree = {
+        val t = TermName("t$")
+				q"""{
+					val $t = $expr
+					$renderSet += scala.Tuple2(${expr.pos}, render($t))
+					$t
+				}"""
+      }
+
+      def instBlock(block: Tree, childs: List[Tree], last: Tree, renderSet: c.universe.TermName, depth: Int): Tree = {
+        val ts = TermName("ts$")
+        val t = TermName("t$")
         q"""
         {
-          val t = $expr
-          ${instr}(${expr.pos}) = render(t)
-          t
+          val $ts = scala.collection.mutable.Set.empty[(Range, Render)]
+          ..${childs.map(s => topInst(s, ts, depth + 1))}
+          val t$$ = ${topInst(last, ts, depth + 1)}
+          $renderSet += scala.Tuple2(${block.pos}, Block(${ts}.to[List].sortBy(_._1)))
+          $ts
         }
         """
       }
 
-      def instBlock(block: Tree, stats: List[Tree], depth: Int): Tree = {
-        val inner = stats.map(s => topInst(s, depth + 1))
-        q"""
-        {
-          val t = { ..$inner }
-          ${instr}(${block.pos}) = (render(t)._1, RT_Block)
-          t
-        }
-        """
-      }
+      def topInst(tree: Tree, renderSet: c.universe.TermName, depth: Int = 0): Tree = tree match {
+        case ident: Ident ⇒ inst(ident, renderSet) // a
+        case apply @ q"$expr(..$params)" ⇒ inst(apply, renderSet) // f(..)
+        case block @ Block(childs, last) if (depth == 0) ⇒ instBlock(block, childs, last, renderSet, depth) // { }
+        case select @ q"$expr.$name" ⇒ inst(select, renderSet) // T.b
+        case mat: Match ⇒ inst(mat, renderSet)
+        case tr: Try ⇒ inst(tr, renderSet)
 
-      def topInst(tree: Tree, depth: Int = 0): Tree = tree match {
-        case ident: Ident ⇒ inst(ident) // a
-        case apply @ q"$expr(..$params)" ⇒ inst(apply) // f(..)
-        case block @ q"{ ..$stats }" if (depth == 0) ⇒ instBlock(block, stats, depth) // { }
-        case select @ q"$expr.$name" ⇒ inst(select) // T.b
         case _: ValDef ⇒ q""
         case _: DefDef ⇒ q""
         case _: TypeDef ⇒ q""
@@ -67,14 +74,12 @@ object ScalaKataMacro {
         case i: Import ⇒ i
       }
 
-      val bodyI = body.map(b => topInst(b))
-
       q"""
       object $name {
-        private val $instr = scala.collection.mutable.Map.empty[(Int, Int), (String, RenderType)]
+        private val $instr = scala.collection.mutable.Set.empty[(Range, Render)]
         ..$bodyUI
         def ${TermName("eval$")}() = {
-          ..$bodyI
+          ..${body.map(b => topInst(b, instr))}
           $instr
         }
       }
@@ -83,7 +88,11 @@ object ScalaKataMacro {
 
     c.Expr[Any]{
       annottees.map(_.tree).toList match {
-        case q"object $name { ..$body }" :: Nil ⇒ instrument(body, name)
+        case q"object $name { ..$body }" :: Nil ⇒
+          val res = instrument(body, name)
+          /*println(showCode(res))
+          println(showRaw(res))*/
+          res
       }
     }
   }
