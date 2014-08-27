@@ -70,4 +70,7 @@ package object eval {
 
   def desugar[T](code: T): String = macro ScalaKataMacro.desugar_impl[T]
 
+  def trace: Any => Unit = macro ScalaKataMacro.trace_implf
+  def print: Any => Unit = macro ScalaKataMacro.trace_implf
+  def println: Any => Unit = macro ScalaKataMacro.trace_implf
 }

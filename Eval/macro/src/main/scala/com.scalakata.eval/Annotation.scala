@@ -11,22 +11,37 @@ import scala.collection.mutable.{Set ⇒ MSet}
 // http://docs.scala-lang.org/overviews/quasiquotes/syntax-summary.html
 
 object ScalaKataMacro {
-
+  private val instrName = "instr$"
   def desugar_impl[T](c: Context)(code: c.Expr[T]): c.Expr[String] = {
     import c.universe._
     c.Expr[String](q"${showCode(code.tree)}")
   }
 
+  def trace_implf(c: Context): c.Expr[Any => Unit] = {
+    import c.universe._
+    implicit def lift = Liftable[c.universe.Position] { p ⇒
+      q"(${p.point}, ${p.end})"
+    }
+    val instr = TermName(instrName)
+    val t = TermName("t$")
+    c.Expr[Any => Unit](q"""{
+      (v: Any) => {
+        $instr += scala.Tuple2(${c.enclosingPosition}, render(v))
+        ()
+      }
+    }""")
+  }
+
   def instrumentation(c: Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
 
+    implicit def lift = Liftable[c.universe.Position] { p ⇒
+      q"(${p.point}, ${p.end})"
+    }
+
     // we modify a global mutable map from range position to representation
     def instrument(body: Seq[Tree], name: c.TermName) = {
-      val instr = TermName("instr$")
-
-      implicit def lift = Liftable[c.universe.Position] { p ⇒
-        q"(${p.point}, ${p.end})"
-      }
+      val instr = TermName(instrName)
 
       def inst(expr: Tree, renderSet: c.TermName): Tree = {
         val t = TermName("t$")
@@ -72,6 +87,8 @@ object ScalaKataMacro {
         case dd: DefDef ⇒ dd
         case td: TypeDef ⇒ td
         case i: Import ⇒ i
+        case o: Object ⇒ o
+        case c: Class ⇒ c
       }
 
       q"""

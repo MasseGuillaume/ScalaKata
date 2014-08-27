@@ -5,10 +5,39 @@ import scala.collection.mutable.{Set ⇒ MSet}
 import org.specs2._
 
 class InstrumentationSpecs extends Specification { def is = s2"""
-	test $test
+	trace $trace
 """
 
-	def test = {
+	/*
+	gracefully handle sideEffects $sideEffects
+	cool $cool
+	test $test
+	desugar $desugarTest
+	dont instrument val, def & type = $preserve
+	block $block
+	*/
+
+	private def sortByRange(vs: MSet[(Range, Render)]) = {
+		vs.to[List].sortBy(_._1).map(_._2)
+	}
+
+	def trace = {
+		@ScalaKata
+		object A {
+			def test[T](a: T): Unit = {
+				println(10)
+				(1 to 10).foreach(v => println(v))
+			}
+
+			test(1)
+		}
+		sortByRange(A.eval$()) must beLike {
+			case _ => ko
+		}
+	}
+
+
+	/*def test = {
 		@ScalaKata
 		object A {
 			identity(1)
@@ -37,21 +66,7 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 			) if(before(pb1, pb2)) => ok
 			case _ => ko
 		}
-	}
-
-
-	private def sortByRange(vs: MSet[(Range, Render)]) = {
-		vs.to[List].sortBy(_._1).map(_._2)
-	}
-
-	/*gracefully handle sideEffects $sideEffects
-	cool $cool
-	desugar $desugarTest
-	dont instrument val, def & type = $preserve
-	block $block*/
-
-	/*private def sortByPosition(m: MMap[(Int, Int), (String, RenderType)]) =
-		m.map{ case (k, v) => (k, (k, v) )}.values.to[List].sortBy(_._1).map(_._2)*/
+	}*/
 
 	/*def desugarTest = {
 		@ScalaKata
