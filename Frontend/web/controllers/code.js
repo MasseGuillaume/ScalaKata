@@ -113,7 +113,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 		scalaEval.insight(w.full).then(function(r){
 			var data = r.data;
 			var code = $scope.code.split("\n");
-			insightRenderer.render(cmCode, w, $scope.cmOptions.mode, data.insight, code);
+			insightRenderer.render(cmCode, w, $scope.cmOptions, data.insight, code);
 			errorsRenderer.render(cmCode, cmPrelude, w, data.infos, data.runtimeError, code);
 		});
 	}

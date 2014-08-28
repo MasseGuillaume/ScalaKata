@@ -134,6 +134,25 @@ body {
       }
     }
 
+    &.block {
+      &.CodeMirror {
+        height: auto;
+        overflow: hidden;
+        position: relative;
+      }
+      .CodeMirror-cursors {
+        display: none;
+      }
+      .CodeMirror-scroll {
+        height: auto;
+        overflow-y: auto;
+        overflow-x: auto;
+      }
+    }
+
+
+
+
     &.block .clip {
       position: absolute;
       top: 0;
