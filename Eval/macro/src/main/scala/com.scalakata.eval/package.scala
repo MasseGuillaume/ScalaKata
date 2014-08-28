@@ -21,7 +21,6 @@ package object eval {
     def stripMargin = Latex(a.stripMargin)
   }
 
-
   case class Markdown(a: String) extends Render {
     override def toString = a
     def stripMargin = Markdown(a.stripMargin)
@@ -81,4 +80,5 @@ package object eval {
   def trace: Any => Unit = macro ScalaKataMacro.trace_implf
   def print: Any => Unit = macro ScalaKataMacro.trace_implf
   def println: Any => Unit = macro ScalaKataMacro.trace_implf
+  def oprintln: Any => Unit = (a) => scala.Predef.println(a)
 }

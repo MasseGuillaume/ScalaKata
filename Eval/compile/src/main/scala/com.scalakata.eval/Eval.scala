@@ -10,10 +10,6 @@ import scala.tools.nsc.reporters.StoreReporter
 import java.net.{URL, URLClassLoader}
 import java.io.File
 
-object Eval {
-  type Instrumentation = scala.collection.mutable.Map[(Int, Int), (String, RenderType)]
-}
-
 class Eval(settings: Settings) {
   private val reporter = new StoreReporter()
 
@@ -33,16 +29,15 @@ class Eval(settings: Settings) {
 
   private val compiler = new Global(settings, reporter)
 
-  def apply(code: String): (Option[Eval.Instrumentation], Map[String, List[(Int, Int, String)]]) = {
+  def apply(code: String): EvalResponse = {
     compile(code)
 
     val infos = check()
-    val infoss = infos.map{case (k, v) ⇒ (k.toString, v)}
 
-    if(!infos.contains(reporter.ERROR)) {
+    if(!infos.contains(Error)) {
       // Look for static class with eval$ method that return
       // an instrumentation
-      def findEval: Option[Eval.Instrumentation] = {
+      def findEval: Option[OrderedRender] = {
         def removeExt(of: String) = {
         	of.slice(0, of.lastIndexOf(".class"))
         }
@@ -53,7 +48,7 @@ class Eval(settings: Settings) {
 
         def recurseFolders(file: AbstractFile): Set[AbstractFile] = {
           file.iterator.to[Set].flatMap{ fs =>
-            if(fs.isDirectory) 
+            if(fs.isDirectory)
               fs.to[Set] ++
               fs.filter(_.isDirectory).flatMap(recurseFolders).to[Set]
             else Set(fs)
@@ -70,7 +65,7 @@ class Eval(settings: Settings) {
         val instrClass =
         	classes.find(_.getMethods.exists(m =>
             m.getName == "eval$" &&
-        		m.getReturnType == classOf[scala.collection.mutable.Map[_, _]])
+        		m.getReturnType == classOf[OrderedRender])
         	)
 
         import scala.reflect.runtime.{universe => ru}
@@ -78,32 +73,51 @@ class Eval(settings: Settings) {
 
         instrClass.map{c =>
           m.reflectModule(m.staticModule(c.getName)).
-            instance.asInstanceOf[{def eval$(): Eval.Instrumentation}].eval$()
+            instance.asInstanceOf[{def eval$(): OrderedRender}].eval$()
         }
       }
 
-      (findEval, infoss)
+      EvalResponse.empty.copy(
+        insight = findEval.getOrElse(Nil),
+        infos = infos
+      )
     } else {
-      (None, infoss)
+      EvalResponse.empty.copy(infos = infos)
     }
   }
 
-  private def check(): Map[reporter.Severity, List[(Int, Int, String)]] = {
-    reporter.infos.map {
-      info ⇒ (
-        info.severity,
-        info.pos.start,
-        info.pos.end,
-        info.msg
-      )
-    }.to[List]
-     .filterNot{ case (sev, _, _, msg) ⇒
-      // annoying
-      sev == reporter.WARNING &&
-      msg == ("a pure expression does nothing in statement " +
-              "position; you may be omitting necessary parentheses")
-    }.groupBy(_._1)
-     .mapValues{_.map{case (_,start, end, message) ⇒ (start, end, message)}}
+  private def check(): Map[Severity, List[CompilationInfo]] = {
+    val infos =
+      reporter.infos.map {
+        info ⇒ (
+          info.severity,
+          info.pos.start,
+          info.pos.end,
+          info.msg
+        )
+      }.to[List]
+       .filterNot{ case (sev, _, _, msg) ⇒
+        // annoying
+        sev == reporter.WARNING &&
+        msg == ("a pure expression does nothing in statement " +
+                "position; you may be omitting necessary parentheses")
+      }.groupBy(_._1)
+       .mapValues{_.map{case (_,start, end, message) ⇒ (start, end, message)}}
+
+    def convert(infos: Map[reporter.Severity, List[(Int, Int, String)]]): Map[Severity, List[CompilationInfo]] = {
+      infos.map{ case (k,vs) ⇒
+        val sev = k match {
+          case reporter.ERROR ⇒ Error
+          case reporter.WARNING ⇒ Warning
+          case reporter.INFO ⇒ Info
+        }
+        val info = vs map {case (start, end, message) ⇒
+          CompilationInfo(message, start, end)
+        }
+        (sev, info)
+      }
+    }
+    convert(infos)
   }
 
   private def reset(): Unit = {

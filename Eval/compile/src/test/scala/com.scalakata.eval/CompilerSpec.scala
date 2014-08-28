@@ -36,7 +36,7 @@ class CommpilerSpecs extends Specification { def is = s2"""
   def nopackage = {
     val c = compiler
     val result = c.insight(wrap("1+1"))
-    println(result)
+    oprintln(result)
     result.insight must not be empty
   }
 
@@ -49,7 +49,7 @@ class CommpilerSpecs extends Specification { def is = s2"""
          |    def +(o: Meter) = new Meter(v + o.v)
          |  }
          |}""".stripMargin)
-    println(result)
+    oprintln(result)
     result.infos must not be empty
   }
 
@@ -91,7 +91,7 @@ class CommpilerSpecs extends Specification { def is = s2"""
   def compileClasspath = {
     val c = compiler
     c.insight(wrap("com.example.test.Testing.onetwothree")) ==== EvalResponse.empty.copy(
-      insight = List(Instrumentation("123", RT_Other, 83, 94))
+      insight = List(((83, 94), List(Other("123"))))
     )
   }
 

@@ -41,22 +41,42 @@ object Request {
 object Response {
 	implicit private val code = Json.writes[Code]
 
-	implicit private val rendertype = new Writes[RenderType] {
-		def writes(s: RenderType) = {
+	implicit private val orderedRender = new Writes[OrderedRender]{
+		def writes(s: OrderedRender) = {
+			val res:Seq[JsValue] =
+				s.map { case ((rs, re), renders) =>
+					JsArray(Seq(
+						JsArray(Seq(JsNumber(rs), JsNumber(re))),
+						JsArray(renders.map(rendertype.writes))
+					))
+				}
+			JsArray(res)
+		}
+	}
+
+
+	implicit private val expression = new Writes[List[Expression]] {
+		def writes(xs: List[Expression]) = JsArray(xs.map(rendertype.writes))
+	}
+
+	implicit private val rendertype: Writes[Render] = new Writes[Render] {
+		def writes(s: Render) = {
+			def wrap(tpe: String, value: String) = wrap2(tpe, JsString(value))
+			def wrap2(tpe: String, value: JsValue) =
+				JsObject(Seq("type" -> JsString(tpe), "value" -> value))
 			val res =
 				s match {
-					case RT_Html => "html"
-					case RT_Latex => "latex"
-					case RT_Markdown => "markdown"
-					case RT_String => "string"
-					case RT_Block => "block"
-					case RT_Other => "other"
+					case Html(v) ⇒ wrap("html", v)
+					case Latex(v) ⇒ wrap("latex", v)
+					case Markdown(v) ⇒ wrap("markdown", v)
+					case EString(v) ⇒ wrap("string", v)
+					case Other(v) ⇒ wrap("other", v)
+					case Block(cs) ⇒ wrap2("block", toJson(cs))
+					case Steps(ss) ⇒ wrap2("steps", toJson(ss))
 				}
 			toJson(res)
 		}
 	}
-
-	implicit private val instrumentation = Json.writes[Instrumentation]
 
 	implicit private val compilationinfo = Json.writes[CompilationInfo]
 	implicit private val runtimeerror = Json.writes[RuntimeError]

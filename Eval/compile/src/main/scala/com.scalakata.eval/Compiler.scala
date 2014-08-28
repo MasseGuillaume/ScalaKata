@@ -22,22 +22,7 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
     if (code.isEmpty) EvalResponse.empty
     else {
       try {
-        withTimeout{
-          eval(code) match {
-            case (Some(instr), cinfos) ⇒
-              val i =
-                instr.map{ case ((start, end), (repr, tpe)) ⇒
-                  Instrumentation(repr, tpe, start, end)
-                }.to[List]
-
-              EvalResponse.empty.copy(
-                insight = i,
-                infos = convert(cinfos)
-              )
-            case (_, cinfos) ⇒ EvalResponse.empty.copy(infos = convert(cinfos))
-          }
-
-        }(timeout).getOrElse(
+        withTimeout{eval(code)}(timeout).getOrElse(
           EvalResponse.empty.copy(timeout = true)
         )
       } catch {
@@ -128,6 +113,7 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
           case t: compiler.ValOrDefDef if t.rhs != null ⇒ t.rhs
           case t ⇒ t
         }
+      scala.Predef.println(tree)
       TypeAtResponse(res.tpe.toString)
     }}{Function.const(None)}
   }
@@ -166,20 +152,6 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
 
   private lazy val compiler = new Global(settings, reporter)
   private lazy val eval = new Eval(settings.copy)
-
-  private def convert(infos: Map[String, List[(Int, Int, String)]]): Map[Severity, List[CompilationInfo]] = {
-    infos.map{ case (k,vs) ⇒
-      val sev = k match {
-        case "ERROR" ⇒ Error
-        case "WARNING" ⇒ Warning
-        case "INFO" ⇒ Info
-      }
-      val info = vs map {case (start, end, message) ⇒
-        CompilationInfo(message, start, end)
-      }
-      (sev, info)
-    }
-  }
 
   private def withTimeout[T](f: ⇒ T)(timeout: Duration): Option[T]= {
     val task = new FutureTask(new Callable[T]() {
