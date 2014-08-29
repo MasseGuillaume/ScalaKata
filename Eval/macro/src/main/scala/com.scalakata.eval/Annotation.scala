@@ -88,7 +88,7 @@ object ScalaKataMacro {
 
       def topInst(tree: Tree, depth: Int = 0): Tree = tree match {
         case ident: Ident ⇒ inst(ident) // a
-        case apply @ q"$expr(..$params)" ⇒ inst(apply) // f(..)
+        case apply: Apply ⇒ inst(apply) // f(..)
         case block @ Block(childs, last) if (depth == 0) ⇒ instBlock(block, childs, last, depth) // { }
         case select @ q"$expr.$name" ⇒ inst(select) // T.b
         case mat: Match ⇒ inst(mat)
