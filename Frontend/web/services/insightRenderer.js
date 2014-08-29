@@ -10,16 +10,18 @@ MathJax.Hub.Configured();
 app.factory('insightRenderer', ["$timeout", function($timeout) {
 	var widgets = [];
 
-	function apply(cmCode, wrap, cmOptions, insight){
+	function apply(cmCode, wrap, cmOptions, insight, cmOriginal, blockOffset){
 		var nl = "\n", elem, start, end, clearF, joined;
 
-    start = wrap.fixRange(insight[0][0], null, cmCode, function(range, cm){
+    start = wrap.fixRange(insight[0][0], null, cmOriginal, function(range, cm){
       return cm.getDoc().posFromIndex(range);
     });
+    start.line -= blockOffset;
 
-    end = wrap.fixRange(insight[0][1], null, cmCode, function(range, cm){
+    end = wrap.fixRange(insight[0][1], null, cmOriginal, function(range, cm){
       return cm.getDoc().posFromIndex(range);
     });
+    end.line -= blockOffset;
 
     function joined(sep){
       return _.map(insight[1], function(v){ return v.value; }).join(sep);
@@ -91,8 +93,9 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
         var $element = angular.element("<div>"),
             ta = document.createElement("textarea"),
             clip = angular.element("<i class='fa fa-clipboard clip'>"),
-            cmOptions2 = angular.copy(cmOptions);
-        ta.textContent = cmCode.getRange(start, end);
+            cmOptions2 = angular.copy(cmOptions),
+            content = cmCode.getRange(start, end);
+        ta.textContent = content;
         $element.append(ta);
         cmOptions2.readOnly = true;
         cmOptions2.lineNumbers = false;
@@ -102,7 +105,7 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
 
         client.on("ready", function (event){
           client.on("copy", function (event){
-            event.clipboardData.setData("text/plain", cm.getDoc().getValue());
+            event.clipboardData.setData("text/plain", content);
             clip.addClass("active");
             $timeout(function(){
               clip.removeClass("active");
@@ -117,7 +120,7 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
         })
 
         _.forEach(insight[1][0].value, function(it){
-          apply(cm, wrap, cmOptions, it);
+          apply(cm, wrap, cmOptions, it, cmOriginal, start.line);
         });
 
         fold(elem);
@@ -148,10 +151,11 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
 		render: function(cmCode, wrap, cmOptions, insights){
       clearFun();
 			widgets = _.map(insights, function(insight){
-				return apply(cmCode, wrap, cmOptions, insight);
+				return apply(cmCode, wrap, cmOptions, insight, cmCode, 0);
 			});
       // focus on cursor
-      cmCode.scrollIntoView(cmCode.getCursor());
+      // cmCode.focus();
+      // cmCode.scrollIntoView(cmCode.getCursor());
       // cmCode.setCursor(cmCode.getCursor(), null, { focus: true});
 		}
 	}
