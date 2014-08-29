@@ -117,6 +117,7 @@ body {
     display: inline-block;
   }
 	.insight {
+    border-radius: 2px;
     white-space: normal;
     position: relative;
     margin-top: 5px;
@@ -148,20 +149,20 @@ body {
         overflow-y: auto;
         overflow-x: auto;
       }
+      .insight {
+        margin-left: 40px;
+      }
+      .clip {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 20px;
+        font-size: 32px;
+        cursor: pointer;
+        z-index: 2;
+      }
     }
 
-
-
-
-    &.block .clip {
-      position: absolute;
-      top: 0;
-      right: 0;
-      margin: 20px;
-      font-size: 32px;
-      cursor: pointer;
-      z-index: 2;
-    }
 
 		&.code {
 			font-style: italic;

@@ -115,6 +115,11 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
         $timeout(function(){
           cm.refresh();
         })
+
+        _.forEach(insight[1][0].value, function(it){
+          apply(cm, wrap, cmOptions, it);
+        });
+
         fold(elem);
 
         break;
@@ -142,7 +147,7 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
 		clear: clearFun,
 		render: function(cmCode, wrap, cmOptions, insights){
       clearFun();
-			widgets = insights.map(function(insight){
+			widgets = _.map(insights, function(insight){
 				return apply(cmCode, wrap, cmOptions, insight);
 			});
       // focus on cursor

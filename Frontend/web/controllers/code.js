@@ -29,8 +29,10 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			coverGutterNextToScrollbar: true,
 			firstLineNumber: 0,
 			lineNumbers: true,
+			tabSize: 2,
 			theme: 'solarized dark',
-			"_themes": [ "solarized dark", "solarized light", "monokai", "ambiance", "eclipse", "mdn-like"],
+			"_supported_themes": [ "solarized dark", "solarized light", "mdn-like"],
+			"_other_themes": ["monokai", "ambiance", "eclipse"],
 			smartIndent: false,
 			multiLineStrings: true,
 			matchTags: {bothTags: true},
@@ -135,7 +137,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 	}
 
 	$scope.theme = function(){
-		return cmCode.options.theme.split(" ").map(function(v){
+		return _.map(cmCode.options.theme.split(" "), function(v){
 			return "cm-s-" + v;
 		}).join(" ");
 	}
