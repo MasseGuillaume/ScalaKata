@@ -12,8 +12,8 @@ case class Record[K: Ordering, V](inner: MMap[K, Queue[V]] = MMap.empty[K, Queue
   def update(k: K, nv: V): Unit = {
     val t =
       inner.get(k) match {
-          case Some(v) => v :+ nv
-          case None => Queue(nv)
+          case Some(v) ⇒ v :+ nv
+          case None ⇒ Queue(nv)
       }
     inner(k) = t
   }
@@ -33,7 +33,7 @@ object ScalaKataMacro {
     c.Expr[com.scalakata.eval.Html](q"com.scalakata.eval.Html($pre)")
   }
 
-  def trace_implf(c: Context): c.Expr[Any => Unit] = {
+  def trace_implf(c: Context): c.Expr[Any ⇒ Unit] = {
     import c.universe._
     implicit def lift = Liftable[c.universe.Position] { p ⇒
       q"(${p.point}, ${p.end})"
@@ -58,7 +58,7 @@ object ScalaKataMacro {
     // we modify a global mutable set of range position and representation
     // we can swap this set if we are inside a block
     // so we have easy access to it in the trace macro
-    def instrument(body: Seq[Tree], name: c.TermName) = {
+    def instrument(body: Seq[Tree], name: c.TermName, extend: List[Tree]) = {
       val instr = TermName(instrName)
 
       def inst(expr: Tree): Tree = {
@@ -89,6 +89,8 @@ object ScalaKataMacro {
       def topInst(tree: Tree, depth: Int = 0): Tree = tree match {
         case ident: Ident ⇒ inst(ident) // a
         case apply: Apply ⇒ inst(apply) // f(..)
+        case vd @ ValDef(_, _, _, Literal(_)) => vd // dont instrument trivial things
+        case ValDef(_, _, _, rhs) => inst(rhs)
         case block @ Block(childs, last) if (depth == 0) ⇒ instBlock(block, childs, last, depth) // { }
         case select @ q"$expr.$name" ⇒ inst(select) // T.b
         case mat: Match ⇒ inst(mat)
@@ -112,7 +114,7 @@ object ScalaKataMacro {
       }
 
       q"""
-      object $name {
+      object $name extends ..$extend {
         private var $instr = Record[Range, Render]()
         ..$bodyUI
         def ${TermName("eval$")}(): OrderedRender = {
@@ -125,11 +127,8 @@ object ScalaKataMacro {
 
     c.Expr[Any]{
       annottees.map(_.tree).toList match {
-        case q"object $name { ..$body }" :: Nil ⇒
-          val res = instrument(body, name)
-          /*scala.Predef.println(showCode(res))*/
-          /*println(showRaw(res))*/
-          res
+        case q"object $name extends ..$extend { ..$body }" :: Nil ⇒
+          instrument(body, name, extend)
       }
     }
   }
