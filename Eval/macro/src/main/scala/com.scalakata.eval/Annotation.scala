@@ -61,14 +61,15 @@ object ScalaKataMacro {
     def instrument(body: Seq[Tree], name: c.TermName, extend: List[Tree]) = {
       val instr = TermName(instrName)
 
-      def inst(expr: Tree): Tree = {
+      def inst2(expr: Tree, posTree: Tree) : Tree = {
         val t = TermName("t$")
-				q"""{
-					val $t = $expr
-          if(isNotUnit($t)) ${instr}(${expr.pos}) = render($t)
-					$t
-				}"""
+        q"""{
+          val $t = $expr
+          if(isNotUnit($t)) ${instr}(${posTree.pos}) = render($t)
+          $t
+        }"""
       }
+      def inst(expr: Tree): Tree = inst2(expr, expr)
 
       def instBlock(block: Tree, childs: List[Tree], last: Tree, depth: Int): Tree = {
         val t = TermName("t$")
@@ -89,28 +90,33 @@ object ScalaKataMacro {
       def topInst(tree: Tree, depth: Int = 0): Tree = tree match {
         case ident: Ident ⇒ inst(ident) // a
         case apply: Apply ⇒ inst(apply) // f(..)
-        case vd @ ValDef(_, _, _, Literal(_)) => vd // dont instrument trivial things
-        case ValDef(_, _, _, rhs) => inst(rhs)
+
         case block @ Block(childs, last) if (depth == 0) ⇒ instBlock(block, childs, last, depth) // { }
-        case select @ q"$expr.$name" ⇒ inst(select) // T.b
+        case select: Select ⇒ inst(select)
         case mat: Match ⇒ inst(mat)
         case tr: Try ⇒ inst(tr)
 
-        case _: ValDef ⇒ q""
-        case _: DefDef ⇒ q""
-        case _: TypeDef ⇒ q""
-        case _: Import ⇒ q""
+        // valdef is added to parent scope
+        case ValDef(_, _, _, Literal(_)) if (depth == 0) => q"" // dont instrument trivial things
+        case vd @ ValDef(_, name, _, rhs) if (depth == 0) => inst2(Ident(name), vd) // just ident
+        case _: DefDef if (depth == 0) ⇒ q""
+        case _: TypeDef if (depth == 0) ⇒ q""
+        case _: Import if (depth == 0) ⇒ q""
         case otherwise ⇒ otherwise
       }
 
       // we extract val, def, etc so they can be used outside the instrumentation
-      val bodyUI = body.collect{
-        case vd: ValDef ⇒ vd
-        case dd: DefDef ⇒ dd
-        case td: TypeDef ⇒ td
-        case i: Import ⇒ i
-        case o: ModuleDef ⇒ o // objects
-        case c: ClassDef ⇒ c
+      val bodyUI = body match {
+        case List(q"{..$ii}") ⇒
+          ii collect {
+            case vd: ValDef ⇒ vd
+            case dd: DefDef ⇒ dd
+            case td: TypeDef ⇒ td
+            case i: Import ⇒ i
+            case o: ModuleDef ⇒ o // objects
+            case c: ClassDef ⇒ c
+          }
+        case o ⇒ List()
       }
 
       q"""

@@ -5,10 +5,11 @@ import scala.collection.immutable.Queue
 import org.specs2._
 
 class InstrumentationSpecs extends Specification { def is = s2"""
-	trace $trace
+	block imports $block_imports
 """
 
 	/*
+	trace $trace
 	gracefully handle sideEffects $sideEffects
 	cool $cool
 	test $test
@@ -19,7 +20,29 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 
 	private val before = Ordering[Range].lt _
 
-	def trace = {
+	def block_imports = {
+		@ScalaKata
+		object A {
+			{
+				import scala.collection.mutable.{Map => MMap}
+				MMap(1 -> 1)
+				val test = 1
+				test
+			}
+		}
+		A.eval$() must beLike {
+			case List(
+				(_, List(Block(List(
+						(_, List(Other("Map(1 -> 1)"))),
+						(_, List(Other("1")))
+					))
+				))
+			) => ok
+			case _ => ko
+		}
+	}
+
+	/*def trace = {
 		@ScalaKata
 		object A {
 			def test[T](a: T) = {
@@ -35,7 +58,7 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 
 			test(-2)
 		}
-		
+
 		A.eval$() must beLike {
 			case List(
 				(_, List(Other("-1"))),
@@ -51,7 +74,7 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 			) => ok
 			case _ => ko
 		}
-	}
+	}*/
 
 
 	/*def test = {

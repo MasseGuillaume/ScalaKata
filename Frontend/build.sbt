@@ -2,7 +2,7 @@ name := "frontend"
 
 organization := "com.scalakata"
 
-version := "0.6.0"
+version := "0.6.1-SNAPSHOT"
 
 autoScalaLibrary := false
 
