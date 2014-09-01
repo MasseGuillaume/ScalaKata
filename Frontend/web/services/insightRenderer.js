@@ -77,10 +77,11 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
                 langs = {
                   "scala": "text/x-scala",
                   "json": "application/json"
-                };
-            option.mode = langs[lang] || "";
+                },
+                mode = langs[lang] || "";
 
-            CodeMirror.runMode(code, option, elem);
+
+            CodeMirror.runMode(code, mode, elem, option);
             return elem.innerHTML;
           }
         });
@@ -153,6 +154,9 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
 			widgets = _.map(insights, function(insight){
 				return apply(cmCode, wrap, cmOptions, insight, cmCode, 0);
 			});
+      $timeout(function(){
+        cmCode.refresh();
+      });
       // focus on cursor
       // cmCode.focus();
       // cmCode.scrollIntoView(cmCode.getCursor());

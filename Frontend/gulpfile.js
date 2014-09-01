@@ -80,7 +80,7 @@ function serveF(assets){
     // catch all to api
     server.use(function(req, res) {
       gutil.log(req.originalUrl);
-      if(req.originalUrl.indexOf("intro") !== -1 &&
+      if(req.originalUrl.indexOf("json") !== -1 &&
          req.originalUrl.indexOf("scala") == -1) {
         req.pipe(request("http://localhost:5000")).pipe(res);
       } else {
