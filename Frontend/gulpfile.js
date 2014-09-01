@@ -3,6 +3,9 @@ var gulp = require('gulp'),
     clean = require('gulp-clean'),
     concat = require('gulp-concat'),
     express = require('express'),
+    https = require('https'),
+    http = require('http'),
+    fs = require('fs'),
     install = require('./plugins/install.js'),
     run = require('./plugins/run.js'),
     less = require('gulp-less'),
@@ -21,7 +24,8 @@ var gulp = require('gulp'),
     rev = require('gulp-rev');
 
 var livereloadport = 35729,
-    serverport = 5000;
+    serverport = 5443,
+    apiport = 7331;
 
 gulp.task('styles', function() {
     gulp.src('styles/main.less')
@@ -54,7 +58,7 @@ gulp.task('bower', function(){
 gulp.task('install', ['bower', 'npm']);
 
 gulp.task('browser', function(){
-    run("google-chrome", ["localhost:" + serverport]);
+    run("google-chrome", ["https://localhost:" + serverport]);
 });
 
 gulp.task('npm', function(){
@@ -69,27 +73,31 @@ gulp.task('default', function() {
 });
 
 function serveF(assets){
-    var server = express();
+  var certs = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
+  };
+  var server = express();
 
-    server.use(livereload({port: livereloadport}));
+  server.use(livereload({port: livereloadport}));
 
-    assets.forEach(function(a){
-        server.use(express.static(a));
-    });
+  assets.forEach(function(a){
+      server.use(express.static(a));
+  });
 
-    // catch all to api
-    server.use(function(req, res) {
-      gutil.log(req.originalUrl);
-      if(req.originalUrl.indexOf("json") !== -1 &&
-         req.originalUrl.indexOf("scala") == -1) {
-        req.pipe(request("http://localhost:5000")).pipe(res);
-      } else {
-        req.pipe(request("http://localhost:7331" + req.originalUrl)).pipe(res);
-      }
-    });
+  // catch all to api
+  server.use(function(req, res) {
+    gutil.log(req.originalUrl);
+    if(req.originalUrl.indexOf("json") !== -1 &&
+       req.originalUrl.indexOf("scala") == -1) {
+      req.pipe(request("https://localhost:" + serverport)).pipe(res);
+    } else {
+      req.pipe(request("http://localhost:" + apiport + req.originalUrl)).pipe(res);
+    }
+  });
 
-    server.listen(serverport);
-    lrserver.listen(livereloadport);
+  https.createServer(certs, server).listen(serverport);
+  lrserver.listen(livereloadport);
 }
 
 gulp.task('serve', function(){

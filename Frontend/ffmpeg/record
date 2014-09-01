@@ -1,0 +1,4 @@
+ffmpeg -f video4linux2 -s 640x480 -r 25 -i /dev/video0 http://localhost:8090/feed1.ffm
+
+gst-launch-0.10 v4l2src device=/dev/video1 ! video/x-raw-yuv ! ffmpegcolorspace ! xvimagesink
+ffmpeg -f alsa -i pulse -f x11grab -s 1366x768 -vb 20M -r 30 -i :1 -b 5000k -ab 320k out.avi

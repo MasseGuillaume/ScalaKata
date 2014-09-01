@@ -1,6 +1,6 @@
 CodeMirror.hack = {};
-app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval", "katas", "insightRenderer", "errorsRenderer", "wrap",
-				 function code( $scope ,  $timeout ,  LANGUAGE ,  VERSION ,  scalaEval ,  katas,   insightRenderer ,  errorsRenderer ,  wrap){
+app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval", "katas", "insightRenderer", "errorsRenderer", "wrap", "webcam",
+				 function code( $scope ,  $timeout ,  LANGUAGE ,  VERSION ,  scalaEval ,  katas,   insightRenderer ,  errorsRenderer ,  wrap ,  webcam){
 
 	var cmCode,
 			cmPrelude,
@@ -8,6 +8,8 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			ctrl = CodeMirror.keyMap["default"] == CodeMirror.keyMap.pcDefault ? "Ctrl-" : "Cmd-";
 
 	state.configEditing = false;
+	
+	webcam();
 
 	// if(angular.isDefined(window.localStorage['codemirror_' + VERSION])) {
 	// 	$scope.cmOptions = JSON.parse(window.localStorage['codemirror_' + VERSION]);

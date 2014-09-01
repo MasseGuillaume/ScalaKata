@@ -20,68 +20,75 @@
     <!-- endbuild -->
 </head>
 <body ng-app="ScalaKata">
-    <section ui-layout ng-controller="code" class="code CodeMirror" id="code" ng-class="theme()">
-      <div size="20px">
-        <textarea ui-codemirror="cmOptionsPrelude" ng-model="prelude"></textarea>
+  <section ui-layout ng-controller="code" class="code CodeMirror" id="code" ng-class="theme()">
+    <div size="20px">
+      <textarea ui-codemirror="cmOptionsPrelude" ng-model="prelude"></textarea>
+    </div>
+    <div class="code-space">
+      <div class="menu">
+        <i title="run code" class="fa fa-fw fa-play"  ng-click="run()"></i>
+        <i title="toogle options" class="fa fa-fw fa-cogs" ng-click="toogleEdit()"></i>
       </div>
-      <div class="code-space">
-        <div class="menu">
-          <i title="run code" class="fa fa-fw fa-play"  ng-click="run()"></i>
-          <i title="toogle options" class="fa fa-fw fa-cogs" ng-click="toogleEdit()"></i>
-        </div>
-        <textarea ui-codemirror="cmOptions" ng-model="code"></textarea>
-      </div>
-    </section>
+      <textarea ui-codemirror="cmOptions" ng-model="code"></textarea>
+      <div id="background"></div>
+      <div id="webcam"></div>
+    </div>
+  </section>
 
-     <!-- build:js(bower_components) /assets/scripts/libs.js -->
-    <script src="/angular/angular.js"></script>
-    <script src="/angular-route/angular-route.js"></script>
-    <script src="/angular-ui-layout/ui-layout.js"></script>
-    <script src="/lodash/dist/lodash.js"></script>
-    <script src="/marked/lib/marked.js"></script>
-    <script src="/screenfull/dist/screenfull.js"></script>
-    <script src="/zeroclipboard/dist/ZeroClipboard.js"></script>
+   <!-- build:js(bower_components) /assets/scripts/libs.js -->
+  <script src="/angular/angular.js"></script>
+  <script src="/angular-route/angular-route.js"></script>
+  <script src="/angular-ui-layout/ui-layout.js"></script>
+  <script src="/lodash/dist/lodash.js"></script>
+  <script src="/marked/lib/marked.js"></script>
+  <script src="/screenfull/dist/screenfull.js"></script>
+  <script src="/zeroclipboard/dist/ZeroClipboard.js"></script>
 
-    <!-- CodeMirror core -->
-    <script src="/codemirror/lib/codemirror.js"></script>
-    <script src="/codemirror/mode/clike/clike.js"></script>
-    <script src="/codemirror/mode/javascript/javascript.js"></script>
-    <script src="/codemirror/mode/markdown/markdown.js"></script>
-    <script src="/codemirror/mode/htmlmixed/htmlmixed.js"></script>
-    <script src="/codemirror/mode/stex/stex.js"></script>
+  <!-- CodeMirror core -->
+  <script src="/codemirror/lib/codemirror.js"></script>
+  <script src="/codemirror/mode/clike/clike.js"></script>
+  <script src="/codemirror/mode/javascript/javascript.js"></script>
+  <script src="/codemirror/mode/markdown/markdown.js"></script>
+  <script src="/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+  <script src="/codemirror/mode/stex/stex.js"></script>
 
-    <!-- CodeMirror addons -->
-    <script src="/codemirror/addon/comment/comment.js"></script>
-    <script src="/codemirror/addon/edit/closebrackets.js"></script>
-    <script src="/codemirror/addon/edit/matchbrackets.js"></script>
-    <script src="/codemirror/addon/fold/brace-fold.js"></script>
-    <script src="/codemirror/addon/fold/comment-fold.js"></script>
-    <script src="/codemirror/addon/dialog/dialog.js"></script>
-    <script src="/codemirror/addon/hint/show-hint.js"></script>
-    <script src="/codemirror/addon/runmode/runmode.js"></script>
-    <script src="/codemirror/addon/search/searchcursor.js"></script>
-    <script src="/codemirror/addon/search/search.js"></script>
-    <script src="/codemirror/addon/search/match-highlighter.js"></script>
-    <script src="/codemirror/addon/selection/active-line.js"></script>
-    <script src="/codemirror/keymap/sublime.js"></script>
-    <script src="/codemirror/keymap/emacs.js"></script>
-    <script src="/codemirror/keymap/vim.js"></script>
-    <script src="/angular-ui-codemirror/ui-codemirror.js"></script>
-    <!-- endbuild -->
+  <!-- CodeMirror addons -->
+  <script src="/codemirror/addon/comment/comment.js"></script>
+  <script src="/codemirror/addon/edit/closebrackets.js"></script>
+  <script src="/codemirror/addon/edit/matchbrackets.js"></script>
+  <script src="/codemirror/addon/fold/brace-fold.js"></script>
+  <script src="/codemirror/addon/fold/comment-fold.js"></script>
+  <script src="/codemirror/addon/dialog/dialog.js"></script>
+  <script src="/codemirror/addon/hint/show-hint.js"></script>
+  <script src="/codemirror/addon/runmode/runmode.js"></script>
+  <script src="/codemirror/addon/search/searchcursor.js"></script>
+  <script src="/codemirror/addon/search/search.js"></script>
+  <script src="/codemirror/addon/search/match-highlighter.js"></script>
+  <script src="/codemirror/addon/selection/active-line.js"></script>
+  <script src="/codemirror/keymap/sublime.js"></script>
+  <script src="/codemirror/keymap/emacs.js"></script>
+  <script src="/codemirror/keymap/vim.js"></script>
+  <script src="/angular-ui-codemirror/ui-codemirror.js"></script>
+  <!-- endbuild -->
 
-    <script src="/assets/MathJax/MathJax.js"></script>
-    <script src="/assets/MathJax/config/TeX-AMS_HTML.js"></script>
+  <script src="/assets/MathJax/MathJax.js"></script>
+  <script src="/assets/MathJax/config/TeX-AMS_HTML.js"></script>
 
-    <!-- build:js(web) /assets/scripts/app.js -->
-    <script src="/app.js"></script>
-    <script src="/services/scalaEval.js"></script>
-    <script src="/services/insightRenderer.js"></script>
-    <script src="/services/errorsRenderer.js"></script>
-    <script src="/services/autocomplete.js"></script>
-    <script src="/services/scalakataMode.js"></script>
-    <script src="/services/katas.js"></script>
-    <script src="/services/wrap.js"></script>
-    <script src="/controllers/code.js"></script>
-    <!-- endbuild -->
+  <!-- build:js(bower_components) /assets/scripts/extras.js -->
+  <script src="/getusermedia/lib/getUserMedia.js"></script>
+  <!-- endbuild -->
+
+  <!-- build:js(web) /assets/scripts/app.js -->
+  <script src="/app.js"></script>
+  <script src="/services/scalaEval.js"></script>
+  <script src="/services/insightRenderer.js"></script>
+  <script src="/services/errorsRenderer.js"></script>
+  <script src="/services/autocomplete.js"></script>
+  <script src="/services/scalakataMode.js"></script>
+  <script src="/services/katas.js"></script>
+  <script src="/services/wrap.js"></script>
+  <script src="/services/webcam.js"></script>
+  <script src="/controllers/code.js"></script>
+  <!-- endbuild -->
 </body>
 </html>

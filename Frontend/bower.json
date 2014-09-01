@@ -13,6 +13,7 @@
     "MathJax": "~2.4.0",
     "marked": "~0.3.2",
     "fontawesome": "~4.1.0",
+    "getusermedia": "~0.2.0",
     "screenfull": "~1.2.1",
     "angular-ui-layout": "0.0.1",
     "codemirror": "~4.5.0",
