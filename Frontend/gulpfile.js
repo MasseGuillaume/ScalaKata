@@ -10,7 +10,6 @@ var gulp = require('gulp'),
     run = require('./plugins/run.js'),
     less = require('gulp-less'),
     livereload = require('connect-livereload'),
-    lrserver = require('tiny-lr')(),
     spawn = require("gulp-spawn"),
     refresh = require('gulp-livereload'),
     gulpFilter = require('gulp-filter'),
@@ -25,7 +24,12 @@ var gulp = require('gulp'),
 
 var livereloadport = 35729,
     serverport = 5443,
-    apiport = 7331;
+    apiport = 7331,
+    certs = {
+      key: fs.readFileSync('key.pem'),
+      cert: fs.readFileSync('cert.pem')
+    },
+    lrserver = require('tiny-lr')(certs);
 
 gulp.task('styles', function() {
     gulp.src('styles/main.less')
@@ -73,10 +77,6 @@ gulp.task('default', function() {
 });
 
 function serveF(assets){
-  var certs = {
-    key: fs.readFileSync('key.pem'),
-    cert: fs.readFileSync('cert.pem')
-  };
   var server = express();
 
   server.use(livereload({port: livereloadport}));
@@ -90,7 +90,7 @@ function serveF(assets){
     gutil.log(req.originalUrl);
     if(req.originalUrl.indexOf("json") !== -1 &&
        req.originalUrl.indexOf("scala") == -1) {
-      req.pipe(request("https://localhost:" + serverport)).pipe(res);
+      req.pipe(request("http://localhost:" + serverport)).pipe(res);
     } else {
       req.pipe(request("http://localhost:" + apiport + req.originalUrl)).pipe(res);
     }

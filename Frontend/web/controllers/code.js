@@ -8,7 +8,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			ctrl = CodeMirror.keyMap["default"] == CodeMirror.keyMap.pcDefault ? "Ctrl-" : "Cmd-";
 
 	state.configEditing = false;
-	
+
 	webcam();
 
 	// if(angular.isDefined(window.localStorage['codemirror_' + VERSION])) {
@@ -30,7 +30,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			extraKeys: keys,
 			coverGutterNextToScrollbar: true,
 			firstLineNumber: 0,
-			lineNumbers: true,
+			lineNumbers: false,
 			tabSize: 2,
 			theme: 'solarized dark',
 			"_supported_themes": [ "solarized dark", "solarized light", "mdn-like"],
