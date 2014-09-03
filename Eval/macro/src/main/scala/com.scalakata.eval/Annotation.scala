@@ -12,8 +12,8 @@ case class Record[K: Ordering, V](inner: MMap[K, Queue[V]] = MMap.empty[K, Queue
   def update(k: K, nv: V): Unit = {
     val t =
       inner.get(k) match {
-          case Some(v) ⇒ v :+ nv
-          case None ⇒ Queue(nv)
+        case Some(v) ⇒ v :+ nv
+        case None ⇒ Queue(nv)
       }
     inner(k) = t
   }
@@ -106,17 +106,15 @@ object ScalaKataMacro {
       }
 
       // we extract val, def, etc so they can be used outside the instrumentation
-      val bodyUI = body match {
-        case List(q"{..$ii}") ⇒
-          ii collect {
-            case vd: ValDef ⇒ vd
-            case dd: DefDef ⇒ dd
-            case td: TypeDef ⇒ td
-            case i: Import ⇒ i
-            case o: ModuleDef ⇒ o // objects
-            case c: ClassDef ⇒ c
-          }
-        case o ⇒ List()
+      val bodyUI = {
+        body collect {
+          case vd: ValDef ⇒ vd
+          case dd: DefDef ⇒ dd
+          case td: TypeDef ⇒ td
+          case i: Import ⇒ i
+          case o: ModuleDef ⇒ o // objects
+          case c: ClassDef ⇒ c
+        }
       }
 
       q"""
