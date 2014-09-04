@@ -81,6 +81,11 @@ gulp.task('default', function() {
 function serveF(assets){
   var server = express();
 
+  request.defaults({
+      strictSSL: false, // allow us to use our self-signed cert for testing
+      rejectUnauthorized: false
+  });
+
   server.use(livereload({port: livereloadport}));
 
   assets.forEach(function(a){
@@ -90,6 +95,7 @@ function serveF(assets){
   // catch all to api
   server.use(function(req, res) {
     gutil.log(req.originalUrl);
+    gutil.log(req.url);
 
     var isApi = [
       "eval",
@@ -97,11 +103,13 @@ function serveF(assets){
       "typeAt"
     ].some(function(v){
       return req.originalUrl == "/" + v
-    })
+    }) || req.originalUrl.indexOf(".scala") !== -1;
+
     if(isApi) {
       req.pipe(request("http://localhost:" + apiport + req.originalUrl)).pipe(res);
     } else {
-      req.pipe(request("http://localhost:" + serverport)).pipe(res);
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+      req.pipe(request("https://localhost:" + serverport)).pipe(res);
     }
   });
 
