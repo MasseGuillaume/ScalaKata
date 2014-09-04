@@ -196,14 +196,30 @@ body {
   z-index: 11;
 }
 
-#webcam {
+video {
   pointer-events: none;
   opacity: 0.2;
+  z-index: 3;
+}
+
+#background video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+}
+
+#webcam video {
   position: fixed;
   bottom: 0;
   right: 0;
-  z-index: 3;
-  width: 240px;
-  height: 180px;
   margin: 20px;
+  width: 256px;
+  height: auto;
 }
+
+
+
+
+//

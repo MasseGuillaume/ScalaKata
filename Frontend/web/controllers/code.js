@@ -9,11 +9,9 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 
 	state.configEditing = false;
 
-	webcam();
-
-	// if(angular.isDefined(window.localStorage['codemirror_' + VERSION])) {
-	// 	$scope.cmOptions = JSON.parse(window.localStorage['codemirror_' + VERSION]);
-	// } else {
+	if(angular.isDefined(window.localStorage['codemirror_' + VERSION])) {
+		$scope.cmOptions = JSON.parse(window.localStorage['codemirror_' + VERSION]);
+	} else {
 
 		var keys = {}
 		keys[ctrl + "Space"] = "autocomplete";
@@ -42,10 +40,11 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			styleActiveLine: false,
 			keyMap: "sublime",
 			mode: 'text/x-' + LANGUAGE,
-			highlightSelectionMatches: { showToken: false }
+			highlightSelectionMatches: { showToken: false },
+			video: true
 		}
 
-	// }
+	}
 
 	function clear(){
 		insightRenderer.clear();
@@ -94,6 +93,13 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			};
 
 			window.localStorage['codemirror_' + VERSION] = JSON.stringify($scope.cmOptions);
+
+			if($scope.cmOptions.video) {
+				webcam($scope.cmOptions.videoMapping).then(function(newMapping){
+					$scope.cmOptions.videoMapping = newMapping;
+					window.localStorage['codemirror_' + VERSION] = JSON.stringify($scope.cmOptions);
+				})
+			}
 
 			$timeout(function(){
 				$scope.code = state.code;

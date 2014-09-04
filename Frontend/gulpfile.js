@@ -22,12 +22,14 @@ var gulp = require('gulp'),
     gutil = require('gulp-util'),
     rev = require('gulp-rev');
 
-var livereloadport = 35729,
-    serverport = 5443,
-    apiport = 7331,
+var i = 0;
+var livereloadport = 35729 + i,
+    serverport = 5443 + i,
+    apiport = 7331 + i,
     certs = {
       key: fs.readFileSync('key.pem'),
-      cert: fs.readFileSync('cert.pem')
+      cert: fs.readFileSync('cert.pem'),
+      port: livereloadport
     },
     lrserver = require('tiny-lr')(certs);
 
@@ -43,10 +45,10 @@ gulp.task('html', function(){
         .pipe(refresh(lrserver));
 });
 
-gulp.task('js2', function(){
-    gulp.src('bower_components/codemirror/**/*.js')
-        .pipe(refresh(lrserver));
-});
+// gulp.task('js2', function(){
+//     gulp.src('bower_components/codemirror/**/*.js')
+//         .pipe(refresh(lrserver));
+// });
 
 gulp.task('js', function(){
     gulp.src('web/**/*.js')
@@ -88,11 +90,18 @@ function serveF(assets){
   // catch all to api
   server.use(function(req, res) {
     gutil.log(req.originalUrl);
-    if(req.originalUrl.indexOf("json") !== -1 &&
-       req.originalUrl.indexOf("scala") == -1) {
-      req.pipe(request("http://localhost:" + serverport)).pipe(res);
-    } else {
+
+    var isApi = [
+      "eval",
+      "completion",
+      "typeAt"
+    ].some(function(v){
+      return req.originalUrl == "/" + v
+    })
+    if(isApi) {
       req.pipe(request("http://localhost:" + apiport + req.originalUrl)).pipe(res);
+    } else {
+      req.pipe(request("http://localhost:" + serverport)).pipe(res);
     }
   });
 
@@ -105,7 +114,7 @@ gulp.task('serve', function(){
 });
 
 gulp.task('watch', function() {
-    gulp.watch('bower_components/codemirror/**/*.js', ['js2']);
+    // gulp.watch('bower_components/codemirror/**/*.js', ['js2']);
     gulp.watch('styles/**/*.less', ['styles']);
     gulp.watch('web/**/*.html', ['html']);
     gulp.watch('web/**/*.js', ['js']);
