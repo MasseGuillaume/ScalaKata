@@ -12,7 +12,7 @@ addSbtPlugin("io.spray" % "sbt-revolver" % "0.7.2")
 
 licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html"))
 
-seq(bintrayPublishSettings:_*)
+seq(bintraySettings:_*)
 
 repository in bintray := "sbt-plugins"
 

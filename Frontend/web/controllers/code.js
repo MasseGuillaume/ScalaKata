@@ -41,7 +41,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			keyMap: "sublime",
 			mode: 'text/x-' + LANGUAGE,
 			highlightSelectionMatches: { showToken: false },
-			video: true
+			video: false
 		}
 
 	}

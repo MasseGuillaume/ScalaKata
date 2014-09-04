@@ -6,7 +6,6 @@ object Settings {
 	lazy val default =
 		Project.defaultSettings ++
 		bintray.Plugin.bintraySettings ++
-		bintray.Plugin.bintrayPublishSettings ++
 		Seq(
 			organization := "com.scalakata",
 			scalaVersion := "2.11.2",

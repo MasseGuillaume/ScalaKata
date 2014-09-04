@@ -27,4 +27,4 @@ libraryDependencies ++= Seq(
 
 licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html"))
 
-seq(bintrayPublishSettings:_*)
+seq(bintraySettings:_*)
