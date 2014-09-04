@@ -1,3 +1,3 @@
 # Examples
 
-See github.com/ScalaKata
+See https://github.com/ScalaKata
