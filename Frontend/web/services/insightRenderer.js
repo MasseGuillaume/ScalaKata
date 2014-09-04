@@ -51,8 +51,10 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
 
 		switch (insight[1][0].type) {
 			case "html":
-				elem = document.createElement("div");
-				elem.innerHTML = joined("");
+				// load script
+        elem = document.createElement("div");
+        elem.innerHTML = joined("");
+
         fold(elem);
 				break;
 			case "latex":

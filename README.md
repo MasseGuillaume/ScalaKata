@@ -1,7 +1,7 @@
 # Scala Kata [![Gittip](http://img.shields.io/gittip/MasseGuillaume.svg?style=flat)](https://www.gittip.com/MasseGuillaume/) [![Build Status](http://img.shields.io/travis/MasseGuillaume/ScalaKata.svg?style=flat)](https://travis-ci.org/MasseGuillaume/ScalaKata) [![Stories in Ready](https://badge.waffle.io/MasseGuillaume/ScalaKata.png?label=Ready)](https://waffle.io/MasseGuillaume/ScalaKata)
 
-![scala kata editor with latex example](https://raw.githubusercontent.com/MasseGuillaume/ScalaKata/develop/example.gif)
-*hacking latex*
+![scala kata instructor mode](https://raw.githubusercontent.com/MasseGuillaume/ScalaKata/develop/Examples/Instructor.png)
+*Instructor Mode*
 
 add the plugin to project/plugins.sbt
 
