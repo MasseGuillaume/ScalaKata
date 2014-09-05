@@ -94,7 +94,9 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 
 			window.localStorage['codemirror_' + VERSION] = JSON.stringify($scope.cmOptions);
 
-			if($scope.cmOptions.video) {
+			this.videoSet = this.videoSet || false;
+			if($scope.cmOptions.video && !this.videoSet) {
+				this.videoSet = true;
 				webcam($scope.cmOptions.videoMapping).then(function(newMapping){
 					$scope.cmOptions.videoMapping = newMapping;
 					window.localStorage['codemirror_' + VERSION] = JSON.stringify($scope.cmOptions);
