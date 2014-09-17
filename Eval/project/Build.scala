@@ -9,13 +9,13 @@ object Settings {
 		Seq(
 			organization := "com.scalakata",
 			scalaVersion := "2.11.2",
-			version := "0.7.0",
+			version := "0.8.0-SNAPSHOT",
 			licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html")),
 			scalacOptions += "-Yrangepos",
 			libraryDependencies ++= Seq(
 				"org.scala-lang" % "scala-compiler" % scalaVersion.value,
 				 "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-				"org.specs2" %% s"specs2" % "2.3.12" % "test"
+				"org.specs2" %% s"specs2" % "2.4.2" % "test"
 			),
 			resolvers += Resolver.sonatypeRepo("releases"),
 			addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0-M1" cross CrossVersion.full)

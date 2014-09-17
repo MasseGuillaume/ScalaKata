@@ -10,7 +10,12 @@ import scala.tools.nsc.reporters.StoreReporter
 import java.net.{URL, URLClassLoader}
 import java.io.File
 
-class Eval(settings: Settings) {
+class Eval(settings: Settings, security: Boolean) {
+
+  if(security) {
+    Security.start
+  }
+
   private val reporter = new StoreReporter()
 
   private val artifactLoader = {

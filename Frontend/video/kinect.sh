@@ -1,6 +1,6 @@
 sudo modprobe v4l2loopback
 
-gst-launch -v v4l2src device=/dev/video0 ! \
+gst-launch -v v4l2src device=/dev/video1 ! \
   ffmpegcolorspace ! \
   video/x-raw-rgb ! \
   ffmpegcolorspace ! \

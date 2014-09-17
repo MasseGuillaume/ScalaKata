@@ -24,12 +24,17 @@ object Scalakata extends Plugin {
 	lazy val startArgs = TaskKey[Seq[String]]("start-args",
     	"The arguments to be passed to the applications main method when being started")
 
+	// todo
+	// lazy val forkEval = SettingKey[Boolean]("")
+  lazy val securityManager = SettingKey[Boolean]("security-manager", "turn on jvm security manager")
+	lazy val production = SettingKey[Boolean]("production", "deployed version")
+
 	lazy val test = Project(
 		id = "test",
 		base = file("."),
 		settings = kataSettings
 	)
-	lazy val scalaKataVersion = "0.7.0"
+	lazy val scalaKataVersion = "0.8.0-SNAPSHOT"
 	val start = "kstart"
 
 	lazy val kataAutoStart =
@@ -50,6 +55,8 @@ object Scalakata extends Plugin {
 			Defaults.configSettings ++
 			Revolver.settings ++
 			Seq(
+				production := false,
+				securityManager := false,
 				mainClass in Revolver.reStart := Some("com.scalakata.backend.Boot"),
 				fullClasspath in Revolver.reStart <<= fullClasspath,
 				Revolver.reStart <<= InputTask(Actions.startArgsParser) { args ⇒
@@ -112,7 +119,9 @@ object Scalakata extends Plugin {
 					map(_.getAbsoluteFile).
 					mkString(File.pathSeparator),
 				(kataUri in Backend).value.getHost,
-				(kataUri in Backend).value.getPort.toString
+				(kataUri in Backend).value.getPort.toString,
+				(production in Backend).value.toString,
+				(securityManager in Backend).value.toString
 			) ++ (scalacOptions in Kata).value,
 			resolvers ++= Seq(
 				"spray repo" at "http://repo.spray.io",

@@ -16,7 +16,7 @@ import scala.tools.nsc.io.VirtualDirectory
 import scala.reflect.internal.util._
 import scala.tools.nsc.interactive.Response
 
-class Compiler(artifacts: String, scalacOptions: Seq[String]) {
+class Compiler(artifacts: String, scalacOptions: Seq[String], security: Boolean) {
 
   def insight(code: String): EvalResponse = {
     if (code.isEmpty) EvalResponse.empty
@@ -151,7 +151,7 @@ class Compiler(artifacts: String, scalacOptions: Seq[String]) {
   settings.Yrangepos.value = true
 
   private lazy val compiler = new Global(settings, reporter)
-  private lazy val eval = new Eval(settings.copy)
+  private lazy val eval = new Eval(settings.copy, security)
 
   private def withTimeout[T](f: ⇒ T)(timeout: Duration): Option[T]= {
     val task = new FutureTask(new Callable[T]() {
