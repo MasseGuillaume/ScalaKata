@@ -13,7 +13,31 @@ import java.io.File
 import spray.revolver.Actions
 import spray.revolver.RevolverPlugin.Revolver
 
+import sbtdocker._
+import sbtdocker.Plugin._
+import sbtdocker.Plugin.DockerKeys._
+
 object Scalakata extends Plugin {
+
+	case class StartArgs(
+		readyPort: Int,
+		classPath: Seq[File],
+		host: String,
+		port: Int,
+		production: Boolean,
+		security: Boolean,
+		scalacOptions: Seq[String]
+	) {
+		def toArgs = Seq(
+			readyPort.toString,
+			classPath.
+				map(_.getAbsoluteFile).
+				mkString(File.pathSeparator),
+			host,
+			port.toString,
+			production.toString
+		) ++ scalacOptions
+	}
 
 	lazy val Kata = config("kata") extend(Runtime)
 	lazy val Backend = config("backend")
@@ -21,8 +45,10 @@ object Scalakata extends Plugin {
 	lazy val openBrowser = TaskKey[Unit]("open-browser", "task to open browser to kata url")
 	lazy val readyPort = SettingKey[Int]("ready-port", "port to send ready command")
 	lazy val kataUri = SettingKey[URI]("kata-uri", "uri to scala kata")
-	lazy val startArgs = TaskKey[Seq[String]]("start-args",
+	lazy val startArgs = TaskKey[StartArgs]("start-args",
     	"The arguments to be passed to the applications main method when being started")
+	lazy val startArgs2 = TaskKey[Seq[String]]("start-args2",
+			"The arguments to be passed to the applications main method when being started")
 
 	// todo
 	// lazy val forkEval = SettingKey[Boolean]("")
@@ -58,6 +84,7 @@ object Scalakata extends Plugin {
 				production := false,
 				securityManager := false,
 				mainClass in Revolver.reStart := Some("com.scalakata.backend.Boot"),
+				startArgs2 in Revolver.reStart := (startArgs in Revolver.reStart).value.toArgs,
 				fullClasspath in Revolver.reStart <<= fullClasspath,
 				Revolver.reStart <<= InputTask(Actions.startArgsParser) { args ⇒
 					(
@@ -67,7 +94,7 @@ object Scalakata extends Plugin {
 						Revolver.reForkOptions,
 						mainClass in Revolver.reStart,
 						fullClasspath in Revolver.reStart,
-						startArgs in Revolver.reStart,
+						startArgs2 in Revolver.reStart,
 						args
 					).map(Actions.restartApp)
 					 .dependsOn(products in Compile)
@@ -112,17 +139,17 @@ object Scalakata extends Plugin {
 			// the backend can serve .scala files
 			unmanagedResourceDirectories in Backend <+= sourceDirectory in Kata,
 			scalaVersion in Backend <<= scalaVersion in Kata,
-			startArgs in (Backend, Revolver.reStart) := Seq(
-				(readyPort in Backend).value.toString,
+			startArgs in (Backend, Revolver.reStart) := StartArgs(
+				(readyPort in Backend).value,
 				((fullClasspath in Compile).value ++ (fullClasspath in Kata).value).
 					map(_.data).
-					map(_.getAbsoluteFile).
-					mkString(File.pathSeparator),
+					map(_.getAbsoluteFile),
 				(kataUri in Backend).value.getHost,
-				(kataUri in Backend).value.getPort.toString,
-				(production in Backend).value.toString,
-				(securityManager in Backend).value.toString
-			) ++ (scalacOptions in Kata).value,
+				(kataUri in Backend).value.getPort,
+				(production in Backend).value,
+				(securityManager in Backend).value,
+				(scalacOptions in Kata).value
+			),
 			resolvers ++= Seq(
 				"spray repo" at "http://repo.spray.io",
 				"typesafe releases" at "http://repo.typesafe.com/typesafe/releases",
@@ -130,4 +157,74 @@ object Scalakata extends Plugin {
 				Resolver.sonatypeRepo("releases")
 			)
 		)
+
+	lazy val kataDockerSettings = kataSettings ++ inConfig(Backend)(Seq(
+      production := true,
+      securityManager := true,
+      openBrowser := { }
+    )) ++ inConfig(Kata)(dockerSettings) ++ Seq(
+      imageName in (Kata, docker) := {
+        ImageName(
+          namespace = None,
+          repository = name.value,
+          tag = Some("v" + version.value)
+        )
+      },
+      dockerfile in (Kata, docker) := {
+        val jarFile = (packageBin in Kata).value
+        val Some(main) = (mainClass in (Backend, Revolver.reStart)).value
+
+        val app = "/app"
+        val libs = s"$app/libs"
+        val katas = s"$app/katas"
+        val plugins = s"$app/plugins"
+
+        val jarTarget = s"$app/${jarFile.name}"
+        val classpath = s"$libs/*:$jarTarget"
+
+        new Dockerfile {
+          val args = {
+            val t = (startArgs in (Backend, Revolver.reStart)).value
+            val kataClasspath = (managedClasspath in Kata).value.
+                 map(_.data).
+                 map(_.getAbsoluteFile)
+            t.copy(
+              // update compiler plugin path
+              scalacOptions = t.scalacOptions.map{ v =>
+                val pluginArg = "-Xplugin:"
+                if(v.startsWith(pluginArg)) {
+                  val plugin = file(v.slice(pluginArg.length, v.length))
+                  val target = file(plugins) / plugin.name
+                  stageFile(plugin,  target)
+                  pluginArg + target.getAbsolutePath
+                } else v
+              },
+              // update frontend classpath
+              classPath = kataClasspath.map { v =>
+                val target = file(katas) / v.name
+                stageFile(v, target)
+                target
+              }
+            )
+          }
+
+          // backend classpath
+          (managedClasspath in Backend).value.files.foreach{ dep =>
+            val target = file(libs) / dep.name
+            stageFile(dep, target)
+          }
+          add(libs, libs)
+          add(jarFile, jarTarget)
+
+          // frontend classpath
+          add(katas, katas)
+          add(plugins, plugins)
+
+          // exposes
+          from("dockerfile/java:oracle-java8")
+          expose(args.port)
+          entryPoint("java", "-cp", classpath, main, args.toArgs.mkString(" "))
+        }
+      }
+    )
 }
