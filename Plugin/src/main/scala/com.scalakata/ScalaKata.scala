@@ -35,7 +35,8 @@ object Scalakata extends Plugin {
 				mkString(File.pathSeparator),
 			host,
 			port.toString,
-			production.toString
+			production.toString,
+			security.toString
 		) ++ scalacOptions
 	}
 
@@ -183,6 +184,8 @@ object Scalakata extends Plugin {
         val classpath = s"$libs/*:$jarTarget"
 
         new Dockerfile {
+					from("dockerfile/java:oracle-java8")
+
           val args = {
             val t = (startArgs in (Backend, Revolver.reStart)).value
             val kataClasspath = (managedClasspath in Kata).value.
@@ -221,9 +224,9 @@ object Scalakata extends Plugin {
           add(plugins, plugins)
 
           // exposes
-          from("dockerfile/java:oracle-java8")
+
           expose(args.port)
-          entryPoint("java", "-cp", classpath, main, args.toArgs.mkString(" "))
+          entryPoint((Seq("java", "-cp", classpath, main) ++ args.toArgs):_*)
         }
       }
     )
