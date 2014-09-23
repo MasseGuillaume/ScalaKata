@@ -134,7 +134,7 @@ gulp.task('build', ['styles', 'usemin', 'font', 'mathjax', 'fav', 'zeroclipboard
 gulp.task('buildServe', ['build', 'serveDist', 'browser']);
 
 gulp.task('serveDist', function(){
-    serveF(['dist']);
+    serveF(['out']);
 });
 
 // gulp.task('clean', function(){
@@ -153,28 +153,23 @@ gulp.task('zeroclipboard', function(){
 });
 
 gulp.task('mathjax', function(){
-  [
-    "MathJax.js",
-    "config/TeX-AMS_HTML.js",
-    "jax/output/HTML-CSS/jax.js",
-    "jax/output/HTML-CSS/fonts/TeX/fontdata.js",
-    "jax/output/HTML-CSS/imageFonts.js",
-    "jax/output/HTML-CSS/autoload/mtable.js",
-    "fonts/HTML-CSS/TeX/woff/MathJax_Main-Regular.woff",
-    "fonts/HTML-CSS/TeX/woff/MathJax_Math-Italic.woff",
-    "fonts/HTML-CSS/TeX/woff/MathJax_Size1-Regular.woff",
-    "fonts/HTML-CSS/TeX/woff/MathJax_Size2-Regular.woff",
-    "fonts/HTML-CSS/TeX/otf/MathJax_Main-Regular.otf",
-    "fonts/HTML-CSS/TeX/otf/MathJax_Size2-Regular.otf"
-  ].forEach(function(src){
-    var index = src.lastIndexOf("/"),
-        dest = "";
 
-    if(index !== -1) dest = src.slice(0, index + 1);
+  function cp(from){
+    var base = "bower_components/MathJax/";
+    return gulp.src( base + from, { "base" : base }).pipe(
+      gulp.dest("out/assets/MathJax/")
+    );
+  }
 
-    // gutil.log("src " + src + " == dst " + dest);
-    gulp.src('bower_components/MathJax/' + src).pipe(gulp.dest('out/assets/MathJax/' + dest));
-  });
+  cp("MathJax.js");
+  cp("extensions/HTML-CSS/*");
+  cp("extensions/TeX/*");
+  cp("extensions/*.js");
+  cp("fonts/HTML-CSS/TeX/woff/*");
+  cp("jax/element/**");
+  cp("jax/input/TeX/*");
+  cp("jax/output/HTML-CSS/**");
+
 });
 
 gulp.task('fav', function(){

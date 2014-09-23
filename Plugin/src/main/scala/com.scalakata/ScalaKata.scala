@@ -61,7 +61,7 @@ object Scalakata extends Plugin {
 		base = file("."),
 		settings = kataSettings
 	)
-	lazy val scalaKataVersion = "0.8.0-SNAPSHOT"
+	lazy val scalaKataVersion = "0.8.0"
 	val start = "kstart"
 
 	lazy val kataAutoStart =
@@ -164,6 +164,7 @@ object Scalakata extends Plugin {
       securityManager := true,
       openBrowser := { }
     )) ++ inConfig(Kata)(dockerSettings) ++ Seq(
+			kataUri in Backend := new URI("http://0.0.0.0:7331"),
       imageName in (Kata, docker) := {
         ImageName(
           namespace = None,
@@ -226,7 +227,8 @@ object Scalakata extends Plugin {
           // exposes
 
           expose(args.port)
-          entryPoint((Seq("java", "-cp", classpath, main) ++ args.toArgs):_*)
+          entryPoint((
+						Seq("java", "-Xmx1G", "-Xms256M", "-cp", classpath, main) ++ args.toArgs):_*)
         }
       }
     )

@@ -9,7 +9,7 @@ object Settings {
 		Seq(
 			organization := "com.scalakata",
 			scalaVersion := "2.11.2",
-			version := "0.8.0-SNAPSHOT",
+			version := "0.8.0",
 			licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html")),
 			scalacOptions += "-Yrangepos",
 			libraryDependencies ++= Seq(

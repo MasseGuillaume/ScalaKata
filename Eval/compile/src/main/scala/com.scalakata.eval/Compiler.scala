@@ -139,7 +139,7 @@ class Compiler(artifacts: String, scalacOptions: Seq[String], security: Boolean)
     }
   }
 
-  private val timeout = 60.seconds
+  private val timeout = 20.seconds
   private val jvmId = java.lang.Math.abs(new Random().nextInt())
 
   private val reporter = new StoreReporter()

@@ -1,3 +1,4 @@
+MathJax.Ajax.config.path.MathJax = "/assets/MathJax";
 MathJax.Hub.Config({
 
   //
@@ -640,7 +641,7 @@ MathJax.Hub.Config({
     //  web-fonts via the @font-face CSS directive).  Note that currently
     //  only the TeX font is available as an image font.  Set this to
     //
-    //      imageFont: null,
+    imageFont: null,
     //
     //  if you want to prevent the use of image fonts (e.g., you have not
     //  installed the image fonts on your server).  In this case, only
@@ -652,7 +653,7 @@ MathJax.Hub.Config({
     //  will be required to to download and install either the STIX fonts or the
     //  MathJax TeX fonts.
     //
-    imageFont: "TeX",
+    //  imageFont: "TeX",
 
     //
     //  This is the font-family CSS value used for characters that are not
