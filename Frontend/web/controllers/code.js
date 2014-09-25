@@ -109,6 +109,32 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			});
 		}
 	}
+	function setResource(){
+		if(window.location.pathname !== "/") {
+			setMode(false);
+			katas(window.location.pathname).then(function(r){
+				var res = wrap("","").split(r.data);
+				$scope.prelude = res[0];
+				state.code = res[1];
+				setMode(false);
+			});
+		} else {
+			if(angular.isDefined(window.localStorage['code'])){
+				state.code = window.localStorage['code'];
+			} else {
+				state.code = "";
+			}
+			if(angular.isDefined(window.localStorage['prelude'])){
+				$scope.prelude = window.localStorage['prelude'];
+			} else {
+				$scope.prelude = "";
+			}
+			setMode(false);
+		}
+	}
+	setResource();
+
+
 
 	$scope.toogleEdit = function(){
 		state.configEditing = !state.configEditing;
@@ -125,7 +151,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 		scalaEval.insight(w.full).then(function(r){
 			var data = r.data;
 			var code = $scope.code.split("\n");
-			insightRenderer.render(cmCode, w, $scope.cmOptions, data.insight, code);
+			insightRenderer.render(cmCode, w, $scope.cmOptions, data.insight, setResource);
 			errorsRenderer.render(cmCode, cmPrelude, w, data.infos, data.runtimeError, code);
 		});
 	}
@@ -170,21 +196,5 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 
 	$scope.run = run;
 
-	if(window.location.pathname !== "/") {
-		setMode(false);
-		katas(window.location.pathname).then(function(r){
-			var res = wrap("","").split(r.data);
-			$scope.prelude = res[0];
-			state.code = res[1];
-			setMode(false);
-		});
-	} else {
-		if(angular.isDefined(window.localStorage['code'])){
-			state.code = window.localStorage['code'];
-		}
-		if(angular.isDefined(window.localStorage['prelude'])){
-			$scope.prelude = window.localStorage['prelude'];
-		}
-		setMode(false);
-	}
+
 }]);

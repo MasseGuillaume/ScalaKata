@@ -2,6 +2,7 @@
 <head>
     <title>Scala Kata</title>
     <meta charset="utf-8">
+    <base href="/">
     <link rel="icon" type="image/png" href="/favicon.ico">
     <!-- build:css(bower_components) /assets/styles/libs.css -->
     <link rel="stylesheet" type="text/css" href="/codemirror/theme/monokai.css">
@@ -22,7 +23,7 @@
 </head>
 <body ng-app="ScalaKata">
   <section ui-layout ng-controller="code" class="code CodeMirror" id="code" ng-class="theme()">
-    <div size="60px">
+    <div size="0px">
       <textarea ui-codemirror="cmOptionsPrelude" ng-model="prelude"></textarea>
     </div>
     <div class="code-space">
@@ -41,6 +42,7 @@
   <script src="/angular-route/angular-route.js"></script>
   <script src="/angular-ui-layout/ui-layout.js"></script>
   <script src="/lodash/dist/lodash.js"></script>
+  <script src="/jquery/dist/jquery.js"></script>
   <script src="/marked/lib/marked.js"></script>
   <script src="/screenfull/dist/screenfull.js"></script>
   <script src="/zeroclipboard/dist/ZeroClipboard.js"></script>

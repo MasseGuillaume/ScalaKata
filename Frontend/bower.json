@@ -1,6 +1,6 @@
 {
   "name": "ScalaKata",
-  "version": "0.0.1",
+  "version": "0.8.0",
   "homepage": "",
   "authors": [
     "Guillaume Massé"
@@ -10,6 +10,7 @@
     "lodash": "~2.4.1",
     "angular": "~1.2.22",
     "angular-route": "~1.2.22",
+    "jquery": "~2.1.0",
     "MathJax": "~2.4.0",
     "marked": "~0.3.2",
     "fontawesome": "~4.1.0",

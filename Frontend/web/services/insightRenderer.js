@@ -10,7 +10,7 @@ MathJax.Hub.Configured();
 app.factory('insightRenderer', ["$timeout", function($timeout) {
 	var widgets = [];
 
-	function apply(cmCode, wrap, cmOptions, insight, cmOriginal, blockOffset){
+	function apply(cmCode, wrap, cmOptions, insight, cmOriginal, blockOffset, updateF){
 		var nl = "\n", elem, start, end, clearF, joined;
 
     start = wrap.fixRange(insight[0][0], null, cmOriginal, function(range, cm){
@@ -141,6 +141,12 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
         inline(elem);
 				break;
 		}
+    $("a", elem).on('click', function(e){
+      var path = e.target.href.replace(window.location.origin, "");
+      e.preventDefault();
+      window.history.pushState(null, "Scala Kata", path);
+      updateF(path);
+    });
     return clearF;
 	}
 	function clearFun(){
@@ -151,10 +157,10 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
 	}
 	return {
 		clear: clearFun,
-		render: function(cmCode, wrap, cmOptions, insights){
+		render: function(cmCode, wrap, cmOptions, insights, updateF){
       clearFun();
 			widgets = _.map(insights, function(insight){
-				return apply(cmCode, wrap, cmOptions, insight, cmCode, 0);
+				return apply(cmCode, wrap, cmOptions, insight, cmCode, 0, updateF);
 			});
       $timeout(function(){
         cmCode.refresh();

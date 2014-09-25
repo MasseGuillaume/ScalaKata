@@ -1,4 +1,7 @@
-MathJax.Ajax.config.path.MathJax = "/assets/MathJax";
+if(window.location.hostname != "localhost") {
+  MathJax.Ajax.config.path.MathJax = "/assets/MathJax";
+}
+
 MathJax.Hub.Config({
 
   //
