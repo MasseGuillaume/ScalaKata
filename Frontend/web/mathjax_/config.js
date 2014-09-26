@@ -1,4 +1,4 @@
-if(window.location.hostname != "localhost") {
+if(window.location.port != "5443") {
   MathJax.Ajax.config.path.MathJax = "/assets/MathJax";
 }
 

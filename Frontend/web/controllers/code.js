@@ -110,24 +110,24 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 		}
 	}
 	function setResource(){
-		if(window.location.pathname !== "/") {
+		function load(path){
 			setMode(false);
-			katas(window.location.pathname).then(function(r){
+			katas(path).then(function(r){
 				var res = wrap("","").split(r.data);
 				$scope.prelude = res[0];
 				state.code = res[1];
 				setMode(false);
 			});
+		}
+		if(window.location.pathname !== "/") {
+			load(window.location.pathname);
 		} else {
-			if(angular.isDefined(window.localStorage['code'])){
-				state.code = window.localStorage['code'];
+			if(angular.isDefined(window.localStorage['code_' + VERSION]) &&
+			   angular.isDefined(window.localStorage['prelude_' + VERSION])){
+				state.code = window.localStorage['code_' + VERSION];
+				$scope.prelude = window.localStorage['prelude_' + VERSION];
 			} else {
-				state.code = "";
-			}
-			if(angular.isDefined(window.localStorage['prelude'])){
-				$scope.prelude = window.localStorage['prelude'];
-			} else {
-				$scope.prelude = "";
+				load("/index");
 			}
 			setMode(false);
 		}
@@ -180,7 +180,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 
 	$scope.$watch('prelude', function(){
 		clear();
-		window.localStorage['prelude'] = $scope.prelude;
+		window.localStorage['prelude_' + VERSION] = $scope.prelude;
 	});
 	$scope.$watch('code', function(){
 		if(state.configEditing) {
@@ -190,7 +190,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			} catch(e){}
 		} else {
 			clear();
-			window.localStorage['code'] = $scope.code;
+			window.localStorage['code_' + VERSION] = $scope.code;
 		}
 	});
 
