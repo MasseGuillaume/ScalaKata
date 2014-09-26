@@ -139,6 +139,7 @@ object Scalakata extends Plugin {
 		Seq(
 			// the backend can serve .scala files
 			unmanagedResourceDirectories in Backend <+= sourceDirectory in Kata,
+			unmanagedResourceDirectories in Kata <+= sourceDirectory in Kata,
 			scalaVersion in Backend <<= scalaVersion in Kata,
 			startArgs in (Backend, Revolver.reStart) := StartArgs(
 				(readyPort in Backend).value,
@@ -225,10 +226,10 @@ object Scalakata extends Plugin {
           add(plugins, plugins)
 
           // exposes
-
           expose(args.port)
           entryPoint((
-						Seq("java", "-Xmx1G", "-Xms256M", "-cp", classpath, main) ++ args.toArgs):_*)
+						Seq("java", "-Xmx1G", "-Xms256M", "-cp", classpath, main) ++ args.toArgs
+					):_*)
         }
       }
     )

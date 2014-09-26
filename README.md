@@ -6,7 +6,7 @@
 add the plugin to project/plugins.sbt
 
 ```scala
-addSbtPlugin("com.scalakata" % "plugin" % "0.7.0")
+addSbtPlugin("com.scalakata" % "plugin" % "0.8.0")
 ```
 
 and to your build definition build.sbt
@@ -22,3 +22,11 @@ com.scalakata.Scalakata.kataSettings
 ```
 
 start with ```sbt kstart```
+
+## Docker
+
+It's also possible to run scala kata in a docker container:
+
+```
+sudo docker run -p 7331:7331 --name scalakata masseguillaume/scalakata:0.8.0
+```
