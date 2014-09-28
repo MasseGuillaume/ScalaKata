@@ -3,30 +3,36 @@
 ![scala kata instructor mode](https://raw.githubusercontent.com/MasseGuillaume/ScalaKata/develop/Examples/Instructor.png)
 *Instructor Mode*
 
-add the plugin to project/plugins.sbt
+## Distributions
+
+### Sbt Plugin
+
+1. add the plugin to project/plugins.sbt
 
 ```scala
 addSbtPlugin("com.scalakata" % "plugin" % "0.8.0")
 ```
 
-and to your build definition build.sbt
+2. and add the settings to your build definition build.sbt
 
 ```scala
 seq(kataSettings: _*)
 ```
 
-or in your Build.scala
+2. or in your Build.scala
 
 ```scala
 com.scalakata.Scalakata.kataSettings
 ```
 
-start with ```sbt kstart```
+3. start with ```sbt kstart```
 
-## Docker
+### Docker Container
 
-It's also possible to run scala kata in a docker container:
+1. It's also possible to run scala kata in a docker container:
 
 ```
 sudo docker run -p 7331:7331 --name scalakata masseguillaume/scalakata:0.8.0
 ```
+
+2. open your browser at http://localhost:7331

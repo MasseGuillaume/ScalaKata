@@ -51,7 +51,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 		errorsRenderer.clear();
 	}
 
-	function setMode(edit){
+	function setMode(edit, eval){
 		function refresh(cm_, next){
 			var bar, parent = cm_.display.wrapper.parentElement;
 			if(next) bar = parent.nextElementSibling;
@@ -103,20 +103,22 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 				})
 			}
 
-			$timeout(function(){
-				$scope.code = state.code;
-				run();
-			});
+			if(eval) {
+				$timeout(function(){
+					$scope.code = state.code;
+					run();
+				});
+			}
 		}
 	}
 	function setResource(){
 		function load(path){
-			setMode(false);
+			setMode(false, false);
 			katas(path).then(function(r){
 				var res = wrap("","").split(r.data);
 				$scope.prelude = res[0];
 				state.code = res[1];
-				setMode(false);
+				setMode(false, true);
 			});
 		}
 		if(window.location.pathname !== "/") {
@@ -129,7 +131,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			} else {
 				load("/index");
 			}
-			setMode(false);
+			setMode(false, true);
 		}
 	}
 	setResource();

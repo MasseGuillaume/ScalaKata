@@ -173,7 +173,7 @@ gulp.task('mathjax', function(){
 });
 
 gulp.task('fav', function(){
-    gulp.src('web/favicon.ico')
+    gulp.src('web/assets/favicon.ico')
     .pipe(gulp.dest('out/assets/'));
 })
 

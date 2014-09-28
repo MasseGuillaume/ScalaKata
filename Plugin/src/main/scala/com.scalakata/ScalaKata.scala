@@ -51,8 +51,6 @@ object Scalakata extends Plugin {
 	lazy val startArgs2 = TaskKey[Seq[String]]("start-args2",
 			"The arguments to be passed to the applications main method when being started")
 
-	// todo
-	// lazy val forkEval = SettingKey[Boolean]("")
   lazy val securityManager = SettingKey[Boolean]("security-manager", "turn on jvm security manager")
 	lazy val production = SettingKey[Boolean]("production", "deployed version")
 
@@ -71,7 +69,8 @@ object Scalakata extends Plugin {
 
 	lazy val kataSettings =
 		Project.defaultSettings ++
-		addCommandAlias(start, ";backend:reStart ;backend:openBrowser; ~ backend:copyResources") ++
+		addCommandAlias(start, ";backend:reStart ;backend:openBrowser ;kwatch") ++
+		addCommandAlias("kwatch", "~ ;backend:copyResources ;kata:compile") ++
 		addCommandAlias("kstop", "backend:reStop") ++
 		addCommandAlias("krestart", ";backend:reStop ;backend:reStart") ++
 		inConfig(Backend)(
@@ -129,6 +128,7 @@ object Scalakata extends Plugin {
 			Seq(
 				scalaVersion := "2.11.2",
 				scalacOptions += "-Yrangepos",
+				unmanagedResourceDirectories in packageBin <+= sourceDirectory,
 				libraryDependencies ++= Seq(
 					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % scalaKataVersion,
 					"org.scala-lang" % "scala-compiler" % scalaVersion.value,
@@ -139,7 +139,6 @@ object Scalakata extends Plugin {
 		Seq(
 			// the backend can serve .scala files
 			unmanagedResourceDirectories in Backend <+= sourceDirectory in Kata,
-			unmanagedResourceDirectories in Kata <+= sourceDirectory in Kata,
 			scalaVersion in Backend <<= scalaVersion in Kata,
 			startArgs in (Backend, Revolver.reStart) := StartArgs(
 				(readyPort in Backend).value,
