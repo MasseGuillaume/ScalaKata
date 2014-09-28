@@ -27,10 +27,12 @@ case class Record[K: Ordering, V](inner: MMap[K, Queue[V]] = MMap.empty[K, Queue
 
 object ScalaKataMacro {
   private val instrName = "instr$"
-  def desugar_impl[T](c: Context)(code: c.Expr[T]): c.Expr[com.scalakata.eval.Html] = {
+  def desugar_impl[T](c: Context)(code: c.Expr[T]): c.Expr[com.scalakata.eval.Markdown] = {
     import c.universe._
-    val pre = s"<pre>${showCode(code.tree)}</pre>"
-    c.Expr[com.scalakata.eval.Html](q"com.scalakata.eval.Html($pre)")
+    val pre = s"""|```scala
+                  |${showCode(code.tree)}
+                  |```"""
+    c.Expr[com.scalakata.eval.Markdown](q"com.scalakata.eval.Markdown($pre)")
   }
 
   def trace_implf(c: Context): c.Expr[Any ⇒ Unit] = {

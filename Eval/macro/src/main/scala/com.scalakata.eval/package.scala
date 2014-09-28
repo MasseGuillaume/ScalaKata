@@ -75,7 +75,7 @@ package object eval {
     }
   }
 
-  def desugar[T](code: T): com.scalakata.eval.Html = macro ScalaKataMacro.desugar_impl[T]
+  def desugar[T](code: T): com.scalakata.eval.Markdown = macro ScalaKataMacro.desugar_impl[T]
 
   def trace: Any => Unit = macro ScalaKataMacro.trace_implf
   def print: Any => Unit = macro ScalaKataMacro.trace_implf
