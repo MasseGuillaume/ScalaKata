@@ -5,6 +5,7 @@ import eval._
 
 import akka.actor._
 import spray.routing.HttpService
+import spray.http.StatusCodes
 
 class ScalaKataActor(
 	override val artifacts: String,
@@ -26,6 +27,11 @@ trait ScalaKata extends HttpService {
 	import Response._
 
 	lazy val compiler = new Compiler(artifacts, scalacOptions, security)
+
+	val redirectCodebrew = hostName { hn =>
+		if(hn == "codebrew.io") redirect("www.scalakata.com", StatusCodes.PermanentRedirect)
+		else getFromResource("assets/index.html")
+	}
 
 	val route = {
 		path("eval") {
@@ -53,7 +59,7 @@ trait ScalaKata extends HttpService {
 			}
 		} ~
 		pathSingleSlash {
-			getFromResource("assets/index.html")
+			redirectCodebrew
     } ~
 		path("assets" / Rest) { path ⇒
 			getFromResource(s"assets/$path")
@@ -62,7 +68,7 @@ trait ScalaKata extends HttpService {
 			getFromResource(s"scala/$path")
 		} ~
 		path(Rest) { path ⇒
-			getFromResource("assets/index.html")
+			redirectCodebrew
 		}
 	}
 }
