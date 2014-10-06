@@ -26,7 +26,17 @@ package object eval {
     def stripMargin = Markdown(a.stripMargin)
   }
 
+  case class Markdown2(a: String) extends Render {
+    override def toString = a
+    def stripMargin = Markdown(a.stripMargin)
+  }
+
   case class Html(a: String) extends Render {
+    override def toString = a
+    def stripMargin = Html(a.stripMargin)
+  }
+
+  case class Html2(a: String) extends Render {
     override def toString = a
     def stripMargin = Html(a.stripMargin)
   }
@@ -45,7 +55,9 @@ package object eval {
       case _: scala.xml.Elem ⇒ Html(a.toString)
       case l: Latex ⇒ l
       case md: Markdown ⇒ md
+      case md2: Markdown2 ⇒ md2
       case h: Html ⇒ h
+      case h2: Html2 ⇒ h2
       case other ⇒ Other(other.toString)
     }
   }
@@ -66,6 +78,16 @@ package object eval {
     }
     def mdR(args: Any*) = markdownR(args: _*)
   }
+  implicit class MarkdownHelper2(val sc: StringContext) extends AnyVal {
+    def markdown2(args: Any*): Markdown2 = {
+      Markdown2(sc.s(args: _*))
+    }
+    def md2(args: Any*) = markdown2(args: _*)
+    def markdownR2(args: Any*): Markdown2 = {
+      Markdown2(sc.raw(args: _*))
+    }
+    def mdR2(args: Any*) = markdownR2(args: _*)
+  }
   implicit class HtmlHelper(val sc: StringContext) extends AnyVal {
     def html(args: Any*): Html = {
       Html(sc.s(args: _*))
@@ -74,8 +96,16 @@ package object eval {
       Html(sc.raw(args: _*))
     }
   }
+  implicit class HtmlHelper2(val sc: StringContext) extends AnyVal {
+    def html2(args: Any*): Html2 = {
+      Html2(sc.s(args: _*))
+    }
+    def htmlR2(args: Any*): Html2 = {
+      Html2(sc.raw(args: _*))
+    }
+  }
 
-  def desugar[T](code: T): com.scalakata.eval.Markdown = macro ScalaKataMacro.desugar_impl[T]
+  def desugar[T](code: T): com.scalakata.eval.Markdown2 = macro ScalaKataMacro.desugar_impl[T]
 
   def trace: Any => Unit = macro ScalaKataMacro.trace_implf
   def print: Any => Unit = macro ScalaKataMacro.trace_implf

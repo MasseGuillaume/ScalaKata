@@ -49,14 +49,45 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
       clearF = function(){ widget.clear() };
     }
 
+    function html(){
+      // load script
+      elem = document.createElement("div");
+      elem.innerHTML = joined("");
+    }
+
+    function markdown(){
+      elem = document.createElement("div");
+      elem.innerHTML = marked.parse(joined(nl), {
+        ghf: true,
+        highlight: function (code, lang) {
+          var elem = document.createElement("div"),
+              option = angular.copy(cmOptions),
+              langs = {
+                "scala": "text/x-scala",
+                "json": "application/json"
+              },
+              mode = langs[lang] || "";
+
+
+          CodeMirror.runMode(code, mode, elem, option);
+          return elem.innerHTML;
+        }
+      });
+
+      elem.className = "markdown";
+    }
+
 		switch (insight[1][0].type) {
 			case "html":
-				// load script
-        elem = document.createElement("div");
-        elem.innerHTML = joined("");
-
+				html();
         fold(elem);
 				break;
+
+      case "html2":
+        html();
+        inline(elem);
+        break;
+
 			case "latex":
 
         var $script = angular.element("<script type='math/tex'>")
@@ -70,27 +101,14 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
 
 				break;
 			case "markdown":
-				elem = document.createElement("div");
-        elem.innerHTML = marked.parse(joined(nl), {
-          ghf: true,
-          highlight: function (code, lang) {
-            var elem = document.createElement("div"),
-                option = angular.copy(cmOptions),
-                langs = {
-                  "scala": "text/x-scala",
-                  "json": "application/json"
-                },
-                mode = langs[lang] || "";
-
-
-            CodeMirror.runMode(code, mode, elem, option);
-            return elem.innerHTML;
-          }
-        });
-
-        elem.className = "markdown";
+				markdown();
         fold(elem);
 				break;
+
+      case "markdown2":
+        markdown();
+        inline(elem);
+        break;
 
       case "block":
         var $element = angular.element("<div>"),

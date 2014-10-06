@@ -15,8 +15,8 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-	"com.scalakata" %% "eval" % "0.8.0",
-	"com.scalakata" % "frontend" % "0.8.0",
+	"com.scalakata" %% "eval" % version.value,
+	"com.scalakata" % "frontend" % version.value,
 	"io.spray" %% "spray-can" % "1.3.1",
 	"io.spray" %% "spray-routing" % "1.3.1",
 	"io.spray" %% "spray-testkit" % "1.3.1" % "test",

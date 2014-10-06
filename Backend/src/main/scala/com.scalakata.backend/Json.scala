@@ -67,8 +67,10 @@ object Response {
 			val res =
 				s match {
 					case Html(v) ⇒ wrap("html", v)
+					case Html2(v) ⇒ wrap("html2", v)
 					case Latex(v) ⇒ wrap("latex", v)
 					case Markdown(v) ⇒ wrap("markdown", v)
+					case Markdown2(v) ⇒ wrap("markdown2", v)
 					case EString(v) ⇒ wrap("string", v)
 					case Other(v) ⇒ wrap("other", v)
 					case Block(cs) ⇒ wrap2("block", toJson(cs))

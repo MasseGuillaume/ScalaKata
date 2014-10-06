@@ -27,12 +27,12 @@ case class Record[K: Ordering, V](inner: MMap[K, Queue[V]] = MMap.empty[K, Queue
 
 object ScalaKataMacro {
   private val instrName = "instr$"
-  def desugar_impl[T](c: Context)(code: c.Expr[T]): c.Expr[com.scalakata.eval.Markdown] = {
+  def desugar_impl[T](c: Context)(code: c.Expr[T]): c.Expr[com.scalakata.eval.Markdown2] = {
     import c.universe._
     val pre = s"""|```scala
                   |${showCode(code.tree)}
-                  |```"""
-    c.Expr[com.scalakata.eval.Markdown](q"com.scalakata.eval.Markdown($pre)")
+                  |```""".stripMargin
+    c.Expr[com.scalakata.eval.Markdown2](q"com.scalakata.eval.Markdown2($pre)")
   }
 
   def trace_implf(c: Context): c.Expr[Any ⇒ Unit] = {
@@ -93,36 +93,16 @@ object ScalaKataMacro {
         case ident: Ident ⇒ inst(ident) // a
         case apply: Apply ⇒ inst(apply) // f(..)
 
-        case block @ Block(childs, last) if (depth == 0) ⇒ instBlock(block, childs, last, depth) // { }
+        case block @ Block(childs, last) if (depth == 0) ⇒ instBlock(block, childs, last, depth)
         case select: Select ⇒ inst(select)
         case mat: Match ⇒ inst(mat)
         case tr: Try ⇒ inst(tr)
-
-        // valdef is added to parent scope
-        case ValDef(_, _, _, Literal(_)) if (depth == 0) => q"" // dont instrument trivial things
-        case vd @ ValDef(_, name, _, rhs) if (depth == 0) => inst2(Ident(name), vd) // just ident
-        case _: DefDef if (depth == 0) ⇒ q""
-        case _: TypeDef if (depth == 0) ⇒ q""
-        case _: Import if (depth == 0) ⇒ q""
         case otherwise ⇒ otherwise
-      }
-
-      // we extract val, def, etc so they can be used outside the instrumentation
-      val bodyUI = {
-        body collect {
-          case vd: ValDef ⇒ vd
-          case dd: DefDef ⇒ dd
-          case td: TypeDef ⇒ td
-          case i: Import ⇒ i
-          case o: ModuleDef ⇒ o // objects
-          case c: ClassDef ⇒ c
-        }
       }
 
       q"""
       object $name extends ..$extend {
         private var $instr = Record[Range, Render]()
-        ..$bodyUI
         def ${TermName("eval$")}(): OrderedRender = {
           ..${body.map(b => topInst(b))}
           ${instr}.ordered
