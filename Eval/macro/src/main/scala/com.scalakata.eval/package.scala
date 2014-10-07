@@ -105,7 +105,7 @@ package object eval {
     }
   }
 
-  def desugar[T](code: T): com.scalakata.eval.Markdown2 = macro ScalaKataMacro.desugar_impl[T]
+  def desugar[T](code: T): Unit = ???
 
   def trace: Any => Unit = macro ScalaKataMacro.trace_implf
   def print: Any => Unit = macro ScalaKataMacro.trace_implf

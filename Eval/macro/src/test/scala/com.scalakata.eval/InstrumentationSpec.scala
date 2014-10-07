@@ -5,247 +5,45 @@ import scala.collection.immutable.Queue
 import org.specs2._
 
 class InstrumentationSpecs extends Specification { def is = s2"""
-	vals $vals
-	vals2 $vals2
+	ident $ident
+	desugar $desugar
 """
-
-	/*
-	block imports $block_imports
-	trace $trace
-	gracefully handle sideEffects $sideEffects
-	cool $cool
-	test $test
-	desugar $desugarTest
-	dont instrument val, def & type = $preserve
-	block $block
-	*/
-
-	private val before = Ordering[Range].lt _
-
-	def vals = {
-		@ScalaKata
-		object A {
-			val a = 1 + 1
-		}
-		A.eval$() must beLike {
-			case List(
-				(_, List(Other("2")))
-			) => ok
-			case _ => ko
-		}
-	}
-
-	def vals2 = {
-		@ScalaKata
-		object A {
-			val a = 1 + 1
-			val b = 1 + 1
-		}
-		A.eval$() must beLike {
-			case List(
-				(_, List(Other("2"))),
-				(_, List(Other("2")))
-			) => ok
-			case _ => ko
-		}
-	}
-
-	/*def block_imports = {
-		@ScalaKata
-		object A {
-			{
-				import scala.collection.mutable.{Map => MMap}
-				MMap(1 -> 1)
-				val test = 1
-				test
-			}
-		}
-		A.eval$() must beLike {
-			case List(
-				(_, List(Block(List(
-						(_, List(Other("Map(1 -> 1)"))),
-						(_, List(Other("1")))
-					))
-				))
-			) => ok
-			case _ => ko
-		}
-	}*/
-
-	/*def trace = {
-		@ScalaKata
-		object A {
-			def test[T](a: T) = {
-				println(-1)
-				(1 to 10).foreach(println)
-				identity(-3)
-			};
-
-			{
-				(12 to 14).foreach(println)
-				identity(-5)
-			};
-
-			test(-2)
-		}
-
-		A.eval$() must beLike {
-			case List(
-				(_, List(Other("-1"))),
-				(_, List(Other("1"), Other("2"), Other("3"), Other("4"), Other("5"),
-								 Other("6"), Other("7"), Other("8"), Other("9"), Other("10")
-				)),
-				(_, List(Block(List(
-						(_, List(Other("12"), Other("13"), Other("14"))),
-						(_, List(Other("-5")))
-					))
-				)),
-				(_, List(Other("-3")))
-			) => ok
-			case _ => ko
-		}
-	}*/
-
-
-	/*def test = {
-		@ScalaKata
-		object A {
-			identity(1)
-			latex"latex"
-			html"html"
-			markdown"markdown";
-			{
-				html"html2"
-				markdown"markdown2"
-			}
-			1+1
-		}
-
-
-		sortByRange(A.eval$()) must beLike {
-			case List(
-				Other("1"),
-				Latex("latex"),
-				Html("html"),
-				Markdown("markdown"),
-				Block(List(
-					(pb1, Html("html2")),
-
-					(pb2, Markdown("markdown2"))
-				)),
-				Other("2")
-			) if(before(pb1, pb2)) => ok
-			case _ => ko
-		}
-	}*/
-
-	/*def desugarTest = {
-		@ScalaKata
-		object A {
-			desugar {
-				for {
-        	i <- 1 to 10
-            j <- 1 to 10
-        } yield (i * j)
-			}
-		}
-
-		A.eval$().values.to[List].map(_._1) must contain ((v: String) => v must contain("flatMap"))
-	}*/
-
-	/*def preserve = {
-		@ScalaKata
-		object A {
-			type T = Int
+	def ident = {
+		@ScalaKata object A {
 			val a = 1
-			def b = 2
+			a
 		}
-		val res: A.T = 1
-		A.a ==== 1 &&
-		A.b ==== 2
-	}*/
-
-	/*def sideEffects = {
-		@ScalaKata
-		object A {
-			var a = 1
-			val b = {a = a + 1; a}
-			b
-			b
+		A.eval$() must beLike {
+			case List((_, List(Other("1")))) => ok
+			case _ => ko
 		}
-
-		sortByPosition(A.eval$()) ==== List(
-			("1", RT_Other),
-			("2", RT_Other),
-			("2", RT_Other),
-			("2", RT_Other)
-		)
 	}
 
-	def cool = {
-		@ScalaKata
-		object A {
-			val (a, b) = (1, 2)
-			a
-			b
-			"string"
-			<b>xml</b>
-			for(i <- 1 to 3) yield i
-			List(1, 2, 3)
-			md"markdown"
-			markdown"## test"
-			tex"tex"
-			latex"latex"
-			html"html"
-		}
+	def desugar = {
+		@ScalaKata object A {
+			desugar {
+				List(1, 2).map(_+1)
 
-		sortByPosition(A.eval$()) ==== List(
-			("1", RT_Other),
-			("2", RT_Other),
-			("1", RT_Other),
-			("2", RT_Other),
-			("string", RT_String),
-			("<b>xml</b>", RT_Html),
-			("Vector(1, 2, 3)", RT_Other),
-			("List(1, 2, 3)", RT_Other),
-			("markdown", RT_Markdown),
-			("## test", RT_Markdown),
-			("tex", RT_Latex),
-			("latex", RT_Latex),
-			("html", RT_Html)
-		)
-	}*/
-
-	/*def block = {
-		@ScalaKata
-		object A {
-			identity(0)
-
-			{
-				identity(1)
-				identity(2)
-				identity(3)
+				for {
+					i <- 1 to 10
+					j <- 1 to 10
+				} yield (i, j)
 			}
-
-			identity(4)
-
-			{
-				identity(5)
-			}
-
-			identity(6)
 		}
-
-		sortByPosition(A.eval$()) ==== List(
-			("0", RT_Other),
-			("3", RT_Block),
-			("1", RT_Other),
-			("2", RT_Other),
-			("3", RT_Other),
-			("4", RT_Other),
-			("5", RT_Block),
-			("5", RT_Other),
-			("6", RT_Other)
-		)
-	}*/
+//
+//List(((397,493),
+//	List(Block(List(
+//		((397,493),
+//		List("""|```scala
+//					  |List(1, 2).map(((x$1) => x$1.+(1)))
+//						|```""".stripMargin,
+//						```scala
+//1.to(10).flatMap(((i) => 1.to(10).map(((j) => scala.Tuple2(i, j)))))
+//```)), ((417,422),List(Other(List(2, 3)))), ((441,488),List(Other(Vector((1,1), (1,2), (1,3), (1,4), (1,5), (1,6), (1,7), (1,8), (1,9), (1,10), (2,1), (2,2), (2,3), (2,4), (2,5), (2,6), (2,7), (2,8), (2,9), (2,10), (3,1), (3,2), (3,3), (3,4), (3,5), (3,6), (3,7), (3,8), (3,9), (3,10), (4,1), (4,2), (4,3), (4,4), (4,5), (4,6), (4,7), (4,8), (4,9), (4,10), (5,1), (5,2), (5,3), (5,4), (5,5), (5,6), (5,7), (5,8), (5,9), (5,10), (6,1), (6,2), (6,3), (6,4), (6,5), (6,6), (6,7), (6,8), (6,9), (6,10), (7,1), (7,2), (7,3), (7,4), (7,5), (7,6), (7,7), (7,8), (7,9), (7,10), (8,1), (8,2), (8,3), (8,4), (8,5), (8,6), (8,7), (8,8), (8,9), (8,10), (9,1), (9,2), (9,3), (9,4), (9,5), (9,6), (9,7), (9,8), (9,9), (9,10), (10,1), (10,2), (10,3), (10,4), (10,5), (10,6), (10,7), (10,8), (10,9), (10,10))))))))))
+//
+//		A.eval$() must beLike {
+//			case List((_, List(Other("1")))) => ok
+//			case _ => ko
+//		}
+//	}
 }

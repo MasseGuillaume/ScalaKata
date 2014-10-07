@@ -27,13 +27,6 @@ case class Record[K: Ordering, V](inner: MMap[K, Queue[V]] = MMap.empty[K, Queue
 
 object ScalaKataMacro {
   private val instrName = "instr$"
-  def desugar_impl[T](c: Context)(code: c.Expr[T]): c.Expr[com.scalakata.eval.Markdown2] = {
-    import c.universe._
-    val pre = s"""|```scala
-                  |${showCode(code.tree)}
-                  |```""".stripMargin
-    c.Expr[com.scalakata.eval.Markdown2](q"com.scalakata.eval.Markdown2($pre)")
-  }
 
   def trace_implf(c: Context): c.Expr[Any ⇒ Unit] = {
     import c.universe._
@@ -73,27 +66,40 @@ object ScalaKataMacro {
       }
       def inst(expr: Tree): Tree = inst2(expr, expr)
 
-      def instBlock(block: Tree, childs: List[Tree], last: Tree, depth: Int): Tree = {
+      def block(block: Tree, childs: List[Tree], depth: Int, desug: Boolean = false): Tree = {
         val t = TermName("t$")
         val oldinstr = TermName("oldinstr$")
-        q"""
-        {
+
+        def des(tree: Tree): Tree = {
+          val pre = s"""|```scala
+              |${showCode(tree)}
+              |```""".stripMargin
+          q"${instr}(${tree.pos}) = com.scalakata.eval.Markdown2($pre)"
+        }
+
+        val childs2 = childs.flatMap{ s =>
+          val ins = topInst(s, depth + 1)
+          if(desug) List(des(s), ins)
+          else List(ins)
+        }
+
+        q"""{
           val $oldinstr = $instr
           $instr = Record[Range, Render]()
-          ..${childs.map(s => topInst(s, depth + 1))}
-          val $t = ${topInst(last, depth + 1)}
+          ..$childs2
           ${oldinstr}(${block.pos}) = Block(${instr}.ordered)
           $instr = $oldinstr
-          $t
-        }
-        """
+          ()
+        }"""
       }
 
+
       def topInst(tree: Tree, depth: Int = 0): Tree = tree match {
+        case t @ q"desugar{ ..$body }" ⇒ block(t, body, depth, true)
         case ident: Ident ⇒ inst(ident) // a
         case apply: Apply ⇒ inst(apply) // f(..)
 
-        case block @ Block(childs, last) if (depth == 0) ⇒ instBlock(block, childs, last, depth)
+        case bl @ Block(childs, last) if (depth == 0) ⇒ block(bl, childs ::: List(last), depth)
         case select: Select ⇒ inst(select)
         case mat: Match ⇒ inst(mat)
         case tr: Try ⇒ inst(tr)
@@ -114,7 +120,9 @@ object ScalaKataMacro {
     c.Expr[Any]{
       annottees.map(_.tree).toList match {
         case q"object $name extends ..$extend { ..$body }" :: Nil ⇒
-          instrument(body, name, extend)
+          val r = instrument(body, name, extend)
+          oprintln(r)
+          r
       }
     }
   }

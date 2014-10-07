@@ -120,6 +120,7 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
         $element.append(ta);
         cmOptions2.readOnly = true;
         cmOptions2.lineNumbers = false;
+        cmOptions2.scrollPastEnd = false;
         var cm = CodeMirror.fromTextArea(ta, cmOptions2);
 
         var client = new ZeroClipboard(clip);
