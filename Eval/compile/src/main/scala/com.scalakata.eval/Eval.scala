@@ -59,6 +59,14 @@ class Eval(settings: Settings, security: Boolean) {
             else Set(fs)
           }
         }
+        val test =
+          recurseFolders(target).
+          map(_.path).
+          map(((removeExt _) compose (removeMem _))).
+          map(_.replace('/', '.')).
+          filterNot(_.last == '$')
+        oprintln(test)
+        
         val classes =
           recurseFolders(target).
           map(_.path).

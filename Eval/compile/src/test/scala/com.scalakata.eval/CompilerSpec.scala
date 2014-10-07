@@ -7,9 +7,29 @@ import java.io.File
 import org.specs2._
 
 class CommpilerSpecs extends Specification { def is = s2"""
-  nopackage $nopackage
+  linkage $linkage
 """
+
+  def linkage = {
+    val c = compiler
+    val inner = """|(new BC).f
+                   |(new CB).f""".stripMargin
+
+    val code = s"""|trait A { def f: String }
+                   |trait B extends A { override def f = "B" }
+                   |trait C extends A { override def f = "C" }
+                   |class BC extends A with B with C
+                   |class CB extends A with C with B
+                   |${wrap(inner)}""".stripMargin
+
+    val result = c.insight(code)
+    oprintln(code)
+    oprintln(result)
+    result.insight must not be empty
+  }
+
   /*
+  nopackage $nopackage
   compilation infos $infos
   runtimeErrors $runtimeErrors
   works $works
@@ -31,7 +51,7 @@ class CommpilerSpecs extends Specification { def is = s2"""
       mkString(File.pathSeparator)
 
   val scalacOptions = sbt.BuildInfo.scalacOptions.to[Seq]
-  def compiler = new Compiler(artifacts, scalacOptions)
+  def compiler = new Compiler(artifacts, scalacOptions, security = false)
 
   def nopackage = {
     val c = compiler
