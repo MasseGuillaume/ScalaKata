@@ -10,6 +10,11 @@ import scala.tools.nsc.reporters.StoreReporter
 import java.net.{URL, URLClassLoader}
 import java.io.File
 
+class OneTimeLoader(root: AbstractFile, parent: java.lang.ClassLoader) extends AbstractFileClassLoader(root, parent) {
+  override def loadClass(name: String): Class[_] =
+    super.loadClass(name, true)
+}
+
 class Eval(settings: Settings, security: Boolean) {
 
   if(security) {
@@ -27,7 +32,7 @@ class Eval(settings: Settings, security: Boolean) {
   }
 
   private val target = new VirtualDirectory("(memory)", None)
-  private var classLoader: AbstractFileClassLoader = _
+  private var classLoader: OneTimeLoader = _
 
   settings.outputDirs.setSingleOutput(target)
   settings.Ymacroexpand.value = settings.MacroExpand.Normal
@@ -59,33 +64,25 @@ class Eval(settings: Settings, security: Boolean) {
             else Set(fs)
           }
         }
-        val test =
-          recurseFolders(target).
-          map(_.path).
-          map(((removeExt _) compose (removeMem _))).
-          map(_.replace('/', '.')).
-          filterNot(_.last == '$')
-        oprintln(test)
-        
-        val classes =
-          recurseFolders(target).
-          map(_.path).
-          map(((removeExt _) compose (removeMem _))).
-          map(_.replace('/', '.')).
-          filterNot(_.last == '$').
-          map(classLoader.findClass)
 
         val instrClass =
-        	classes.find(_.getMethods.exists(m =>
-            m.getName == "eval$" &&
-        		m.getReturnType == classOf[OrderedRender])
-        	)
+          recurseFolders(target).
+          map(_.path).
+          map(((removeExt _) compose (removeMem _))).
+          map(_.replace('/', '.')).
+          filterNot(c => c.endsWith("$") || c.endsWith("$class")).
+          find { n =>
+            classLoader.loadClass(n).getMethods.exists(m =>
+              m.getName == "eval$" &&
+              m.getReturnType == classOf[OrderedRender]
+            )
+          }
 
         import scala.reflect.runtime.{universe => ru}
         val m = ru.runtimeMirror(classLoader)
 
         instrClass.map{c =>
-          m.reflectModule(m.staticModule(c.getName)).
+          m.reflectModule(m.staticModule(c)).
             instance.asInstanceOf[{def eval$(): OrderedRender}].eval$()
         }
       }
@@ -136,7 +133,7 @@ class Eval(settings: Settings, security: Boolean) {
   private def reset(): Unit = {
     target.clear()
     reporter.reset()
-    classLoader = new AbstractFileClassLoader(target, artifactLoader)
+    classLoader = new OneTimeLoader(target, artifactLoader)
   }
 
   private def compile(code: String): Unit = {

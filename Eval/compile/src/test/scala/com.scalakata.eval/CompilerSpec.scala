@@ -23,8 +23,6 @@ class CommpilerSpecs extends Specification { def is = s2"""
                    |${wrap(inner)}""".stripMargin
 
     val result = c.insight(code)
-    oprintln(code)
-    oprintln(result)
     result.insight must not be empty
   }
 

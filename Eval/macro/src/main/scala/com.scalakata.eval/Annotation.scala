@@ -120,9 +120,7 @@ object ScalaKataMacro {
     c.Expr[Any]{
       annottees.map(_.tree).toList match {
         case q"object $name extends ..$extend { ..$body }" :: Nil ⇒
-          val r = instrument(body, name, extend)
-          oprintln(r)
-          r
+          instrument(body, name, extend)
       }
     }
   }
