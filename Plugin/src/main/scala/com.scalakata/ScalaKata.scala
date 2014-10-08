@@ -127,7 +127,7 @@ object Scalakata extends Plugin {
 			Defaults.compileBase ++
 			Seq(
 				scalaVersion := "2.11.2",
-				scalacOptions += "-Yrangepos",
+				scalacOptions ++= Seq("-Yrangepos", "-unchecked", "-deprecation", "-feature"),
 				unmanagedResourceDirectories in packageBin <+= sourceDirectory,
 				libraryDependencies ++= Seq(
 					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % scalaKataVersion,

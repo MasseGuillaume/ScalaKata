@@ -4,6 +4,7 @@ import scala.tools.nsc.{Global, Settings}
 import scala.reflect.internal.util.{BatchSourceFile, AbstractFileClassLoader}
 
 import scala.tools.nsc.io.{VirtualDirectory, AbstractFile}
+import scala.reflect.internal.util.NoPosition
 
 import scala.tools.nsc.reporters.StoreReporter
 
@@ -98,11 +99,15 @@ class Eval(settings: Settings, security: Boolean) {
 
   private def check(): Map[Severity, List[CompilationInfo]] = {
     val infos =
-      reporter.infos.map {
-        info ⇒ (
+      reporter.infos.map { info ⇒
+        val (start, end) = info.pos match {
+          case NoPosition => (0, 0)
+          case _ => (info.pos.startOrPoint, info.pos.endOrPoint)
+        }
+        (
           info.severity,
-          info.pos.start,
-          info.pos.end,
+          start,
+          end,
           info.msg
         )
       }.to[List]
