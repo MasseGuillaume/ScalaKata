@@ -160,12 +160,21 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
         inline(elem);
 				break;
 		}
-    $("a", elem).on('click', function(e){
-      var path = e.target.href.replace(window.location.origin, "");
-      e.preventDefault();
-      window.history.pushState(null, "Scala Kata", path);
-      updateF(path);
-    });
+    $("a", elem).map(function(i, e){
+      function domain(url) {
+          return url.replace('http://','').replace('https://','').split('/')[0];
+      };
+      if(domain(e.href) === domain(window.location.origin)) {
+        $(e).on('click', function(ev){
+          var path = e.href.replace(window.location.origin, "");
+          ev.preventDefault();
+          window.history.pushState(null, "Scala Kata", path);
+          updateF(path);
+        })
+      } else {
+          e.target = "_blank";
+      }
+    })
     return clearF;
 	}
 	function clearFun(){
