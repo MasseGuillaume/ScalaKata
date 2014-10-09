@@ -11,10 +11,10 @@ object Settings {
 			scalaVersion := "2.11.2",
 			version := "0.9.0-SNAPSHOT",
 			licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html")),
-			scalacOptions += "-Yrangepos",
+			scalacOptions ++= Seq("-Yrangepos", "-unchecked", "-deprecation", "-feature"),
 			libraryDependencies ++= Seq(
 				"org.scala-lang" % "scala-compiler" % scalaVersion.value,
-				 "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+				"org.scala-lang" % "scala-reflect" % scalaVersion.value,
 				"org.specs2" %% s"specs2" % "2.4.2" % "test"
 			),
 			resolvers += Resolver.sonatypeRepo("releases"),

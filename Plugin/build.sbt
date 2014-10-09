@@ -21,3 +21,5 @@ repository in bintray := "sbt-plugins"
 bintrayOrganization in bintray := None
 
 scalaVersion := "2.10.4"
+
+scalacOptions ++= Seq("-Yrangepos", "-unchecked", "-deprecation", "-feature"),

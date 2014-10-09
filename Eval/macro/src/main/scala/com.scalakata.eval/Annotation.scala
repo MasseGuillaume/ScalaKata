@@ -93,7 +93,6 @@ object ScalaKataMacro {
         }"""
       }
 
-
       def topInst(tree: Tree, depth: Int = 0): Tree = tree match {
         case t @ q"desugar{ ..$body }" ⇒ block(t, body, depth, true)
         case ident: Ident ⇒ inst(ident) // a
@@ -103,11 +102,19 @@ object ScalaKataMacro {
         case select: Select ⇒ inst(select)
         case mat: Match ⇒ inst(mat)
         case tr: Try ⇒ inst(tr)
+        case c: ClassDef ⇒ q""
+        case m: ModuleDef ⇒ q""
         case otherwise ⇒ otherwise
+      }
+
+      val classAndObjects = body.collect {
+        case c: ClassDef ⇒ c
+        case m: ModuleDef ⇒ m
       }
 
       q"""
       object $name extends ..$extend {
+        ..$classAndObjects
         private var $instr = Record[Range, Render]()
         def ${TermName("eval$")}(): OrderedRender = {
           ..${body.map(b => topInst(b))}

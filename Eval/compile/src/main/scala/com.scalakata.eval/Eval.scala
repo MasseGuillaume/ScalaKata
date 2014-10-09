@@ -11,10 +11,7 @@ import scala.tools.nsc.reporters.StoreReporter
 import java.net.{URL, URLClassLoader}
 import java.io.File
 
-class OneTimeLoader(root: AbstractFile, parent: java.lang.ClassLoader) extends AbstractFileClassLoader(root, parent) {
-  override def loadClass(name: String): Class[_] =
-    super.loadClass(name, true)
-}
+import scala.language.reflectiveCalls
 
 class Eval(settings: Settings, security: Boolean) {
 
@@ -33,7 +30,7 @@ class Eval(settings: Settings, security: Boolean) {
   }
 
   private val target = new VirtualDirectory("(memory)", None)
-  private var classLoader: OneTimeLoader = _
+  private var classLoader: AbstractFileClassLoader = _
 
   settings.outputDirs.setSingleOutput(target)
   settings.Ymacroexpand.value = settings.MacroExpand.Normal
@@ -102,7 +99,7 @@ class Eval(settings: Settings, security: Boolean) {
       reporter.infos.map { info ⇒
         val (start, end) = info.pos match {
           case NoPosition => (0, 0)
-          case _ => (info.pos.startOrPoint, info.pos.endOrPoint)
+          case _ => (info.pos.start, info.pos.end)
         }
         (
           info.severity,
@@ -138,7 +135,7 @@ class Eval(settings: Settings, security: Boolean) {
   private def reset(): Unit = {
     target.clear()
     reporter.reset()
-    classLoader = new OneTimeLoader(target, artifactLoader)
+    classLoader = new AbstractFileClassLoader(target, artifactLoader)
   }
 
   private def compile(code: String): Unit = {

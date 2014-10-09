@@ -28,3 +28,5 @@ libraryDependencies ++= Seq(
 licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html"))
 
 seq(bintraySettings:_*)
+
+scalacOptions ++= Seq("-Yrangepos", "-unchecked", "-deprecation", "-feature")
