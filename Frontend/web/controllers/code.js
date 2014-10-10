@@ -16,7 +16,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 	}
 	$scope.save = function(){
 		vote("save");
-		$scope.stateSaved = false;
+		$scope.stateSaved = true;
 	};
 	$scope.fork = function(){
 		vote("fork");
@@ -61,7 +61,12 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			highlightSelectionMatches: { showToken: false },
 			video: false
 		}
+	}
 
+	$scope.theme = function(){
+		return _.map($scope.cmOptions.theme.split(" "), function(v){
+			return "cm-s-" + v;
+		}).join(" ");
 	}
 
 	function clear(){
@@ -120,11 +125,16 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 					window.localStorage['codemirror_' + VERSION] = JSON.stringify($scope.cmOptions);
 				})
 			}
+			$scope.code = state.code;
 
 			if(eval) {
 				$timeout(function(){
 					$scope.code = state.code;
 					run();
+				});
+			} else {
+				$timeout(function(){
+					$scope.code = state.code;
 				});
 			}
 		}
@@ -158,7 +168,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 
 	$scope.toogleEdit = function(){
 		state.configEditing = !state.configEditing;
-		setMode(state.configEditing);
+		setMode(state.configEditing, false);
 	};
 
 	CodeMirror.hack.wrap = wrap;
@@ -192,12 +202,6 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 		cmCode.focus();
 	}
 
-	$scope.theme = function(){
-		return _.map(cmCode.options.theme.split(" "), function(v){
-			return "cm-s-" + v;
-		}).join(" ");
-	}
-
 	$scope.$watch('prelude', function(){
 		clear();
 		window.localStorage['prelude_' + VERSION] = $scope.prelude;
@@ -215,6 +219,4 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 	});
 
 	$scope.run = run;
-
-
 }]);
