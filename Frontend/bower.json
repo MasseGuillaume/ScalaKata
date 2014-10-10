@@ -13,6 +13,7 @@
     "jquery": "~2.1.0",
     "MathJax": "~2.4.0",
     "marked": "~0.3.2",
+    "octicons": "~2.1.2",
     "fontawesome": "~4.1.0",
     "getusermedia": "git://github.com/MasseGuillaume/getUserMedia.js.git#1bd2c73b1dbd7b5cec3c1f337e8d9398d10483d7",
     "screenfull": "~1.2.1",

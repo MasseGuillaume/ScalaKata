@@ -9,6 +9,22 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 
 	state.configEditing = false;
 
+	$scope.stateSaved = false;
+	function vote(what){
+		$scope.code = "md\"Not implemented. [Vote for " + what + "](https://github.com/MasseGuillaume/ScalaKata/issues/47)\"" + "\n" + $scope.code;
+		$scope.run();
+	}
+	$scope.save = function(){
+		vote("save");
+		$scope.stateSaved = false;
+	};
+	$scope.fork = function(){
+		vote("fork");
+	}
+	$scope.update = function(){
+		vote("update");
+	};
+
 	if(angular.isDefined(window.localStorage['codemirror_' + VERSION])) {
 		$scope.cmOptions = JSON.parse(window.localStorage['codemirror_' + VERSION]);
 	} else {
