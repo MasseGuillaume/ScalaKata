@@ -100,7 +100,8 @@ function serveF(assets){
     var isApi = [
       "eval",
       "completion",
-      "typeAt"
+      "typeAt",
+      "echo"
     ].some(function(v){
       return req.originalUrl == "/" + v
     }) || req.originalUrl.indexOf(".scala") !== -1;
@@ -145,6 +146,9 @@ gulp.task('serveDist', function(){
 gulp.task('font', function(){
     gulp.src('bower_components/fontawesome/fonts/fontawesome-webfont.woff')
       .pipe(gulp.dest('out/assets/fonts/'));
+
+    gulp.src('bower_components/octicons/octicons/octicons.woff')
+      .pipe(gulp.dest('out/assets/styles/'));
 });
 
 gulp.task('zeroclipboard', function(){

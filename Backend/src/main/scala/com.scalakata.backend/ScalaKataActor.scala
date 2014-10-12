@@ -5,7 +5,8 @@ import eval._
 
 import akka.actor._
 import spray.routing.HttpService
-import spray.http.StatusCodes
+import spray.http._
+import spray.util._
 
 class ScalaKataActor(
 	override val artifacts: String,
@@ -55,6 +56,16 @@ trait ScalaKata extends HttpService {
 				entity(as[TypeAtRequest]) { request ⇒
 					val TypeAtRequest(code, pos) = request
 					complete(compiler.typeAt(code, pos, pos))
+				}
+			}
+		} ~
+		path("echo") {
+			post {
+				formFields('code){ code ⇒
+					respondWithHeader(HttpHeaders.RawHeader("X-XSS-Protection", "0")) {
+						complete(HttpEntity(ContentType(MediaTypes.`text/html`, HttpCharsets.`UTF-8`),
+					 		HttpData(code)))
+					}
 				}
 			}
 		} ~

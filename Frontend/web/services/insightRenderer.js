@@ -7,7 +7,7 @@ MathJax.Hub.Config({
 });
 MathJax.Hub.Configured();
 
-app.factory('insightRenderer', ["$timeout", function($timeout) {
+app.factory('insightRenderer', ["$timeout", "graph", function($timeout, graph) {
 	var widgets = [];
 
 	function apply(cmCode, wrap, cmOptions, insight, cmOriginal, blockOffset, updateF){
@@ -51,8 +51,24 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
 
     function html(){
       // load script
-      elem = document.createElement("div");
-      elem.innerHTML = joined("");
+      // elem = document.createElement("div");
+      // elem.innerHTML = joined("");
+
+      function iframeform(url, code){
+        var time = new Date().getTime(),
+            form = $('<form action="'+url+'" target="iframe'+time+'" method="post"></form>'),
+            iframe = $('<iframe id="iframe'+time+'"></iframe>');
+
+        $("<input type='hidden' />")
+         .attr("name", "code")
+         .attr("value", code)
+         .appendTo(form);
+
+        form.submit();
+        return iframe;
+      }
+      elem = iframeform("/echo", joined(""))[0];
+      console.log(elem);
     }
 
     function markdown(){
@@ -108,6 +124,10 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
       case "markdown2":
         markdown();
         inline(elem);
+        break;
+
+      case "graph":
+        graph(insight[1][0].value);
         break;
 
       case "block":
