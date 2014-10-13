@@ -1,6 +1,122 @@
-<form action="/echo" method="post" target="my_iframe">
-  <input type="submit" value="Submit!" />
-  <input name="code" />
-</form>
+<html>
+<head>
+    <title>Scala Kata</title>
+    <meta charset="utf-8">
+    <base href="/">
+    <link rel="icon" type="image/png" href="/assets/favicon.ico">
+    <!-- build:css(bower_components) /assets/styles/libs.css -->
+    <link rel="stylesheet" type="text/css" href="/codemirror/theme/monokai.css">
+    <link rel="stylesheet" type="text/css" href="/codemirror/theme/ambiance.css">
+    <link rel="stylesheet" type="text/css" href="/codemirror/theme/eclipse.css">
+    <link rel="stylesheet" type="text/css" href="/codemirror/theme/mdn-like.css">
 
-<iframe name="my_iframe"></iframe>
+    <link rel="stylesheet" type="text/css" href="/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" type="text/css" href="/codemirror/addon/dialog/dialog.css">
+    <link rel="stylesheet" type="text/css" href="/codemirror/addon/hint/show-hint.css">
+    <link rel="stylesheet" type="text/css" href="/fontawesome/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="/octicons/octicons/octicons.css">
+    <link rel="stylesheet" type="text/css" href="/angular-ui-layout/ui-layout.css">
+    <!-- endbuild -->
+
+    <!-- build:css(tmp) /assets/styles/app.css -->
+    <link rel="stylesheet" type="text/css" href="/styles/main.css">
+    <!-- endbuild -->
+</head>
+<body ng-app="ScalaKata">
+  <section ui-layout ng-controller="code" class="code CodeMirror" id="code" ng-class="theme()">
+    <div size="60px">
+      <textarea ui-codemirror="cmOptionsPrelude" ng-model="prelude"></textarea>
+    </div>
+    <div class="code-space">
+      <div class="menu" ng-class="{'unsaved': !stateSaved, 'saved': stateSaved}">
+        <i title="run code" class="fa fa-fw fa-play"  ng-click="run()"></i>
+        <i title="toogle options" class="fa fa-fw fa-cogs" ng-click="toogleEdit()"></i>
+        <i title="save" class="save fa fa-fw fa-save" ng-click="save()"></i>
+        <i title="update" class="update mega-octicon fa-fw octicon-pencil" ng-click="update()"></i>
+        <i title="fork" class="fork mega-octicon fa-fw octicon-repo-forked" ng-click="fork()"></i>
+      </div>
+      <textarea ui-codemirror="cmOptions" ng-model="code"></textarea>
+      <div id="background"></div>
+      <div id="webcam"></div>
+    </div>
+  </section>
+
+   <!-- build:js(bower_components) /assets/scripts/libs.js -->
+  <script src="/angular/angular.js"></script>
+  <script src="/angular-route/angular-route.js"></script>
+  <script src="/angular-ui-layout/ui-layout.js"></script>
+  <script src="/lodash/dist/lodash.js"></script>
+  <script src="/jquery/dist/jquery.js"></script>
+  <script src="/marked/lib/marked.js"></script>
+  <script src="/screenfull/dist/screenfull.js"></script>
+  <script src="/zeroclipboard/dist/ZeroClipboard.js"></script>
+  <script src="/d3/d3.js"></script>
+
+  <!-- CodeMirror core -->
+  <script src="/codemirror/lib/codemirror.js"></script>
+  <script src="/codemirror/mode/clike/clike.js"></script>
+  <script src="/codemirror/mode/javascript/javascript.js"></script>
+  <script src="/codemirror/mode/markdown/markdown.js"></script>
+  <script src="/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+  <script src="/codemirror/mode/stex/stex.js"></script>
+
+  <!-- CodeMirror addons -->
+  <script src="/codemirror/addon/comment/comment.js"></script>
+  <script src="/codemirror/addon/edit/closebrackets.js"></script>
+  <script src="/codemirror/addon/edit/matchbrackets.js"></script>
+  <script src="/codemirror/addon/fold/brace-fold.js"></script>
+  <script src="/codemirror/addon/fold/comment-fold.js"></script>
+  <script src="/codemirror/addon/dialog/dialog.js"></script>
+  <script src="/codemirror/addon/hint/show-hint.js"></script>
+  <script src="/codemirror/addon/runmode/runmode.js"></script>
+  <script src="/codemirror/addon/scroll/scrollpastend.js"></script>
+  <script src="/codemirror/addon/search/searchcursor.js"></script>
+  <script src="/codemirror/addon/search/search.js"></script>
+  <script src="/codemirror/addon/search/match-highlighter.js"></script>
+  <script src="/codemirror/addon/selection/active-line.js"></script>
+  <script src="/codemirror/keymap/sublime.js"></script>
+  <script src="/codemirror/keymap/emacs.js"></script>
+  <script src="/codemirror/keymap/vim.js"></script>
+  <script src="/angular-ui-codemirror/ui-codemirror.js"></script>
+  <!-- endbuild -->
+
+  <!-- build:js(bower_components) /assets/MathJax.js -->
+  <script src="/MathJax/MathJax.js"></script>
+  <!-- endbuild -->
+
+  <!-- build:js(web) /assets/scripts/mathjax_.js -->
+  <script src="/mathjax_/config.js"></script>
+  <!-- endbuild -->
+
+  <!-- build:js(bower_components) /assets/scripts/extras.js -->
+  <script src="/getusermedia/lib/getUserMedia.noFallback.js"></script>
+  <!-- endbuild -->
+
+  <!-- build:js(web) /assets/scripts/app.js -->
+  <script src="/app.js"></script>
+  <script src="/services/scalaEval.js"></script>
+  <script src="/services/graphRenderer.js"></script>
+  <script src="/services/insightRenderer.js"></script>
+  <script src="/services/errorsRenderer.js"></script>
+  <script src="/services/autocomplete.js"></script>
+  <script src="/services/scalakataMode.js"></script>
+  <script src="/services/katas.js"></script>
+  <script src="/services/wrap.js"></script>
+  <script src="/services/webcam.js"></script>
+  <script src="/controllers/code.js"></script>
+  <!-- endbuild -->
+
+  <script>
+  if(window.location.hostname !== "hostname") {
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-42764457-1', 'auto');
+    ga('send', 'pageview');
+  }
+  </script>
+
+</body>
+</html>

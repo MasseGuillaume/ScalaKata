@@ -50,25 +50,22 @@ app.factory('insightRenderer', ["$timeout", "graph", function($timeout, graph) {
     }
 
     function html(){
-      // load script
-      // elem = document.createElement("div");
-      // elem.innerHTML = joined("");
+      var time = new Date().getTime(),
+          code = joined("")
+          div = $('<div/>')
+          form = $('<form action="/echo" target="iframe'+time+'" method="post"></form>'),
+          iframe = $('<iframe class="html" name="iframe'+time+'" allowTransparency="true"></iframe>');
 
-      function iframeform(url, code){
-        var time = new Date().getTime(),
-            form = $('<form action="'+url+'" target="iframe'+time+'" method="post"></form>'),
-            iframe = $('<iframe id="iframe'+time+'"></iframe>');
+      $("<input type='hidden' />")
+       .attr("name", "code")
+       .attr("value", code)
+       .appendTo(form);
 
-        $("<input type='hidden' />")
-         .attr("name", "code")
-         .attr("value", code)
-         .appendTo(form);
-
+      elem = iframe;
+      fold(iframe[0]);
+      $timeout(function(){
         form.submit();
-        return iframe;
-      }
-      elem = iframeform("/echo", joined(""))[0];
-      console.log(elem);
+      }, 500)
     }
 
     function markdown(){
@@ -96,7 +93,6 @@ app.factory('insightRenderer', ["$timeout", "graph", function($timeout, graph) {
 		switch (insight[1][0].type) {
 			case "html":
 				html();
-        fold(elem);
 				break;
 
       case "html2":
