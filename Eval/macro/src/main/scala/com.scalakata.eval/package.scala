@@ -62,6 +62,11 @@ package object eval {
     }
   }
 
+  def htmlFile(clazz: Class[_], filename: String, size: Int = 500): Html =
+    Option(clazz.getClassLoader.getResource(filename)).map{ res =>
+      Html(io.Source.fromFile(res.toURI).mkString, size)
+    }.getOrElse(Html(s"<h1>$filename not found</h1>", size))
+
   implicit class LatexHelper(val sc: StringContext) extends AnyVal {
     def latex(args: Any*): Latex = {
       Latex(sc.raw(args: _*))

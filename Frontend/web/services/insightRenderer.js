@@ -7,7 +7,7 @@ MathJax.Hub.Config({
 });
 MathJax.Hub.Configured();
 
-app.factory('insightRenderer', ["$timeout", "graph", function($timeout, graph) {
+app.factory('insightRenderer', ["$timeout", function($timeout) {
 	var widgets = [];
 
 	function apply(cmCode, wrap, cmOptions, insight, cmOriginal, blockOffset, updateF){
@@ -23,18 +23,38 @@ app.factory('insightRenderer', ["$timeout", "graph", function($timeout, graph) {
     });
     end.line -= blockOffset;
 
+    function captureClick(el){
+      $("a", el).map(function(i, e){
+        var href = $(e).attr("href");
+        function domain(url) {
+            return url.replace('http://','').replace('https://','').split('/')[0];
+        };
+        if(domain(href) === domain(window.location.origin) ||
+          angular.isDefined(e.href.baseVal) /* svg*/) {
+          $(e).on('click', function(ev){
+            var path = href.replace(window.location.origin, "");
+            ev.preventDefault();
+            window.history.pushState(null, "Scala Kata", path);
+            updateF(path);
+          })
+        } else {
+            e.target = "_blank";
+        }
+      })
+    }
+
     function joined(sep){
       return _.map(insight[1], function(v){ return v.value; }).join(sep);
     }
 
-    function addClass(two){
-      angular.element(elem)
+    function addClass(two, e){
+      angular.element(e)
             .addClass("insight")
             .addClass(two);
     }
 
     function fold(e){
-      addClass("fold");
+      addClass("fold", e);
       var range = cmCode.markText({ch: 0, line: start.line}, end, {
         replacedWith: e
       });
@@ -44,7 +64,7 @@ app.factory('insightRenderer', ["$timeout", "graph", function($timeout, graph) {
     }
 
     function inline(e){
-      addClass("inline");
+      addClass("inline", e);
       var widget = cmCode.addLineWidget(end.line, e);
       clearF = function(){ widget.clear() };
     }
@@ -63,11 +83,14 @@ app.factory('insightRenderer', ["$timeout", "graph", function($timeout, graph) {
 
       iframe.css("height", insight[1][0].value[1]);
 
-      elem = iframe;
+      elem = iframe.contents();
       fold(iframe[0]);
       $timeout(function(){
         form.submit();
-      }, 500)
+        iframe.load(function(){
+          captureClick(iframe.contents());
+        });
+      }, 500);
     }
 
     function markdown(){
@@ -90,6 +113,7 @@ app.factory('insightRenderer', ["$timeout", "graph", function($timeout, graph) {
       });
 
       elem.className = "markdown";
+      captureClick(elem);
     }
 
 		switch (insight[1][0].type) {
@@ -122,10 +146,6 @@ app.factory('insightRenderer', ["$timeout", "graph", function($timeout, graph) {
       case "markdown2":
         markdown();
         inline(elem);
-        break;
-
-      case "graph":
-        graph(insight[1][0].value);
         break;
 
       case "block":
@@ -178,21 +198,7 @@ app.factory('insightRenderer', ["$timeout", "graph", function($timeout, graph) {
         inline(elem);
 				break;
 		}
-    $("a", elem).map(function(i, e){
-      function domain(url) {
-          return url.replace('http://','').replace('https://','').split('/')[0];
-      };
-      if(domain(e.href) === domain(window.location.origin)) {
-        $(e).on('click', function(ev){
-          var path = e.href.replace(window.location.origin, "");
-          ev.preventDefault();
-          window.history.pushState(null, "Scala Kata", path);
-          updateF(path);
-        })
-      } else {
-          e.target = "_blank";
-      }
-    })
+
     return clearF;
 	}
 	function clearFun(){
