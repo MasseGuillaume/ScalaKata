@@ -70,7 +70,7 @@ object Scalakata extends Plugin {
 	lazy val kataSettings =
 		Project.defaultSettings ++
 		addCommandAlias(start, ";backend:reStart ;backend:openBrowser ;kwatch") ++
-		addCommandAlias("kwatch", "~ ;backend:copyResources ;kata:compile") ++
+		addCommandAlias("kwatch", "~ ;backend:copyResources ;kata:compile ;kata:copyResources") ++
 		addCommandAlias("kstop", "backend:reStop") ++
 		addCommandAlias("krestart", ";backend:reStop ;backend:reStart") ++
 		inConfig(Backend)(
@@ -138,8 +138,10 @@ object Scalakata extends Plugin {
 		) ++
 		Seq(
 			// the backend can serve .scala files
-			unmanagedResourceDirectories in Backend <+= sourceDirectory in Kata,
-			scalaVersion in Backend <<= scalaVersion in Kata,
+			unmanagedResourceDirectories in Backend ++=
+				(sourceDirectory in Kata).value +:
+				(unmanagedResourceDirectories in Backend).value,
+			scalaVersion in Backend := (scalaVersion in Kata).value,
 			startArgs in (Backend, Revolver.reStart) := StartArgs(
 				(readyPort in Backend).value,
 				((fullClasspath in Compile).value ++ (fullClasspath in Kata).value).

@@ -22,4 +22,4 @@ bintrayOrganization in bintray := None
 
 scalaVersion := "2.10.4"
 
-scalacOptions ++= Seq("-Yrangepos", "-unchecked", "-deprecation", "-feature"),
+scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
