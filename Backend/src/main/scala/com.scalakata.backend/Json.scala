@@ -64,10 +64,14 @@ object Response {
 			def wrap(tpe: String, value: String) = wrap2(tpe, JsString(value))
 			def wrap2(tpe: String, value: JsValue) =
 				JsObject(Seq("type" -> JsString(tpe), "value" -> value))
+
+			implicit val tuples = new Writes[(String, Int)] {
+				def writes(t: (String, Int)) = JsArray(Seq(JsString(t._1), JsNumber(t._2)))
+			}
 			val res =
 				s match {
-					case Html(v) ⇒ wrap("html", v)
-					case Html2(v) ⇒ wrap("html2", v)
+					case Html(v, h) ⇒ wrap2("html", toJson((v, h)))
+					case Html2(v, h) ⇒ wrap2("html2", toJson((v, h)))
 					case Latex(v) ⇒ wrap("latex", v)
 					case Markdown(v) ⇒ wrap("markdown", v)
 					case Markdown2(v) ⇒ wrap("markdown2", v)

@@ -31,12 +31,12 @@ package object eval {
     def stripMargin = Markdown(a.stripMargin)
   }
 
-  case class Html(a: String) extends Render {
+  case class Html(a: String, height: Int = 0) extends Render {
     override def toString = a
     def stripMargin = Html(a.stripMargin)
   }
 
-  case class Html2(a: String) extends Render {
+  case class Html2(a: String, height: Int = 0) extends Render {
     override def toString = a
     def stripMargin = Html(a.stripMargin)
   }

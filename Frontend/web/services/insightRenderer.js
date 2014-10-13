@@ -51,8 +51,8 @@ app.factory('insightRenderer', ["$timeout", "graph", function($timeout, graph) {
 
     function html(){
       var time = new Date().getTime(),
-          code = joined("")
-          div = $('<div/>')
+          code = insight[1][0].value[0],
+          div = $('<div/>'),
           form = $('<form action="/echo" target="iframe'+time+'" method="post"></form>'),
           iframe = $('<iframe class="html" name="iframe'+time+'" allowTransparency="true"></iframe>');
 
@@ -60,6 +60,8 @@ app.factory('insightRenderer', ["$timeout", "graph", function($timeout, graph) {
        .attr("name", "code")
        .attr("value", code)
        .appendTo(form);
+
+      iframe.css("height", insight[1][0].value[1]);
 
       elem = iframe;
       fold(iframe[0]);
