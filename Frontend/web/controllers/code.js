@@ -80,8 +80,9 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			if(next) bar = parent.nextElementSibling;
 			else bar = parent.previousElementSibling;
 
-			angular.element(bar).on('mousemove', function(){
+			angular.element(bar).on('mouseup', function(){
 				cm_.refresh();
+				if(!next) run();
 			})
 		}
 		if(edit) {

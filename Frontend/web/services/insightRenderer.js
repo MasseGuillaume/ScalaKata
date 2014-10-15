@@ -30,7 +30,7 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
             return url.replace('http://','').replace('https://','').split('/')[0];
         };
         if(domain(href) === domain(window.location.origin) ||
-          angular.isDefined(e.href.baseVal) /* svg*/) {
+          (href[0] === '/' && href[1] !== '/')) {
           $(e).on('click', function(ev){
             var path = href.replace(window.location.origin, "");
             ev.preventDefault();
@@ -38,7 +38,7 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
             updateF(path);
           })
         } else {
-            e.target = "_blank";
+            $(e).attr('target', '_blank');
         }
       })
     }
@@ -74,7 +74,7 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
           code = insight[1][0].value[0],
           div = $('<div/>'),
           form = $('<form action="/echo" target="iframe'+time+'" method="post"></form>'),
-          iframe = $('<iframe class="html" name="iframe'+time+'" allowTransparency="true"></iframe>');
+          iframe = $('<iframe class="html" name="iframe'+time+'" allow-top-navigation allow-popups allowTransparency></iframe>');
 
       $("<input type='hidden' />")
        .attr("name", "code")
