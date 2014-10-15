@@ -148,6 +148,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 				$scope.prelude = res[0];
 				state.code = res[1];
 				setMode(false, true);
+				window.history.replaceState({"prelude": res[0], "code": res[1]}, null, path);
 			});
 		}
 		if(window.location.pathname !== "/") {
@@ -157,6 +158,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			   angular.isDefined(window.localStorage['prelude_' + VERSION])){
 				state.code = window.localStorage['code_' + VERSION];
 				$scope.prelude = window.localStorage['prelude_' + VERSION];
+				window.history.replaceState({"prelude": $scope.prelude, "code": state.code}, null, "/");
 			} else {
 				load("/index");
 			}
@@ -174,6 +176,15 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 
 	CodeMirror.hack.wrap = wrap;
 
+	window.onpopstate = function(event) {
+		if(event.state) {
+			$scope.code = event.state.code;
+			$scope.prelude = event.state.prelude;
+			$scope.$digest();
+			run();
+		}
+	};
+
 	function run(){
 		if(state.configEditing) return;
 		if(!angular.isDefined($scope.prelude) && !angular.isDefined($scope.code)) return;
@@ -182,7 +193,7 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 		scalaEval.insight(w.full).then(function(r){
 			var data = r.data;
 			var code = $scope.code.split("\n");
-			insightRenderer.render(cmCode, w, $scope.cmOptions, data.insight, setResource);
+			insightRenderer.render(cmCode, w, $scope.cmOptions, data.insight, setResource, $scope.prelude, $scope.code);
 			errorsRenderer.render(cmCode, cmPrelude, w, data.infos, data.runtimeError, code);
 		});
 	}

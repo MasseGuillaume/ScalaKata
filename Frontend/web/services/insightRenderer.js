@@ -10,7 +10,7 @@ MathJax.Hub.Configured();
 app.factory('insightRenderer', ["$timeout", function($timeout) {
 	var widgets = [];
 
-	function apply(cmCode, wrap, cmOptions, insight, cmOriginal, blockOffset, updateF){
+	function apply(cmCode, wrap, cmOptions, insight, cmOriginal, blockOffset, updateF, prelude, code){
 		var nl = "\n", elem, start, end, clearF, joined;
 
     start = wrap.fixRange(insight[0][0], null, cmOriginal, function(range, cm){
@@ -32,9 +32,10 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
         if(domain(href) === domain(window.location.origin) ||
           (href[0] === '/' && href[1] !== '/')) {
           $(e).on('click', function(ev){
-            var path = href.replace(window.location.origin, "");
+            var path = href.replace(window.location.origin, ""),
+                state = {"prelude": prelude, "code": code};
             ev.preventDefault();
-            window.history.pushState(null, "Scala Kata", path);
+            window.history.pushState(state, null, path);
             updateF(path);
           })
         } else {
@@ -209,10 +210,10 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
 	}
 	return {
 		clear: clearFun,
-		render: function(cmCode, wrap, cmOptions, insights, updateF){
+		render: function(cmCode, wrap, cmOptions, insights, updateF, prelude, code){
       clearFun();
 			widgets = _.map(insights, function(insight){
-				return apply(cmCode, wrap, cmOptions, insight, cmCode, 0, updateF);
+				return apply(cmCode, wrap, cmOptions, insight, cmCode, 0, updateF, prelude, code);
 			});
       $timeout(function(){
         cmCode.refresh();
