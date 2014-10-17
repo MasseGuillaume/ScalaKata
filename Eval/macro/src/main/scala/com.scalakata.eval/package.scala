@@ -112,6 +112,8 @@ package object eval {
 
   def desugar[T](code: T): Unit = ???
 
+  def desugar2[T](code: T): Unit = macro ScalaKataMacro.desugar2_impl[T]
+
   def trace: Any => Unit = macro ScalaKataMacro.trace_implf
   def print: Any => Unit = macro ScalaKataMacro.trace_implf
   def println: Any => Unit = macro ScalaKataMacro.trace_implf
