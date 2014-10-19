@@ -26,6 +26,8 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
     function captureClick(el){
       $("a", el).map(function(i, e){
         var href = $(e).attr("href");
+        if(!angular.isDefined(href)) return;
+
         function domain(url) {
             return url.replace('http://','').replace('https://','').split('/')[0];
         };

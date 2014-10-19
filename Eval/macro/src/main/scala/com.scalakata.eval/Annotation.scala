@@ -41,8 +41,8 @@ class Helper[C <: Context](val c: C) {
     case select: Select ⇒ inst(select)(instr)
     case mat: Match ⇒ inst(mat)(instr)
     case tr: Try ⇒ inst(tr)(instr)
-    case c: ClassDef ⇒ q""
-    case m: ModuleDef ⇒ q""
+    case c: ClassDef if (depth == 0) ⇒ q""
+    case m: ModuleDef if (depth == 0) ⇒ q""
     case otherwise ⇒ otherwise
   }
 
