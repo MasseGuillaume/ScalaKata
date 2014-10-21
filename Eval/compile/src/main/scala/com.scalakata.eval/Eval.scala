@@ -24,7 +24,7 @@ class Eval(settings: Settings, security: Boolean) {
   private val artifactLoader = {
     val loaderFiles =
       settings.classpath.value.split(File.pathSeparator).map(a ⇒ {
-        new URL(s"file://$a/")
+        new java.io.File(a).toURL
       })
     new URLClassLoader(loaderFiles, this.getClass.getClassLoader)
   }

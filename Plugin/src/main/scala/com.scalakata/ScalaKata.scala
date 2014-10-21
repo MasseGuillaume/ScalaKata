@@ -192,7 +192,9 @@ object Scalakata extends Plugin {
 
           val args = {
             val t = (startArgs in (Backend, Revolver.reStart)).value
-            val kataClasspath = (managedClasspath in Kata).value.
+            val kataClasspath =
+							(Keys.`package` in Compile).value +:
+							(managedClasspath in Kata).value.
                  map(_.data).
                  map(_.getAbsoluteFile)
             t.copy(
