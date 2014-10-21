@@ -59,7 +59,7 @@ object Scalakata extends Plugin {
 		base = file("."),
 		settings = kataSettings
 	)
-	lazy val scalaKataVersion = "0.9.0-SNAPSHOT"
+	lazy val scalaKataVersion = "0.9.0"
 	val start = "kstart"
 
 	lazy val kataAutoStart =
@@ -141,10 +141,11 @@ object Scalakata extends Plugin {
 			unmanagedResourceDirectories in Backend ++=
 				(sourceDirectory in Kata).value +:
 				(unmanagedResourceDirectories in Backend).value,
+			dependencyClasspath in Kata ++= (fullClasspath in Compile).value,
 			scalaVersion in Backend := (scalaVersion in Kata).value,
 			startArgs in (Backend, Revolver.reStart) := StartArgs(
 				(readyPort in Backend).value,
-				((fullClasspath in Compile).value ++ (fullClasspath in Kata).value).
+				(fullClasspath in Kata).value.
 					map(_.data).
 					map(_.getAbsoluteFile),
 				(kataUri in Backend).value.getHost,

@@ -10,7 +10,7 @@
 > ### 1. add the plugin to project/plugins.sbt
 
 ```scala
-addSbtPlugin("com.scalakata" % "plugin" % "0.8.0")
+addSbtPlugin("com.scalakata" % "plugin" % "0.9.0")
 ```
 
 > ### 2. and add the settings to your build definition build.sbt
@@ -32,7 +32,7 @@ com.scalakata.Scalakata.kataSettings
  > ### 1. It's also possible to run scala kata in a docker container:
 
 ```
-sudo docker run -p 7331:7331 --name scalakata masseguillaume/scalakata:0.8.0
+sudo docker run -p 7331:7331 --name scalakata masseguillaume/scalakata:0.9.0
 ```
 
  > ### 2. open your browser at http://localhost:7331
