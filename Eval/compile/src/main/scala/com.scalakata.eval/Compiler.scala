@@ -98,7 +98,7 @@ class Compiler(artifacts: String, scalacOptions: Seq[String], security: Boolean)
         }
       case _ ⇒ scopeCompletion(pos)
     }}{
-      pos => Some(scopeCompletion(pos))
+      pos ⇒ Some(scopeCompletion(pos))
     }.getOrElse(Nil)
   }
 

@@ -57,7 +57,6 @@ class CommpilerSpecs extends Specification { def is = s2"""
                    |class BC extends A with B with C
                    |class CB extends A with C with B
                    |${wrap(inner)}""".stripMargin
-    oprintln(code)
     val result = c.insight(code)
     result.runtimeError must be empty
   }
@@ -65,7 +64,6 @@ class CommpilerSpecs extends Specification { def is = s2"""
   def nopackage = {
     val c = compiler
     val result = c.insight(wrap("1+1"))
-    oprintln(result)
     result.insight must not be empty
   }
 
@@ -78,7 +76,6 @@ class CommpilerSpecs extends Specification { def is = s2"""
          |    def +(o: Meter) = new Meter(v + o.v)
          |  }
          |}""".stripMargin)
-    oprintln(result)
     result.infos must not be empty
   }
 
@@ -143,7 +140,7 @@ class CommpilerSpecs extends Specification { def is = s2"""
   def autocompleteTypes = {
     val c = compiler
     c.autocomplete(wrap("List(1)."), 66) must contain(
-      CompletionResponse("map","[B](f: A => B): scala.collection.TraversableOnce[B]")
+      CompletionResponse("map","[B](f: A ⇒ B): scala.collection.TraversableOnce[B]")
     )
   }
 }

@@ -27,11 +27,11 @@ var livereloadport = 35729 + i,
     serverport = 5443 + i,
     apiport = 7331 + i,
     certs = {
-      key: fs.readFileSync('key.pem'),
-      cert: fs.readFileSync('cert.pem'),
-      port: livereloadport
+      // key: fs.readFileSync('key.pem'),
+      // cert: fs.readFileSync('cert.pem'),
+      // port: livereloadport
     },
-    lrserver = require('tiny-lr')(certs);
+    lrserver = require('tiny-lr')()//(certs);
 
 gulp.task('styles', function() {
     gulp.src('styles/main.less')
@@ -110,11 +110,12 @@ function serveF(assets){
       req.pipe(request("http://localhost:" + apiport + req.originalUrl)).pipe(res);
     } else {
       process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-      req.pipe(request("https://localhost:" + serverport)).pipe(res);
+      req.pipe(request("http://localhost:" + serverport)).pipe(res);
     }
   });
 
-  https.createServer(certs, server).listen(serverport);
+  // https.createServer(certs, server).listen(serverport);
+  http.createServer(server).listen(serverport);
   lrserver.listen(livereloadport);
 }
 

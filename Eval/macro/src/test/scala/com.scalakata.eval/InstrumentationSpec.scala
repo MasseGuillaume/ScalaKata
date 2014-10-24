@@ -14,8 +14,8 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 	//		a
 	//	}
 	//	A.eval$() must beLike {
-	//		case List((_, List(Other("1")))) => ok
-	//		case _ => ko
+	//		case List((_, List(Other("1")))) ⇒ ok
+	//		case _ ⇒ ko
 	//	}
 	//}
 
@@ -27,7 +27,7 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 	//		  def selectDynamic(name: String) = s"selectDynamic $name"
 	//		  def updateDynamic(name: String)(value: Any) = s"$name $value"
 	//		  def applyDynamicNamed(name: String)(args: (String, Any)*) = {
-	//		    val args2 = args.map{case (n, v) => s"$n=$v"}.mkString(" ")
+	//		    val args2 = args.map{case (n, v) ⇒ s"$n=$v"}.mkString(" ")
 	//		    s"$name $args2}"
 	//		  }
 	//		}
@@ -49,7 +49,6 @@ class InstrumentationSpecs extends Specification { def is = s2"""
 		}
 
 		val res = A.eval$() 
-		oprintln(res)
 		res must not be empty
 	}
 }

@@ -44,7 +44,7 @@ object Response {
 	implicit private val orderedRender = new Writes[OrderedRender]{
 		def writes(s: OrderedRender) = {
 			val res:Seq[JsValue] =
-				s.map { case ((rs, re), renders) =>
+				s.map { case ((rs, re), renders) ⇒
 					JsArray(Seq(
 						JsArray(Seq(JsNumber(rs), JsNumber(re))),
 						JsArray(renders.map(rendertype.writes))

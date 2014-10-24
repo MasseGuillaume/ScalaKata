@@ -16,13 +16,13 @@ q"{ ..$stats }"	Block
 q"if ($expr) $expr else $expr"	If
 q"$expr match { case ..$cases }"	Match
 q"try $expr catch { case ..$cases } finally $expr"	Try
-q"(..$params) => $expr"	Function
+q"(..$params) ⇒ $expr"	Function
 
 q"while ($expr) $expr"	LabelDef
 q"do $expr while ($expr)"	LabelDef
 q"for (..$enums) $expr"	Tree
 q"for (..$enums) yield $expr"	Tree
-q"new { ..$earlydefns } with ..$parents { $self => ..$stats }"	Tree
+q"new { ..$earlydefns } with ..$parents { $self ⇒ ..$stats }"	Tree
 
 Definitions
 
@@ -30,10 +30,10 @@ q"$mods val $pat = $expr"
 q"$mods var $tname: $tpt = $expr"
 
 q"$mods def $tname[..$tparams](...$paramss): $tpt = $expr"
-q"$mods class $tpname[..$tparams] $ctorMods(...$paramss) extends { ..$earlydefns } with ..$parents { $self => ..$stats }"	
-q"$mods trait $tpname[..$tparams] extends { ..$earlydefns } with ..$parents { $self => ..$stats }"
-q"$mods object $tname extends { ..$earlydefns } with ..$parents { $self => ..$body }"
+q"$mods class $tpname[..$tparams] $ctorMods(...$paramss) extends { ..$earlydefns } with ..$parents { $self ⇒ ..$stats }"	
+q"$mods trait $tpname[..$tparams] extends { ..$earlydefns } with ..$parents { $self ⇒ ..$stats }"
+q"$mods object $tname extends { ..$earlydefns } with ..$parents { $self ⇒ ..$body }"
 
 
 q"package $ref { ..$topstats }"	!!! Not supported
-q"package object $tname extends { ..$earlydefns } with ..$parents { $self => ..$stats }"	!!! Not suported
+q"package object $tname extends { ..$earlydefns } with ..$parents { $self ⇒ ..$stats }"	!!! Not suported

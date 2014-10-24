@@ -29,7 +29,7 @@ trait ScalaKata extends HttpService {
 
 	lazy val compiler = new Compiler(artifacts, scalacOptions, security)
 
-	val redirectCodebrew = hostName { hn =>
+	val redirectCodebrew = hostName { hn ⇒
 		if(hn == "codebrew.io") redirect("www.scalakata.com", StatusCodes.PermanentRedirect)
 		else getFromResource("assets/index.html")
 	}

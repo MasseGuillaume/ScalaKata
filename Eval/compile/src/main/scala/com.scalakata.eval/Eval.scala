@@ -1,30 +1,29 @@
 package com.scalakata.eval
 
 import scala.tools.nsc.{Global, Settings}
-import scala.reflect.internal.util.{BatchSourceFile, AbstractFileClassLoader}
-
-import scala.tools.nsc.io.{VirtualDirectory, AbstractFile}
-import scala.reflect.internal.util.NoPosition
-
 import scala.tools.nsc.reporters.StoreReporter
-
-import java.net.{URL, URLClassLoader}
-import java.io.File
+import scala.tools.nsc.io.{VirtualDirectory, AbstractFile}
+import scala.reflect.internal.util.{NoPosition, BatchSourceFile, AbstractFileClassLoader}
 
 import scala.language.reflectiveCalls
 
+import java.io.File
+import java.net.{URL, URLClassLoader}
+
 class Eval(settings: Settings, security: Boolean) {
 
-  if(security) {
-    Security.start
-  }
+  if(security) { Security.start }
 
   private val reporter = new StoreReporter()
 
   private val artifactLoader = {
     val loaderFiles =
       settings.classpath.value.split(File.pathSeparator).map(a ⇒ {
-        new java.io.File(a).toURL
+        val node = new java.io.File(a)
+        val endSlashed =
+          if(node.isDirectory) node.toString + "/"
+          else node.toString
+        new java.net.URI(s"file://${endSlashed}").toURL
       })
     new URLClassLoader(loaderFiles, this.getClass.getClassLoader)
   }
@@ -55,7 +54,7 @@ class Eval(settings: Settings, security: Boolean) {
         }
 
         def recurseFolders(file: AbstractFile): Set[AbstractFile] = {
-          file.iterator.to[Set].flatMap{ fs =>
+          file.iterator.to[Set].flatMap{ fs ⇒
             if(fs.isDirectory)
               fs.to[Set] ++
               fs.filter(_.isDirectory).flatMap(recurseFolders).to[Set]
@@ -68,18 +67,18 @@ class Eval(settings: Settings, security: Boolean) {
           map(_.path).
           map(((removeExt _) compose (removeMem _))).
           map(_.replace('/', '.')).
-          filterNot(c => c.endsWith("$") || c.endsWith("$class")).
-          find { n =>
-            classLoader.loadClass(n).getMethods.exists(m =>
+          filterNot(c ⇒ c.endsWith("$") || c.endsWith("$class")).
+          find { n ⇒
+            classLoader.loadClass(n).getMethods.exists(m ⇒
               m.getName == "eval$" &&
               m.getReturnType == classOf[OrderedRender]
             )
           }
 
-        import scala.reflect.runtime.{universe => ru}
+        import scala.reflect.runtime.{universe ⇒ ru}
         val m = ru.runtimeMirror(classLoader)
 
-        instrClass.map{c =>
+        instrClass.map{ c ⇒
           m.reflectModule(m.staticModule(c)).
             instance.asInstanceOf[{def eval$(): OrderedRender}].eval$()
         }
@@ -98,8 +97,8 @@ class Eval(settings: Settings, security: Boolean) {
     val infos =
       reporter.infos.map { info ⇒
         val (start, end) = info.pos match {
-          case NoPosition => (0, 0)
-          case _ => (info.pos.start, info.pos.end)
+          case NoPosition ⇒ (0, 0)
+          case _ ⇒ (info.pos.start, info.pos.end)
         }
         (
           info.severity,

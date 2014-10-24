@@ -22,7 +22,7 @@ object Boot {
 		implicit val bindingTimeout = Timeout(5.seconds)
 		import system.dispatcher
 		(IO(Http) ? Http.Bind(service, host, port.toInt)) onSuccess {
-			case _: Http.Bound => {
+			case _: Http.Bound ⇒ {
 				if(!production.toBoolean) {
 					val ready = new java.net.Socket(host, readyPort.toInt)
 					ready.sendUrgentData(0)

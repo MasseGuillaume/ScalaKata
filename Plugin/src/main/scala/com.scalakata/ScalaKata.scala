@@ -64,7 +64,7 @@ object Scalakata extends Plugin {
 
 	lazy val kataAutoStart =
 		onLoad in Global := {
-			((s: State) => { start :: s }) compose (onLoad in Global).value
+			((s: State) ⇒ { start :: s }) compose (onLoad in Global).value
 		}
 
 	lazy val kataSettings =
@@ -107,8 +107,8 @@ object Scalakata extends Plugin {
 					socket.close()
 
 					sys.props("os.name").toLowerCase match {
-	          case x if x contains "mac" => s"open ${kataUri.value.toString}".!
-	          case _ => Desktop.getDesktop.browse(kataUri.value)
+	          case x if x contains "mac" ⇒ s"open ${kataUri.value.toString}".!
+	          case _ ⇒ Desktop.getDesktop.browse(kataUri.value)
 	        }
 
 					()
@@ -123,12 +123,12 @@ object Scalakata extends Plugin {
 		inConfig(Kata)(
 			Classpaths.ivyBaseSettings ++
 			Classpaths.jvmBaseSettings ++
-			Defaults.configSettings ++
 			Defaults.compileBase ++
+			Defaults.configTasks ++
+			Defaults.configSettings ++
 			Seq(
 				scalaVersion := "2.11.2",
 				scalacOptions ++= Seq("-Yrangepos", "-unchecked", "-deprecation", "-feature"),
-				unmanagedResourceDirectories in packageBin <+= sourceDirectory,
 				libraryDependencies ++= Seq(
 					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % scalaKataVersion,
 					"org.scala-lang" % "scala-compiler" % scalaVersion.value,
@@ -138,9 +138,8 @@ object Scalakata extends Plugin {
 		) ++
 		Seq(
 			// the backend can serve .scala files
-			unmanagedResourceDirectories in Backend ++=
-				(sourceDirectory in Kata).value +:
-				(unmanagedResourceDirectories in Backend).value,
+			unmanagedResourceDirectories in Backend += (sourceDirectory in Kata).value,
+			// you have full acces to your project in the kata sandbox
 			dependencyClasspath in Kata ++= (fullClasspath in Compile).value,
 			scalaVersion in Backend := (scalaVersion in Kata).value,
 			startArgs in (Backend, Revolver.reStart) := StartArgs(
@@ -199,7 +198,7 @@ object Scalakata extends Plugin {
                  map(_.getAbsoluteFile)
             t.copy(
               // update compiler plugin path
-              scalacOptions = t.scalacOptions.map{ v =>
+              scalacOptions = t.scalacOptions.map{ v ⇒
                 val pluginArg = "-Xplugin:"
                 if(v.startsWith(pluginArg)) {
                   val plugin = file(v.slice(pluginArg.length, v.length))
@@ -209,7 +208,7 @@ object Scalakata extends Plugin {
                 } else v
               },
               // update frontend classpath
-              classPath = kataClasspath.map { v =>
+              classPath = kataClasspath.map { v ⇒
                 val target = file(katas) / v.name
                 stageFile(v, target)
                 target
@@ -218,7 +217,7 @@ object Scalakata extends Plugin {
           }
 
           // backend classpath
-          (managedClasspath in Backend).value.files.foreach{ dep =>
+          (managedClasspath in Backend).value.files.foreach{ dep ⇒
             val target = file(libs) / dep.name
             stageFile(dep, target)
           }

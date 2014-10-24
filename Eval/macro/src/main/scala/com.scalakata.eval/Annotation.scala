@@ -6,7 +6,7 @@ import scala.language.experimental.macros
 import scala.annotation.StaticAnnotation
 
 import collection.immutable.Queue
-import collection.mutable.{Map => MMap}
+import collection.mutable.{Map ⇒ MMap}
 
 case class Record[K: Ordering, V](inner: MMap[K, Queue[V]] = MMap.empty[K, Queue[V]]) {
   def update(k: K, nv: V): Unit = {
@@ -57,7 +57,7 @@ class Helper[C <: Context](val c: C) {
       q"${instr}(${tree.pos}) = com.scalakata.eval.Markdown2($pre)"
     }
 
-    val childs2 = childs.flatMap{ s =>
+    val childs2 = childs.flatMap{ s ⇒
       val ins = topInst(s, depth + 1)(instr)
       if(desug) List(des(s), ins)
       else List(ins)
@@ -85,8 +85,8 @@ class Helper[C <: Context](val c: C) {
 
   def trace(instr: TermName) = {
     val t = TermName("t$")
-    c.Expr[Any => Unit](q"""{
-      (v: Any) => {
+    c.Expr[Any ⇒ Unit](q"""{
+      (v: Any) ⇒ {
         ${instr}(${c.enclosingPosition}) = render(v)
         ()
       }
@@ -137,7 +137,7 @@ object ScalaKataMacro {
         ..$classAndObjects
         private var $instr = Record[Range, Render]()
         def ${TermName("eval$")}(): OrderedRender = {
-          ..${body.map(b => helper.topInst(b)(instr))}
+          ..${body.map(b ⇒ helper.topInst(b)(instr))}
           ${instr}.ordered
         }
       }

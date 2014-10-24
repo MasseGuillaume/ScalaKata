@@ -63,7 +63,7 @@ package object eval {
   }
 
   def htmlFile(clazz: Class[_], filename: String, size: Int = 500): Html =
-    Option(clazz.getClassLoader.getResource(filename)).map{ res =>
+    Option(clazz.getClassLoader.getResource(filename)).map{ res ⇒
       Html(io.Source.fromFile(res.toURI).mkString, size)
     }.getOrElse(Html(s"<h1>$filename not found</h1>", size))
 
@@ -114,8 +114,8 @@ package object eval {
 
   def desugar2[T](code: T): Unit = macro ScalaKataMacro.desugar2_impl[T]
 
-  def trace: Any => Unit = macro ScalaKataMacro.trace_implf
-  def print: Any => Unit = macro ScalaKataMacro.trace_implf
-  def println: Any => Unit = macro ScalaKataMacro.trace_implf
-  def oprintln: Any => Unit = (a) => scala.Predef.println(a)
+  def trace: Any ⇒ Unit = macro ScalaKataMacro.trace_implf
+  def print: Any ⇒ Unit = macro ScalaKataMacro.trace_implf
+  def println: Any ⇒ Unit = macro ScalaKataMacro.trace_implf
+  def oprintln: Any ⇒ Unit = (a) ⇒ scala.Predef.println(a)
 }
