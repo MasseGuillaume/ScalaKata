@@ -14,7 +14,7 @@
 
 *Desugar Scala Code*
 
-[Typesafe Documentation](Examples/TypesafeDocumentation.png)
+![Typesafe Documentation](Examples/TypesafeDocumentation.png)
 
 *Typesafe Documentation*
 
