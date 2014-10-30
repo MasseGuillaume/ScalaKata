@@ -1,7 +1,15 @@
 # Scala Kata
 
-![scala kata instructor mode](https://raw.githubusercontent.com/MasseGuillaume/ScalaKata/develop/Examples/Instructor.png)
+![scala kata instructor mode](Examples/Instructor.png)
 *Instructor Mode*
+
+![Html and Markdown Rendering](Examples/From.png)
+
+![Html and Markdown Rendering](Examples/To.png)
+*Markdown and Html Rendering*
+
+![Desugaring Scala Code](Examples/Desugaring.png)
+*Desugar Scala Code*
 
 ## Distributions
 
