@@ -1,15 +1,22 @@
 # Scala Kata
 
 ![scala kata instructor mode](Examples/Instructor.png)
+
 *Instructor Mode*
 
 ![Html and Markdown Rendering](Examples/From.png)
 
 ![Html and Markdown Rendering](Examples/To.png)
+
 *Markdown and Html Rendering*
 
 ![Desugaring Scala Code](Examples/Desugaring.png)
+
 *Desugar Scala Code*
+
+[Typesafe Documentation](Examples/TypesafeDocumentation.png)
+
+*Typesafe Documentation*
 
 ## Distributions
 
