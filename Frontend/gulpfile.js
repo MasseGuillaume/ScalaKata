@@ -64,7 +64,7 @@ gulp.task('bower', function(){
 gulp.task('install', ['bower', 'npm']);
 
 gulp.task('browser', function(){
-    run("google-chrome", ["https://localhost:" + serverport]);
+    run("google-chrome", ["http://localhost:" + serverport]);
 });
 
 gulp.task('npm', function(){

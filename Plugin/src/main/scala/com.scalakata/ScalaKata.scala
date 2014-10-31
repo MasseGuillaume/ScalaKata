@@ -128,6 +128,7 @@ object Scalakata extends Plugin {
 			Defaults.configSettings ++
 			Seq(
 				scalaVersion := "2.11.2",
+				unmanagedResourceDirectories += sourceDirectory.value,
 				scalacOptions ++= Seq("-Yrangepos", "-unchecked", "-deprecation", "-feature"),
 				libraryDependencies ++= Seq(
 					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % scalaKataVersion,
@@ -175,7 +176,6 @@ object Scalakata extends Plugin {
         )
       },
       dockerfile in (Kata, docker) := {
-        val jarFile = (packageBin in Kata).value
         val Some(main) = (mainClass in (Backend, Revolver.reStart)).value
 
         val app = "/app"
@@ -183,8 +183,7 @@ object Scalakata extends Plugin {
         val katas = s"$app/katas"
         val plugins = s"$app/plugins"
 
-        val jarTarget = s"$app/${jarFile.name}"
-        val classpath = s"$libs/*:$jarTarget"
+        val classpath = s"$libs/*:$katas"
 
         new Dockerfile {
 					from("dockerfile/java:oracle-java8")
@@ -192,7 +191,8 @@ object Scalakata extends Plugin {
           val args = {
             val t = (startArgs in (Backend, Revolver.reStart)).value
             val kataClasspath =
-							(Keys.`package` in Compile).value +:
+							(packageBin in Compile).value +:
+							(packageBin in Kata).value +:
 							(managedClasspath in Kata).value.
                  map(_.data).
                  map(_.getAbsoluteFile)
@@ -222,7 +222,6 @@ object Scalakata extends Plugin {
             stageFile(dep, target)
           }
           add(libs, libs)
-          add(jarFile, jarTarget)
 
           // frontend classpath
           add(katas, katas)

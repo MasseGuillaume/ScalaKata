@@ -30,9 +30,5 @@ object Boot {
 				}
 			}
 		}
-
-		/*if(security.toBoolean) {
-			Security.start
-		}*/
 	}
 }

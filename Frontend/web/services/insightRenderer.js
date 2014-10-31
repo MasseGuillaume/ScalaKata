@@ -96,6 +96,11 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
       }, 500);
     }
 
+    function html2(){
+      elem = document.createElement("div");
+      elem.innerHTML = joined("");
+    }
+
     function markdown(){
       elem = document.createElement("div");
       elem.innerHTML = marked.parse(joined(nl), {
@@ -125,8 +130,8 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
 				break;
 
       case "html2":
-        html();
-        inline(elem);
+        html2();
+        fold(elem);
         break;
 
 			case "latex":

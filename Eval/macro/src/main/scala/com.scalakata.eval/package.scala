@@ -31,14 +31,14 @@ package object eval {
     def stripMargin = Markdown(a.stripMargin)
   }
 
-  case class Html(a: String, height: Int = 0) extends Render {
+  case class Html(a: String, height: Int = 500) extends Render {
     override def toString = a
     def stripMargin = Html(a.stripMargin)
   }
 
-  case class Html2(a: String, height: Int = 0) extends Render {
+  case class Html2(a: String) extends Render {
     override def toString = a
-    def stripMargin = Html(a.stripMargin)
+    def stripMargin = Html2(a.stripMargin)
   }
 
   def isNotUnit(a: Any) = {
@@ -63,8 +63,8 @@ package object eval {
   }
 
   def htmlFile(clazz: Class[_], filename: String, size: Int = 500): Html =
-    Option(clazz.getClassLoader.getResource(filename)).map{ res ⇒
-      Html(io.Source.fromFile(res.toURI).mkString, size)
+    Option(clazz.getClassLoader.getResourceAsStream(filename)).map{ res ⇒
+      Html(io.Source.fromInputStream(res).mkString, size)
     }.getOrElse(Html(s"<h1>$filename not found</h1>", size))
 
   implicit class LatexHelper(val sc: StringContext) extends AnyVal {

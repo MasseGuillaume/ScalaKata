@@ -19,7 +19,7 @@
     "getusermedia": "git://github.com/MasseGuillaume/getUserMedia.js.git#1bd2c73b1dbd7b5cec3c1f337e8d9398d10483d7",
     "screenfull": "~1.2.1",
     "angular-ui-layout": "0.0.1",
-    "codemirror": "~4.5.0",
+    "codemirror": "~4.7.0",
     "angular-ui-codemirror": "~0.1.6",
     "zeroclipboard": "~2.1.6"
   },
