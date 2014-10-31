@@ -183,7 +183,7 @@ object Scalakata extends Plugin {
         val katas = s"$app/katas"
         val plugins = s"$app/plugins"
 
-        val classpath = s"$libs/*:$katas"
+        val classpath = s"$libs/*:$katas/*"
 
         new Dockerfile {
 					from("dockerfile/java:oracle-java8")
