@@ -47,7 +47,7 @@ com.scalakata.Scalakata.kataSettings
  > ### 1. It's also possible to run scala kata in a docker container:
 
 ```
-sudo docker run -p 7331:7331 --name scalakata masseguillaume/scalakata:0.9.0
+sudo docker run -p 7331:7331 --name scalakata masseguillaume/try-scala:0.9.0
 ```
 
  > ### 2. open your browser at http://localhost:7331
