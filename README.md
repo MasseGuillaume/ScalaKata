@@ -62,6 +62,16 @@ addSbtPlugin("com.scalakata" % "plugin" % "0.9.0")
 
 > start with ```sbt kstart```
 
+#### Sbt Tips
+
+You want to try scalaz on the fly? Follow the [globally](/#globally) then
+
+> ```sbt -sbt-create```
+
+> ```set libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.0"```
+
+> ```kstart```
+
 ### Docker Container
 
  ##### 1. It's also possible to run scala kata in a docker container:
