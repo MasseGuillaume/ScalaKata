@@ -74,10 +74,10 @@ You want to try scalaz on the fly? Follow the [globally](/#globally) then
 
 ### Docker Container
 
- ##### 1. It's also possible to run scala kata in a docker container:
+##### 1. It's also possible to run scala kata in a docker container:
 
 ```
 sudo docker run -p 7331:7331 --name scalakata masseguillaume/try-scala:0.9.0
 ```
 
- ##### 2. open your browser at http://localhost:7331
+##### 2. open your browser at http://localhost:7331
