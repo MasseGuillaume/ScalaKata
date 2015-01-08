@@ -1,4 +1,5 @@
 var gulp = require('gulp'),
+    plumber = require('gulp-plumber'),
     gulpUtil = require('gulp-util'),
     clean = require('gulp-clean'),
     concat = require('gulp-concat'),
@@ -35,6 +36,7 @@ var livereloadport = 35729 + i,
 
 gulp.task('styles', function() {
     gulp.src('styles/main.less')
+        .pipe(plumber()) 
         .pipe(less())
         .pipe(gulp.dest('tmp/styles'))
         .pipe(refresh(lrserver));
@@ -63,10 +65,6 @@ gulp.task('bower', function(){
 
 gulp.task('install', ['bower', 'npm']);
 
-gulp.task('browser', function(){
-    run("google-chrome", ["http://localhost:" + serverport]);
-});
-
 gulp.task('npm', function(){
     gulp.src('package.json')
         .pipe(install.npm())
@@ -75,7 +73,7 @@ gulp.task('npm', function(){
 
 gulp.task('default', function() {
     // 'install'
-    gulp.start('styles', 'serve', 'watch', 'browser');
+    gulp.start('styles', 'serve', 'watch');
 });
 
 function serveF(assets){

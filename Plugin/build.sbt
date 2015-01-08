@@ -6,7 +6,7 @@ name := "plugin"
 
 organization := "com.scalakata"
 
-version := "0.9.0"
+version := "0.10.0-SNAPSHOT"
 
 addSbtPlugin("io.spray" % "sbt-revolver" % "0.7.2")
 
