@@ -16,11 +16,6 @@ package object eval {
   case class Block(childs: OrderedRender ) extends Render
   case class Steps(simplifications: List[Expression]) extends Render
 
-  case class Latex(a: String) extends Render {
-    override def toString = a
-    def stripMargin = Latex(a.stripMargin)
-  }
-
   case class Markdown(a: String) extends Render {
     override def toString = a
     def stripMargin = Markdown(a.stripMargin)
@@ -53,7 +48,6 @@ package object eval {
       case ar: Array[_] ⇒ Other(ar.deep.toString)
       case v: String ⇒  EString(v)
       case _: scala.xml.Elem ⇒ Html(a.toString)
-      case l: Latex ⇒ l
       case md: Markdown ⇒ md
       case md2: Markdown2 ⇒ md2
       case h: Html ⇒ h
@@ -67,12 +61,6 @@ package object eval {
       Html(io.Source.fromInputStream(res).mkString, size)
     }.getOrElse(Html(s"<h1>$filename not found</h1>", size))
 
-  implicit class LatexHelper(val sc: StringContext) extends AnyVal {
-    def latex(args: Any*): Latex = {
-      Latex(sc.raw(args: _*))
-    }
-    def tex(args: Any*) = latex(args: _*)
-  }
   implicit class MarkdownHelper(val sc: StringContext) extends AnyVal {
     def markdown(args: Any*): Markdown = {
       Markdown(sc.s(args: _*))
@@ -110,7 +98,7 @@ package object eval {
     }
   }
 
-  def desugar[T](code: T): Unit = ???
+  def desugar[T](code: T): Unit = ??? // via annotation macro
 
   def desugar2[T](code: T): Unit = macro ScalaKataMacro.desugar2_impl[T]
 
