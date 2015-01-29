@@ -9,6 +9,8 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 
 	state.configEditing = false;
 
+	$scope.state = 'idle';
+
 	$scope.stateSaved = false;
 	function vote(what){
 		$scope.code = "md\"Not implemented. [Vote for " + what + "](https://github.com/MasseGuillaume/ScalaKata/issues/47)\"" + "\n" + $scope.code;
@@ -49,7 +51,6 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 			tabSize: 2,
 			theme: 'solarized light',
 			"_supported_themes": [ "solarized dark", "solarized light", "mdn-like"],
-			"_other_themes": ["monokai", "ambiance", "eclipse"],
 			smartIndent: false,
 			multiLineStrings: true,
 			matchTags: {bothTags: true},
@@ -70,9 +71,13 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 	}
 
 	function clear(){
+		$timeout(function(){
+			$scope.state = 'idle';
+		});
 		insightRenderer.clear();
 		errorsRenderer.clear();
 	}
+	$scope.clear = clear;
 
 	function setMode(edit, eval){
 		function refresh(cm_, next){
@@ -167,8 +172,6 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 	}
 	setResource();
 
-
-
 	$scope.toogleEdit = function(){
 		state.configEditing = !state.configEditing;
 		setMode(state.configEditing, false);
@@ -189,10 +192,15 @@ app.controller('code',["$scope", "$timeout", "LANGUAGE", "VERSION", "scalaEval",
 		if(state.configEditing) return;
 		if(!angular.isDefined($scope.prelude) && !angular.isDefined($scope.code)) return;
 
+		$scope.state = 'running';
+
 		var w = wrap($scope.prelude, $scope.code);
 		scalaEval.insight(w.full).then(function(r){
 			var data = r.data;
 			var code = $scope.code.split("\n");
+
+			$scope.state = 'viewing';
+
 			insightRenderer.render(cmCode, w, $scope.cmOptions, data.insight, setResource, $scope.prelude, $scope.code);
 			errorsRenderer.render(cmCode, cmPrelude, w, data.infos, data.runtimeError, code);
 		});

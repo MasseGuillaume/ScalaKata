@@ -95,6 +95,11 @@ body {
     .update, .fork{ display: block }
   }
 
+  .run, .clear, .loading { display: none; }
+  &.idle .run { display: block; }
+  &.running .loading { display: block; }
+  &.viewing .clear { display: block; }
+
 	i {
 		display: block;
 		font-size: 32px;
