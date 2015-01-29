@@ -68,7 +68,6 @@ object Scalakata extends Plugin {
 		}
 
 	lazy val kataSettings =
-		Project.defaultSettings ++
 		addCommandAlias(start, ";backend:reStart ;backend:openBrowser ;kwatch") ++
 		addCommandAlias("kwatch", "~ ;backend:copyResources ;kata:compile ;kata:copyResources") ++
 		addCommandAlias("kstop", "backend:reStop") ++
