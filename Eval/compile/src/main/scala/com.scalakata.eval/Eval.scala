@@ -8,7 +8,7 @@ import scala.reflect.internal.util.{NoPosition, BatchSourceFile, AbstractFileCla
 import scala.language.reflectiveCalls
 
 import java.io.File
-import java.net.{URL, URLClassLoader}
+import java.net.{URL, URLClassLoader, URLEncoder}
 
 class Eval(settings: Settings, security: Boolean) {
 
@@ -24,7 +24,9 @@ class Eval(settings: Settings, security: Boolean) {
         val endSlashed =
           if(node.isDirectory) node.toString + "/"
           else node.toString
-        new java.net.URI(s"file://${endSlashed}").toURL
+
+        val encoded = URLEncoder.encode(endSlashed, "UTF-8")
+        new java.net.URI(s"file://$encoded").toURL
       })
     new URLClassLoader(loaderFiles, this.getClass.getClassLoader)
   }
@@ -98,7 +100,7 @@ class Eval(settings: Settings, security: Boolean) {
     val infos =
       reporter.infos.map { info ⇒
         val (start, end) = info.pos match {
-          case NoPosition ⇒ (0, 0)
+          case NoPosition ⇒ (-1, -1)
           case _ ⇒ (info.pos.start, info.pos.end)
         }
         (

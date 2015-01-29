@@ -9,7 +9,6 @@ app.factory('errorsRenderer', function() {
 			return cm.markText(from, to, {className: severity} );
 		}
 		if(angular.isDefined(value.start) && angular.isDefined(value.end)) {
-
 			start = wrap.fixRange(value.start, cmPrelude, cmCode, function(range, cm){
 				return cm.getDoc().posFromIndex(range);
 			});
@@ -28,6 +27,7 @@ app.factory('errorsRenderer', function() {
 	}
 
 	function errorMessage(cmCode, cmPrelude, wrap, severity, value){
+		var offset;
 		function render(line, cm){
 			var msg = document.createElement("div"),
 					icon = msg.appendChild(document.createElement("i"));
@@ -47,13 +47,23 @@ app.factory('errorsRenderer', function() {
 		}
 
 		if(angular.isDefined(value.start)) {
-			return wrap.fixRange(value.start, cmPrelude, cmCode, function(range, cm){
-				return render(cm.getDoc().posFromIndex(range).line, cm);
+			offset = value.start;
+			// To avoid displaying general error on the prelude(top) mirror
+			if(value.start == -1) offset = Infinity;
+
+			return wrap.fixRange(offset, cmPrelude, cmCode, function(range, cm){
+				var line = cm.getDoc().posFromIndex(range).line;
+				return render(line, cm);
 			});
 		} else {
-			return wrap.fixLine(value.line, cmPrelude, cmCode, function(line, cm){
-				return render(line - 1, cm);
-			});
+			if (value.line !== -1) {
+				return wrap.fixLine(value.line, cmPrelude, cmCode, function(line, cm){
+					return render(line - 1, cm);
+				});
+			} else {
+				return render(Infinity, cmCode);
+			}
+			
 		}
 	}
 

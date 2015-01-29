@@ -30,7 +30,10 @@ class Compiler(artifacts: String, scalacOptions: Seq[String], security: Boolean)
           e.printStackTrace
           val pos =
             if(e.getCause != null) {
-              e.getCause.getStackTrace().find(_.getFileName == "(inline)").map(_.getLineNumber).getOrElse(1)
+              e.getCause.getStackTrace().
+                find(_.getFileName == "(inline)").
+                map(_.getLineNumber).
+                getOrElse(-1) // not virtual, this is a runtime error in ScalaKata code
             } else {
               e.getStackTrace()(0).getLineNumber
             }
