@@ -8,7 +8,7 @@ object Settings {
 		bintray.Plugin.bintraySettings ++
 		Seq(
 			organization := "com.scalakata",
-			scalaVersion := "2.11.2",
+			scalaVersion := "2.11.5",
 			version := "0.10.0-SNAPSHOT",
 			licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html")),
 			scalacOptions ++= Seq("-Yrangepos", "-unchecked", "-deprecation", "-feature"),

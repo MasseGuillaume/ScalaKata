@@ -7,7 +7,6 @@
   "devDependencies": {
     "gulp": "~3.6.0",
     "gulp-plumber": "^0.6.6",
-    "gulp-clean": "~0.2.4",
     "gulp-concat": "~2.1.7",
     "express": "~3.5.0",
     "event-stream": "~3.0.18",

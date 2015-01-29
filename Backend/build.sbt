@@ -4,7 +4,7 @@ organization := "com.scalakata"
 
 version := "0.10.0-SNAPSHOT"
 
-scalaVersion := "2.11.2"
+scalaVersion := "2.11.5"
 
 Revolver.settings
 

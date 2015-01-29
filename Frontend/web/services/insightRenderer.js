@@ -1,12 +1,3 @@
-MathJax.Hub.Config({
-    skipStartupTypeset: true,
-    messageStyle: "none",
-    "HTML-CSS": {
-        showMathMenu: false
-    }
-});
-MathJax.Hub.Configured();
-
 app.factory('insightRenderer', ["$timeout", function($timeout) {
 	var widgets = [];
 
@@ -134,18 +125,6 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
         fold(elem);
         break;
 
-			case "latex":
-
-        var $script = angular.element("<script type='math/tex'>")
-            .html(joined(nl));
-        var $element = angular.element("<div>");
-
-        $element.append($script);
-        elem = $element[0];
-        MathJax.Hub.Queue(["Reprocess", MathJax.Hub, elem]);
-        fold(elem);
-
-				break;
 			case "markdown":
 				markdown();
         fold(elem);

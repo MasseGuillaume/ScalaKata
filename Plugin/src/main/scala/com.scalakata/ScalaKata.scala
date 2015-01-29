@@ -127,13 +127,13 @@ object Scalakata extends Plugin {
 			Defaults.configTasks ++
 			Defaults.configSettings ++
 			Seq(
-				scalaVersion := "2.11.2",
+				scalaVersion := "2.11.5",
 				unmanagedResourceDirectories += sourceDirectory.value,
 				scalacOptions ++= Seq("-Yrangepos", "-unchecked", "-deprecation", "-feature"),
 				libraryDependencies ++= Seq(
 					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % scalaKataVersion,
 					"org.scala-lang" % "scala-compiler" % scalaVersion.value,
-					compilerPlugin("org.scalamacros" % s"paradise_${scalaVersion.value}" % "2.1.0-M1")
+					compilerPlugin("org.scalamacros" % s"paradise_${scalaVersion.value}" % "2.1.0-M3")
 				)
 			)
 		) ++
