@@ -25,10 +25,3 @@ scalaVersion := "2.10.4"
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
 
 homepage := Some(url("http://scalakata.com"))
-
-seq(lsSettings :_*)
-
-(LsKeys.tags in LsKeys.lsync) := Seq("sbt-plugin", "sbt", "plugin", "kata", "ide",
-	"learn", "repl", "html", "markdown", "screencast", "tour", "try-scala")
-
-(LsKeys.docsUrl in LsKeys.lsync) <<= homepage
