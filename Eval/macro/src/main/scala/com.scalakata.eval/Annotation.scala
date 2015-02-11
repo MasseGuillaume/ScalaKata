@@ -130,6 +130,7 @@ object ScalaKataMacro {
         case c: ClassDef ⇒ c
         case m: ModuleDef ⇒ m
         case td: TypeDef ⇒ td
+        case ips: Import ⇒ ips
       }
 
       val helper = new Helper[c.type](c)

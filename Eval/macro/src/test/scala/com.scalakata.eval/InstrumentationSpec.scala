@@ -5,13 +5,13 @@ import scala.collection.immutable.Queue
 import org.specs2._
 
 class InstrumentationSpecs extends Specification { def is = s2"""
-	alias $alias
+	imports $imports
 """
-  def alias = {
+  def imports = {
 		@ScalaKata object P {
-			type B = String
-			case class A(b: B)
-			A("b")
+			import scala.collection.mutable.Stack
+			case class VV(a: Stack[Int])
+			VV(Stack(1))
 		}
 		P.eval$() must not be empty
 	}
