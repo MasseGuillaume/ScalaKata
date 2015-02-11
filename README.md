@@ -46,7 +46,7 @@ com.scalakata.Scalakata.kataSettings
 
 If you want to use ScalaKata for all your projects. You can mix it to your organization plugin architecture (if any :P) or setup your machine like this:
 
-##### 1. add the settings ~/.sbt/0.13/global.sbt
+##### 1. add ~/.sbt/0.13/global.sbt
 
 ```scala
 seq(kataSettings: _*)

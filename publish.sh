@@ -4,13 +4,13 @@ cd Frontend && \
 ./publish.sh && \
 cd .. && \
 cd Eval && \
-sbt publishLocal && \
+sbt publish && \
 cd .. && \
 cd Backend && \
-sbt publishLocal && \
+sbt publish && \
 cd .. && \
 cd Plugin && \
-sbt publishLocal
+sbt publish
 
 # cd Frontend && \
 # sbt publish && \
