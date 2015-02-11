@@ -129,6 +129,7 @@ object ScalaKataMacro {
       val classAndObjects = body.collect {
         case c: ClassDef ⇒ c
         case m: ModuleDef ⇒ m
+        case td: TypeDef ⇒ td
       }
 
       val helper = new Helper[c.type](c)
