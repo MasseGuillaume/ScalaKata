@@ -8,17 +8,17 @@ object Settings {
 		bintray.Plugin.bintraySettings ++
 		Seq(
 			organization := "com.scalakata",
-			scalaVersion := "2.11.5",
+			scalaVersion := "2.11.6",
 			version := "0.11.0-SNAPSHOT",
 			licenses := Seq("MIT" -> url("http://www.opensource.org/licenses/mit-license.html")),
 			scalacOptions ++= Seq("-Yrangepos", "-unchecked", "-deprecation", "-feature"),
 			libraryDependencies ++= Seq(
 				"org.scala-lang" % "scala-compiler" % scalaVersion.value,
 				"org.scala-lang" % "scala-reflect" % scalaVersion.value,
-				"org.specs2" %% s"specs2" % "2.4.2" % "test"
+        "org.specs2" %% "specs2-core" % "3.1" % "test"
 			),
 			resolvers += Resolver.sonatypeRepo("releases"),
-			addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0-M1" cross CrossVersion.full)
+			addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full)
 		)
 }
 

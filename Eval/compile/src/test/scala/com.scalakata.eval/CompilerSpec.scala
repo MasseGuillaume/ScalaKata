@@ -7,9 +7,10 @@ import java.io.File
 import org.specs2._
 
 class CommpilerSpecs extends Specification { def is = s2"""
-  linkage $linkage
-  doubledef $doubledef
+  compileClasspath $compileClasspath
 """
+  // linkage $linkage
+  // doubledef $doubledef
 
   def doubledef = {
     val c = compiler

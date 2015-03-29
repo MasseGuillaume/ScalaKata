@@ -20,13 +20,16 @@ class Eval(settings: Settings, security: Boolean) {
   private val artifactLoader = {
     val loaderFiles =
       settings.classpath.value.split(File.pathSeparator).map(a ⇒ {
+
         val node = new java.io.File(a)
         val endSlashed =
           if(node.isDirectory) node.toString + "/"
           else node.toString
 
-        val encoded = URLEncoder.encode(endSlashed, "UTF-8")
-        new java.net.URI(s"file://$encoded").toURL
+        val t =
+          if(sys.props("os.name") == "Window") URLEncoder.encode(endSlashed, "UTF-8")
+          else endSlashed
+        new java.net.URI(s"file://$t").toURL
       })
     new URLClassLoader(loaderFiles, this.getClass.getClassLoader)
   }
@@ -70,7 +73,7 @@ class Eval(settings: Settings, security: Boolean) {
           map(_.path).
           map(((removeExt _) compose (removeMem _))).
           map(_.replace('/', '.')).
-          filterNot(c ⇒ c.endsWith("$") || c.endsWith("$class")).
+          filterNot(_.endsWith("$class")).
           find { n ⇒
             classLoader.loadClass(n).getMethods.exists(m ⇒
               m.getName == "eval$" &&

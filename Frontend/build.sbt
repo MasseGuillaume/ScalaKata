@@ -6,7 +6,7 @@ version := "0.11.0-SNAPSHOT"
 
 autoScalaLibrary := false
 
-scalaVersion := "2.11.5"
+scalaVersion := "2.11.6"
 
 resourceDirectory in Compile := {
 	baseDirectory.value / "out"

@@ -4,7 +4,7 @@ organization := "com.scalakata"
 
 version := "0.11.0-SNAPSHOT"
 
-scalaVersion := "2.11.5"
+scalaVersion := "2.11.6"
 
 Revolver.settings
 
@@ -16,11 +16,11 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
 	"com.scalakata" %% "eval" % version.value,
-	"com.scalakata" % "frontend" % version.value,
+	"com.scalakata" % "frontend" % "0.10.0",
 	"io.spray" %% "spray-can" % "1.3.1",
 	"io.spray" %% "spray-routing" % "1.3.1",
-	"io.spray" %% "spray-testkit" % "1.3.1" % "test",
-	"org.specs2" %% s"specs2" % "2.3.12" % "test",
+	// "io.spray" %% "spray-testkit" % "1.3.1" % "test",
+	// "org.specs2" %% s"specs2" % "2.3.12" % "test",
 	"com.typesafe.akka" %% "akka-actor" % "2.3.3",
 	"com.typesafe.play" %% "play-json" % "2.4.0-M1"
 )
