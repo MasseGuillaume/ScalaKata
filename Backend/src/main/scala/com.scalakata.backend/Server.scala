@@ -7,17 +7,33 @@ import akka.io.IO
 import akka.util.Timeout
 import spray.can.Http
 
+import scala.concurrent.duration._
+import com.typesafe.config.{ ConfigValueFactory, ConfigFactory, Config }
+
+
 object Boot {
 	def main(args: Array[String]) = {
 		val (readyPort :: artifacts :: host :: port ::
-				 production :: security :: scalacOptions) = args.to[List]
+				 production :: security :: timeoutS :: scalacOptions) = args.to[List]
 
-		implicit val system = ActorSystem("scalakata-system")
+    val timeout = Duration(timeoutS)
+
+    val config: Config = ConfigFactory.parseString(s"""
+      spray {
+        can.server {
+          idle-timeout = ${timeout.toSeconds + 5}s
+          request-timeout = ${timeout.toSeconds + 2}s
+        }
+      }
+    """)
+
+    implicit val system = ActorSystem("scalakata-playground", config)
+
 		val service = system.actorOf(Props(
-			classOf[ScalaKataActor], artifacts, scalacOptions, security.toBoolean
+			classOf[ScalaKataActor], artifacts, scalacOptions, security.toBoolean, timeout
 		), "scalakata-service")
 
-		import scala.concurrent.duration._
+
 		import akka.pattern.ask
 		implicit val bindingTimeout = Timeout(5.seconds)
 		import system.dispatcher

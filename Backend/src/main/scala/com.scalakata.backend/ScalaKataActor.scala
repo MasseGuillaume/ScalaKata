@@ -8,10 +8,13 @@ import spray.routing.HttpService
 import spray.http._
 import spray.util._
 
+import scala.concurrent.duration._
+
 class ScalaKataActor(
 	override val artifacts: String,
 	override val scalacOptions: Seq[String],
-	override val security: Boolean) extends Actor with ScalaKata {
+	override val security: Boolean,
+  override val timeout: Duration) extends Actor with ScalaKata {
 
 	def actorRefFactory = context
 	def receive = runRoute(route)
@@ -21,13 +24,14 @@ trait ScalaKata extends HttpService {
 	val artifacts: String
 	val scalacOptions: Seq[String]
 	val security: Boolean
+  val timeout: Duration
 
 	implicit def executionContext = actorRefFactory.dispatcher
 
 	import Request._
 	import Response._
 
-	lazy val compiler = new Compiler(artifacts, scalacOptions, security)
+	lazy val compiler = new Compiler(artifacts, scalacOptions, security, timeout)
 
 	val redirectCodebrew = hostName { hn ⇒
 		if(hn == "codebrew.io") redirect("www.scalakata.com", StatusCodes.PermanentRedirect)

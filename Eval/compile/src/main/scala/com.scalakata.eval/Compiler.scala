@@ -16,7 +16,9 @@ import scala.tools.nsc.io.VirtualDirectory
 import scala.reflect.internal.util._
 import scala.tools.nsc.interactive.Response
 
-class Compiler(artifacts: String, scalacOptions: Seq[String], security: Boolean) {
+import scala.concurrent.duration._
+
+class Compiler(artifacts: String, scalacOptions: Seq[String], security: Boolean, timeout: Duration) {
 
   def insight(code: String): EvalResponse = {
     if (code.isEmpty) EvalResponse.empty
@@ -142,7 +144,6 @@ class Compiler(artifacts: String, scalacOptions: Seq[String], security: Boolean)
     }
   }
 
-  private val timeout = 20.seconds
   private val jvmId = java.lang.Math.abs(new Random().nextInt())
 
   private val reporter = new StoreReporter()

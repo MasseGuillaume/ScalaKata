@@ -17,6 +17,8 @@ import sbtdocker._
 import sbtdocker.Plugin._
 import sbtdocker.Plugin.DockerKeys._
 
+import scala.concurrent.duration._
+
 object Scalakata extends Plugin {
 
 	case class StartArgs(
@@ -26,6 +28,7 @@ object Scalakata extends Plugin {
 		port: Int,
 		production: Boolean,
 		security: Boolean,
+    timeout: Duration,
 		scalacOptions: Seq[String]
 	) {
 		def toArgs = Seq(
@@ -36,7 +39,8 @@ object Scalakata extends Plugin {
 			host,
 			port.toString,
 			production.toString,
-			security.toString
+			security.toString,
+      timeout.toString
 		) ++ scalacOptions
 	}
 
@@ -53,6 +57,7 @@ object Scalakata extends Plugin {
 
   lazy val securityManager = SettingKey[Boolean]("security-manager", "turn on jvm security manager")
 	lazy val production = SettingKey[Boolean]("production", "deployed version")
+  lazy val timeout = SettingKey[Duration]("timeout", "maximum time to wait for evaluation response")
 
 	lazy val test = Project(
 		id = "test",
@@ -126,13 +131,15 @@ object Scalakata extends Plugin {
 			Defaults.configTasks ++
 			Defaults.configSettings ++
 			Seq(
-				scalaVersion := "2.11.5",
+				scalaVersion := "2.11.6",
 				unmanagedResourceDirectories += sourceDirectory.value,
 				scalacOptions ++= Seq("-Yrangepos", "-unchecked", "-deprecation", "-feature"),
 				libraryDependencies ++= Seq(
 					"com.scalakata" % s"macro_${scalaBinaryVersion.value}" % scalaKataVersion,
 					"org.scala-lang" % "scala-compiler" % scalaVersion.value,
-					compilerPlugin("org.scalamacros" % s"paradise_${scalaVersion.value}" % "2.1.0-M3")
+
+          compilerPlugin("org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full)
+					// compilerPlugin("org.scalamacros" % s"paradise_${scalaVersion.value}" % "2.1.0-M3")
 				)
 			)
 		) ++
@@ -142,6 +149,7 @@ object Scalakata extends Plugin {
 			// you have full acces to your project in the kata sandbox
 			dependencyClasspath in Kata ++= (fullClasspath in Compile).value,
 			scalaVersion in Backend := (scalaVersion in Kata).value,
+      timeout in Backend := 20.seconds,
 			startArgs in (Backend, Revolver.reStart) := StartArgs(
 				(readyPort in Backend).value,
 				(fullClasspath in Kata).value.
@@ -151,6 +159,7 @@ object Scalakata extends Plugin {
 				(kataUri in Backend).value.getPort,
 				(production in Backend).value,
 				(securityManager in Backend).value,
+        (timeout in Backend).value,
 				(scalacOptions in Kata).value
 			),
 			resolvers ++= Seq(
