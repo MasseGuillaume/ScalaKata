@@ -147,7 +147,7 @@ object Scalakata extends Plugin {
 			// the backend can serve .scala files
 			unmanagedResourceDirectories in Backend += (sourceDirectory in Kata).value,
 			// you have full acces to your project in the kata sandbox
-			dependencyClasspath in Kata ++= (fullClasspath in Compile).value,
+			dependencyClasspath in Kata ++= (fullClasspath in Compile).value ++ (fullClasspath in Test).value,
 			scalaVersion in Backend := (scalaVersion in Kata).value,
       timeout in Backend := 20.seconds,
 			startArgs in (Backend, Revolver.reStart) := StartArgs(
