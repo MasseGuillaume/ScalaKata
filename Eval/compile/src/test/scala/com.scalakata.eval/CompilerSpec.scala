@@ -7,10 +7,56 @@ import java.io.File
 import org.specs2._
 
 class CommpilerSpecs extends Specification { def is = s2"""
-  compileClasspath $compileClasspath
+  typeAt $typeAt
+  autocomplete symbols $autocompleteSymbols
+  autocomplete types $autocompleteTypes
 """
-  // linkage $linkage
-  // doubledef $doubledef
+  /*
+  
+
+  nopackage $nopackage
+  compilation infos $infos
+  runtimeErrors $runtimeErrors
+  works $works
+  support packages $packages
+  compile classpath $compileClasspath
+  compileClasspath $compileClasspath
+  linkage $linkage
+  doubledef $doubledef
+  */
+
+  def wrap(code: String) =
+  s"""|object Playground {
+      | $code
+      |}""".stripMargin
+
+  def typeAt = {
+    val c = compiler
+    val code = wrap("List(1)")
+    oprintln(code.slice(28, 29))
+    c.typeAt(code, 28, 28) ====
+      Some(TypeAtResponse("List[Int]"))
+  }
+
+  def autocompleteSymbols = {
+    val c = compiler
+    c.autocomplete(" ", 0) must contain(
+      CompletionResponse(
+        name = "assert",
+        signature = "(assertion: Boolean): Unit"
+      )
+    )
+  }
+
+  def autocompleteTypes = {
+    val c = compiler
+    val code = wrap("List(1).")
+    oprintln(code.slice(65, 67)) // [65, 67[
+    c.autocomplete(code, 29) must contain(
+      CompletionResponse("map","[B](f: A => B): scala.collection.TraversableOnce[B]")
+    )
+  }
+
 
   def doubledef = {
     val c = compiler
@@ -21,31 +67,19 @@ class CommpilerSpecs extends Specification { def is = s2"""
     result.runtimeError must be empty
   }
 
-  /*
+  
 
-  nopackage $nopackage
-  compilation infos $infos
-  runtimeErrors $runtimeErrors
-  works $works
-  support packages $packages
-  compile classpath $compileClasspath
-  typeAt $typeAt
-  autocomplete symbols $autocompleteSymbols
-  autocomplete types $autocompleteTypes*/
 
-  def wrap(code: String) =
-    s"""|import com.scalakata.eval._
-        |@ScalaKata object Playground {
-        | $code
-        |}""".stripMargin
 
   val artifacts =
     (BuildInfo.fullClasspath ++ BuildInfo.runtime_exportedProducts).
       map(_.getAbsoluteFile).
       mkString(File.pathSeparator)
 
+  import scala.concurrent.duration._
+
   val scalacOptions = sbt.BuildInfo.scalacOptions.to[Seq]
-  def compiler = new Compiler(artifacts, scalacOptions, security = false)
+  def compiler = new Compiler(artifacts, scalacOptions, security = false, timeout = 20.seconds)
 
   def linkage = {
     val c = compiler
@@ -119,29 +153,6 @@ class CommpilerSpecs extends Specification { def is = s2"""
     val c = compiler
     c.insight(wrap("com.example.test.Testing.onetwothree")) ==== EvalResponse.empty.copy(
       insight = List(((83, 94), List(Other("123"))))
-    )
-  }
-
-  def typeAt = {
-    val c = compiler
-    c.typeAt(wrap("List(1)"), 65, 65) ====
-      Some(TypeAtResponse("List[Int]"))
-  }
-
-  def autocompleteSymbols = {
-    val c = compiler
-    c.autocomplete(" ", 0) must contain(
-      CompletionResponse(
-        name = "assert",
-        signature = "(assertion: Boolean): Unit"
-      )
-    )
-  }
-
-  def autocompleteTypes = {
-    val c = compiler
-    c.autocomplete(wrap("List(1)."), 66) must contain(
-      CompletionResponse("map","[B](f: A ⇒ B): scala.collection.TraversableOnce[B]")
     )
   }
 }

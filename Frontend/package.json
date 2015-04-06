@@ -1,6 +1,6 @@
 {
   "name": "ScalaKata",
-  "version": "0.11.0-SNAPSHOT",
+  "version": "0.12.0",
   "dependencies": {},
   "description": "ScalaKata",
   "repository": "https://github.com/MasseGuillaume/ScalaMirror",

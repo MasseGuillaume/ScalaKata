@@ -64,7 +64,7 @@ object Scalakata extends Plugin {
 		base = file("."),
 		settings = kataSettings
 	)
-	lazy val scalaKataVersion = "0.11.0-SNAPSHOT"
+	lazy val scalaKataVersion = "0.12.0"
 	val start = "kstart"
 
 	lazy val kataAutoStart =

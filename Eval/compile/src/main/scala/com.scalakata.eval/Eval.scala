@@ -12,7 +12,6 @@ import java.net.{URL, URLClassLoader, URLEncoder}
 
 class Eval(settings: Settings, security: Boolean) {
 
-  oprintln(s"security: $security")
   if(security) { Security.start }
 
   private val reporter = new StoreReporter()

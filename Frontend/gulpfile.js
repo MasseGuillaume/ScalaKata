@@ -99,13 +99,13 @@ gulp.task('html', function(){
         .pipe(refresh(lrserver));
 });
 
-gulp.task('browser', function(){
-  var protocol = useHttps ?
-    "https" :
-    "http";
+// gulp.task('browser', function(){
+//   var protocol = useHttps ?
+//     "https" :
+//     "http";
 
-  run("open", [protocol + "://localhost:" + serverport]);
-});
+//   run("open", [protocol + "://localhost:" + serverport]);
+// });
 
 // to develop codemirror
 // gulp.task('js2', function(){
@@ -134,7 +134,7 @@ gulp.task('npm', function(){
 
 gulp.task('default', function() {
     // 'install'
-    gulp.start('styles', 'serve', 'watch', 'browser');
+    gulp.start('styles', 'serve', 'watch');
 });
 
 gulp.task('serve', function(){
@@ -151,7 +151,7 @@ gulp.task('watch', function() {
 });
 
 gulp.task('build', ['styles', 'usemin', 'font', 'fav', 'zeroclipboard']);
-gulp.task('buildServe', ['build', 'serveDist', 'browser']);
+gulp.task('buildServe', ['build', 'serveDist']);
 
 gulp.task('serveDist', function(){
     serveF(['out']);

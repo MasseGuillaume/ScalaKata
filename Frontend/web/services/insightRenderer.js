@@ -1,18 +1,14 @@
 app.factory('insightRenderer', ["$timeout", function($timeout) {
-	var widgets = [];
+  var widgets = [];
 
-	function apply(cmCode, wrap, cmOptions, insight, cmOriginal, blockOffset, updateF, prelude, code){
-		var nl = "\n", elem, start, end, clearF, joined;
+  function apply(cmCode, wrap, cmOptions, insight, cmOriginal, blockOffset, updateF, prelude, code){
+    var nl = "\n", elem, start, end, clearF, joined;
 
-    start = wrap.fixRange(insight[0][0], null, cmOriginal, function(range, cm){
-      return cm.getDoc().posFromIndex(range);
-    });
-    start.line -= blockOffset;
+    start = cmCode.getDoc().posFromIndex(wrap.fixRange(insight[0][0]));
+    start.line -= (blockOffset + 1);
 
-    end = wrap.fixRange(insight[0][1], null, cmOriginal, function(range, cm){
-      return cm.getDoc().posFromIndex(range);
-    });
-    end.line -= blockOffset;
+    end = cmCode.getDoc().posFromIndex(wrap.fixRange(insight[0][1]));
+    end.line -= (blockOffset + 1);
 
     function captureClick(el){
       $("a", el).map(function(i, e){
@@ -115,20 +111,20 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
       captureClick(elem);
     }
 
-		switch (insight[1][0].type) {
-			case "html":
-				html();
-				break;
+    switch (insight[1][0].type) {
+      case "html":
+        html();
+        break;
 
       case "html2":
         html2();
         fold(elem);
         break;
 
-			case "markdown":
-				markdown();
+      case "markdown":
+        markdown();
         fold(elem);
-				break;
+        break;
 
       case "markdown2":
         markdown();
@@ -173,34 +169,34 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
         fold(elem);
 
         break;
-			case "string":
-				elem = document.createElement("pre");
-				elem.innerText = joined(nl);
+      case "string":
+        elem = document.createElement("pre");
+        elem.innerText = joined(nl);
         inline(elem);
-				break;
-			case "other":
-				elem = document.createElement("pre");
+        break;
+      case "other":
+        elem = document.createElement("pre");
         elem.className = "code";
-				CodeMirror.runMode(joined(nl), cmOptions, elem);
+        CodeMirror.runMode(joined(nl), cmOptions, elem);
         inline(elem);
-				break;
-		}
+        break;
+    }
 
     return clearF;
-	}
-	function clearFun(){
-		widgets.forEach(function(w){
-			w();
-		});
-		widgets = [];
-	}
-	return {
-		clear: clearFun,
-		render: function(cmCode, wrap, cmOptions, insights, updateF, prelude, code){
+  }
+  function clearFun(){
+    widgets.forEach(function(w){
+      w();
+    });
+    widgets = [];
+  }
+  return {
+    clear: clearFun,
+    render: function(cmCode, wrap, cmOptions, insights, updateF, prelude, code){
       clearFun();
-			widgets = _.map(insights, function(insight){
-				return apply(cmCode, wrap, cmOptions, insight, cmCode, 0, updateF, prelude, code);
-			});
+      widgets = _.map(insights, function(insight){
+        return apply(cmCode, wrap, cmOptions, insight, cmCode, 0, updateF, prelude, code);
+      });
       $timeout(function(){
         cmCode.refresh();
       });
@@ -208,6 +204,6 @@ app.factory('insightRenderer', ["$timeout", function($timeout) {
       // cmCode.focus();
       // cmCode.scrollIntoView(cmCode.getCursor());
       // cmCode.setCursor(cmCode.getCursor(), null, { focus: true});
-		}
-	}
+    }
+  }
 }]);

@@ -3,18 +3,14 @@ app.run(["scalaEval", function(scalaEval){
 	delete CodeMirror.keyMap.sublime["Ctrl-L"];
 
 	function hint(cm, sf, cf, single){
-		var offset;
-		var wrap = CodeMirror.hack.wrap(
-			CodeMirror.hack.prelude.getDoc().getValue(),
-			CodeMirror.hack.code.getDoc().getValue()
-		);
-
-		if(cm == CodeMirror.hack.prelude) offset = 0;
-		else offset = wrap.codeOffset();
+    var wrap = CodeMirror.hack.wrap(
+      CodeMirror.hack.code.getDoc().getValue(),
+      false
+    );
 
 		sf(
 			wrap.full,
-			cm.getDoc().indexFromPos(cm.getCursor()) + offset
+			cm.getDoc().indexFromPos(cm.getCursor()) + 1 + wrap.codeOffset
 		).then(function(r){
 			var data = r.data;
 

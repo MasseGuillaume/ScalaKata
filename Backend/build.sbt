@@ -2,7 +2,7 @@ name := "backend"
 
 organization := "com.scalakata"
 
-version := "0.11.0-SNAPSHOT"
+version := "0.12.0"
 
 scalaVersion := "2.11.6"
 

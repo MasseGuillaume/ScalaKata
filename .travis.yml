@@ -3,7 +3,7 @@ before_script: ./publish/bintray.sh
 script: sbt ++${TRAVIS_SCALA_VERSION} test publishTravis
 
 scala:
-  - 2.11.1
+  - 2.11.6
 jdk:
   - openjdk7
   - oraclejdk7
