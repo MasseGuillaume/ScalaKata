@@ -27,7 +27,7 @@
 ##### 1. add the plugin to project/plugins.sbt
 
 ```scala
-addSbtPlugin("com.scalakata" % "plugin" % "0.10.0")
+addSbtPlugin("com.scalakata" % "plugin" % "0.13.0")
 ```
 
 ##### 2. and add the settings to your build definition build.sbt
@@ -55,7 +55,7 @@ seq(kataSettings: _*)
 ##### 2. add the plugin to ~/.sbt/0.13/plugins/scalakata.sbt
 
 ```scala
-addSbtPlugin("com.scalakata" % "plugin" % "0.10.0")
+addSbtPlugin("com.scalakata" % "plugin" % "0.13.0")
 ```
 
 #### Run
